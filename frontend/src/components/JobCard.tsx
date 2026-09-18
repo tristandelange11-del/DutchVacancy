@@ -72,6 +72,9 @@ export default function JobCard({
           {t(`label.${job.english_level}`)}
         </Badge>
         <Badge variant="secondary">{t(`label.${job.job_type}`)}</Badge>
+        <Badge variant="outline" data-testid={`job-card-workmode-${job.id}`}>
+          {t(`label.${job.work_mode}`)}
+        </Badge>
         {job.permit_support !== "none" && (
           <Badge className="bg-[#F0FDF4] text-[#166534]">{t(`label.${job.permit_support}`)}</Badge>
         )}

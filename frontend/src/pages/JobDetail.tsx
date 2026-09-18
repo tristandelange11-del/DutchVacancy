@@ -134,6 +134,9 @@ export default function JobDetail() {
               <div className="mt-4 flex flex-wrap gap-2">
                 <Badge className="bg-[#EFF6FF] text-[#1E40AF]">{t(`label.${job.english_level}`)}</Badge>
                 <Badge className="bg-white/10 text-white">{t(`label.${job.job_type}`)}</Badge>
+                <Badge className="bg-white/10 text-white" data-testid="job-detail-workmode">
+                  {t(`label.${job.work_mode}`)}
+                </Badge>
                 {job.permit_support !== "none" && (
                   <Badge className="bg-[#F0FDF4] text-[#166534]">{t(`label.${job.permit_support}`)}</Badge>
                 )}

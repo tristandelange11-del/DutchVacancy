@@ -15,6 +15,7 @@ import {
   ENGLISH_LEVELS,
   JOB_TYPES,
   PERMITS,
+  WORK_MODES,
   type JobWithMeta,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,7 @@ export default function Jobs() {
       job_type: params.get("job_type") ?? "",
       english_level: params.get("english_level") ?? "",
       permit_support: params.get("permit_support") ?? "",
+      work_mode: params.get("work_mode") ?? "",
       min_rate: params.get("min_rate") ?? "",
     }),
     [params],
@@ -180,6 +182,13 @@ export default function Jobs() {
             value={filters.job_type}
             onChange={(v) => setFilter("job_type", v)}
             options={JOB_TYPES.map((v) => ({ value: v, label: t(`label.${v}`) }))}
+          />
+          <FilterGroup
+            title={t("jobs.filterWork")}
+            testid="filter-workmode"
+            value={filters.work_mode}
+            onChange={(v) => setFilter("work_mode", v)}
+            options={WORK_MODES.map((v) => ({ value: v, label: t(`label.${v}`) }))}
           />
           <FilterGroup
             title={t("jobs.filterPermit")}

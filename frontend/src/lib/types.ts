@@ -4,6 +4,7 @@ export type Role = "student" | "employer";
 export type EnglishLevel = "english_only" | "basic_dutch" | "dutch_required";
 export type JobType = "part_time" | "internship" | "working_student" | "graduate";
 export type PermitSupport = "twv_provided" | "eu_eea" | "freelance_kvk" | "none";
+export type WorkMode = "on_site" | "hybrid" | "remote";
 export type AppStatus = "applied" | "under_review" | "interview" | "accepted" | "rejected";
 
 export interface StudentProfile {
@@ -52,6 +53,7 @@ export interface JobInput {
   job_type: JobType;
   english_level: EnglishLevel;
   permit_support: PermitSupport;
+  work_mode: WorkMode;
   hourly_min: number;
   hourly_max: number;
   hours_per_week: number;
@@ -113,12 +115,17 @@ export interface OkResponse {
 }
 
 export const CITIES = [
-  "Amsterdam",
-  "Rotterdam",
-  "Utrecht",
-  "Eindhoven",
-  "Delft",
+  "Leeuwarden",
   "Groningen",
+  "Assen",
+  "Enschede",
+  "Arnhem",
+  "Nijmegen",
+  "Tilburg",
+  "Leiden",
+  "Amsterdam",
+  "Utrecht",
+  "Alkmaar",
 ];
 
 export const CATEGORIES = [
@@ -134,6 +141,7 @@ export const CATEGORIES = [
 export const ENGLISH_LEVELS: EnglishLevel[] = ["english_only", "basic_dutch", "dutch_required"];
 export const JOB_TYPES: JobType[] = ["part_time", "internship", "working_student", "graduate"];
 export const PERMITS: PermitSupport[] = ["twv_provided", "eu_eea", "freelance_kvk", "none"];
+export const WORK_MODES: WorkMode[] = ["on_site", "hybrid", "remote"];
 export const STATUSES: AppStatus[] = [
   "applied",
   "under_review",

@@ -51,6 +51,7 @@ async def list_jobs(
     job_type: str = "",
     english_level: str = "",
     permit_support: str = "",
+    work_mode: str = "",
     min_rate: float = 0,
     limit: int = Query(default=60, le=200),
     user: Optional[dict[str, Any]] = Depends(optional_user),
@@ -70,6 +71,8 @@ async def list_jobs(
         query["english_level"] = english_level
     if permit_support:
         query["permit_support"] = permit_support
+    if work_mode:
+        query["work_mode"] = work_mode
     if min_rate:
         query["hourly_max"] = {"$gte": min_rate}
 

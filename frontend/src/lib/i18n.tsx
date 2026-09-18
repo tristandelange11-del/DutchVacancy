@@ -1,18 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { DICT } from "@/lib/dict";
+import { LangContext, type Lang, type LangValue } from "@/lib/lang-context";
 
-export type Lang = "en" | "nl";
+export type { Lang } from "@/lib/lang-context";
 
 const STORAGE_KEY = "dv_lang";
-
-interface LangValue {
-  lang: Lang;
-  setLang: (lang: Lang) => void;
-  t: (key: string) => string;
-  tl: (key: string) => string[];
-}
-
-const LangContext = createContext<LangValue | null>(null);
 
 /** True when any of the browser's preferred languages is Dutch. */
 function prefersDutch(): boolean {
@@ -44,7 +36,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLang = useCallback((next: Lang) => {
     setLangState(next);
     localStorage.setItem(STORAGE_KEY, next);
-    document.documentElement.lang = next;
   }, []);
 
   const value = useMemo<LangValue>(() => {

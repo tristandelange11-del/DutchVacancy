@@ -17,11 +17,13 @@ import {
   ENGLISH_LEVELS,
   JOB_TYPES,
   PERMITS,
+  WORK_MODES,
   type EnglishLevel,
   type Job,
   type JobInput,
   type JobType,
   type PermitSupport,
+  type WorkMode,
 } from "@/lib/types";
 
 const EMPTY: JobInput = {
@@ -31,6 +33,7 @@ const EMPTY: JobInput = {
   job_type: "part_time",
   english_level: "english_only",
   permit_support: "twv_provided",
+  work_mode: "on_site",
   hourly_min: 15,
   hourly_max: 18,
   hours_per_week: 16,
@@ -138,6 +141,12 @@ export default function VacancyForm() {
               <Label htmlFor="permit">{t("vf.permit")}</Label>
               <select id="permit" value={form.permit_support} onChange={(e) => set("permit_support", e.target.value as PermitSupport)} data-testid="vacancy-permit-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
                 {PERMITS.map((v) => <option key={v} value={v}>{t(`label.${v}`)}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="workmode">{t("vf.workMode")}</Label>
+              <select id="workmode" value={form.work_mode} onChange={(e) => set("work_mode", e.target.value as WorkMode)} data-testid="vacancy-workmode-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
+                {WORK_MODES.map((v) => <option key={v} value={v}>{t(`label.${v}`)}</option>)}
               </select>
             </div>
             <div>

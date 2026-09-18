@@ -18,6 +18,7 @@ import { useToggleSave } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
 import { SESSION_KEY, useSession } from "@/lib/session";
 import {
+  CITIES,
   STATUS_CLASSES,
   type Application,
   type JobWithMeta,
@@ -180,7 +181,18 @@ export default function StudentDashboard() {
                 </div>
                 <div>
                   <Label htmlFor="pcity">{t("sd.city")}</Label>
-                  <Input id="pcity" value={profile.city} onChange={(e) => setProfile({ ...profile, city: e.target.value })} data-testid="profile-city-input" className="mt-1.5" />
+                  <select
+                    id="pcity"
+                    value={profile.city}
+                    onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                    data-testid="profile-city-select"
+                    className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="">{t("sd.cityAny")}</option>
+                    {CITIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <Label htmlFor="english">{t("sd.englishLevel")}</Label>

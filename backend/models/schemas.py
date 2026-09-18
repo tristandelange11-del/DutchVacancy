@@ -10,6 +10,7 @@ Role = Literal["student", "employer"]
 EnglishLevel = Literal["english_only", "basic_dutch", "dutch_required"]
 JobType = Literal["part_time", "internship", "working_student", "graduate"]
 PermitSupport = Literal["twv_provided", "eu_eea", "freelance_kvk", "none"]
+WorkMode = Literal["on_site", "hybrid", "remote"]
 AppStatus = Literal["applied", "under_review", "interview", "accepted", "rejected"]
 
 
@@ -81,6 +82,7 @@ class JobBase(BaseModel):
     job_type: JobType
     english_level: EnglishLevel
     permit_support: PermitSupport = "none"
+    work_mode: WorkMode = "on_site"
     hourly_min: float = 14.0
     hourly_max: float = 18.0
     hours_per_week: int = 16
