@@ -1,0 +1,266 @@
+{
+  "theme": {
+    "mode": "light",
+    "rationale": "DutchVacancy is a student-focused employment platform in the Netherlands. A vibrant, clean, warm European light theme creates trust, credibility with Dutch employers (ABN AMRO, ASML, Booking.com style clean Dutch design), high readability for legal/visa rules (TWV work permit, zoekjaar orientation year), and approachable youthfulness for international students.",
+    "bilingual_support": {
+      "default_language": "en",
+      "secondary_language": "nl",
+      "toggle_style": "Pill switch in navbar with national accent tag (EN / NL) + instant client state persistence",
+      "currency_format": "EUR (€) with Dutch notation (e.g., € 16,50/uur or € 2.400/mnd)",
+      "date_format": "DD/MM/YYYY or '12 okt 2026' (European standard)"
+    }
+  },
+  "typography": {
+    "font_family_heading": "Outfit, sans-serif",
+    "font_family_body": "Plus Jakarta Sans, sans-serif",
+    "font_family_mono": "IBM Plex Mono, monospace",
+    "font_imports": [
+      "@import \"@fontsource-variable/outfit\";",
+      "@import \"@fontsource-variable/plus-jakarta-sans\";",
+      "@import \"@fontsource/ibm-plex-mono\";"
+    ],
+    "scale_px": {
+      "display": 56,
+      "h1": 44,
+      "h2": 32,
+      "h3": 24,
+      "h4": 18,
+      "body": 16,
+      "caption": 14
+    },
+    "letter_spacing": {
+      "display": "-0.03em",
+      "h1": "-0.025em",
+      "h2": "-0.02em",
+      "h3": "-0.015em",
+      "body": "normal",
+      "label": "0.08em"
+    },
+    "voice_and_tone": "Warm, energetic, pragmatic, optimistic. Speaks directly to international students overcoming language barriers and Dutch employers seeking global talent. Clear Dutch directness paired with international hospitality."
+  },
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#F8FAFC",
+        "on_bg": "#0F172A",
+        "on_bg_muted": "#475569",
+        "roles": {
+          "link": "#EA580C",
+          "error": "#DC2626",
+          "success": "#16A34A",
+          "border": "#E2E8F0"
+        }
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#FFFFFF",
+        "on_bg": "#0F172A",
+        "on_bg_muted": "#64748B",
+        "roles": {
+          "link": "#C2410C",
+          "border": "#E2E8F0",
+          "accent_badge": "#FFF7ED"
+        }
+      },
+      {
+        "name": "hero",
+        "kind": "gradient",
+        "contrast_against": "#0F172A",
+        "guarantee": "scrim: linear-gradient(135deg, #0F172A 0%, #1E293B 70%, #0C4A6E 100%)",
+        "on_bg": "#F8FAFC",
+        "on_bg_muted": "#94A3B8",
+        "roles": {
+          "link": "#FB923C",
+          "error": "#F87171",
+          "success": "#4ADE80",
+          "highlight": "#FFEDD5"
+        }
+      },
+      {
+        "name": "dutch_accent_badge",
+        "kind": "solid",
+        "bg": "#FFF7ED",
+        "on_bg": "#9A3412",
+        "on_bg_muted": "#C2410C"
+      },
+      {
+        "name": "english_badge",
+        "kind": "solid",
+        "bg": "#EFF6FF",
+        "on_bg": "#1E40AF",
+        "on_bg_muted": "#2563EB"
+      },
+      {
+        "name": "visa_permit_badge",
+        "kind": "solid",
+        "bg": "#F0FDF4",
+        "on_bg": "#166534",
+        "on_bg_muted": "#15803D"
+      },
+      {
+        "name": "inverse",
+        "kind": "solid",
+        "bg": "#0B1120",
+        "on_bg": "#F8FAFC",
+        "on_bg_muted": "#94A3B8"
+      }
+    ],
+    "brand_primary": "#EA580C",
+    "brand_primary_hover": "#C2410C",
+    "brand_secondary": "#0284C7",
+    "brand_secondary_hover": "#0369A1",
+    "brand_navy": "#0F172A",
+    "accent": "#F97316",
+    "on_accent": "#FFFFFF"
+  },
+  "entry_surfaces": {
+    "/": "split hero with Dutch canal & international student energy — Left: value proposition + interactive quick-search + visa filter pills; Right: live verified English-speaking job preview card stack and real-time student success counter",
+    "/jobs": "3-column responsive job search — Left filter panel with Dutch cities & English level; Center scrollable job vacancy cards; Right interactive preview pane with instant 1-click application trigger",
+    "/login": "branded split auth — Left orange-tinted Dutch tech landscape showcase with student quotes; Right clean role switcher (Student vs Employer) and authentication form",
+    "/register": "branded split registration — Left Dutch work guidelines (16 hrs/week, TWV permit assistance, BSN checklist); Right multi-step student or employer registration form"
+  },
+  "media": {
+    "image_urls": {
+      "hero_student_group": {
+        "url": "https://images.pexels.com/photos/6238120/pexels-photo-6238120.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "hero",
+        "description": "Diverse group of smiling international university students with notebooks and backpacks"
+      },
+      "amsterdam_tech_hub": {
+        "url": "https://images.pexels.com/photos/16254452/pexels-photo-16254452.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "employers_feature",
+        "description": "Contemporary tech office space with lush plants and desks in Amsterdam"
+      },
+      "campus_lifestyle": {
+        "url": "https://images.pexels.com/photos/33265588/pexels-photo-33265588.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "student_life",
+        "description": "International students chatting enthusiastically on campus steps"
+      },
+      "amsterdam_canals_street": {
+        "url": "https://images.unsplash.com/photo-1771600544925-c358c37083a0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxpbnRlcm5hdGlvbmFsJTIwc3R1ZGVudHMlMjBuZXRoZXJsYW5kcyUyMHNtaWxpbmd8ZW58MHx8fHwxNzg5NzM2MDg1fDA&ixlib=rb-4.1.0&q=85",
+        "category": "lifestyle",
+        "description": "People and classic bicycles along Amsterdam canal streets with authentic Dutch architecture"
+      }
+    },
+    "city_badges": [
+      { "name": "Amsterdam", "region": "Noord-Holland", "jobs_count": 142 },
+      { "name": "Rotterdam", "region": "Zuid-Holland", "jobs_count": 89 },
+      { "name": "Utrecht", "region": "Utrecht", "jobs_count": 76 },
+      { "name": "Eindhoven", "region": "Brainport Brabant", "jobs_count": 110 },
+      { "name": "Delft", "region": "Tech Valley", "jobs_count": 48 },
+      { "name": "Groningen", "region": "Student City", "jobs_count": 52 }
+    ],
+    "dutch_companies_sample": [
+      { "name": "ASML", "city": "Veldhoven / Eindhoven", "category": "Tech & Engineering", "logo_initials": "AS" },
+      { "name": "Booking.com", "city": "Amsterdam", "category": "Hospitality Tech", "logo_initials": "BK" },
+      { "name": "Adyen", "city": "Amsterdam", "category": "Fintech", "logo_initials": "AD" },
+      { "name": "Just Eat Takeaway", "city": "Amsterdam & Enschede", "category": "E-Commerce", "logo_initials": "JE" },
+      { "name": "Picnic Technologies", "city": "Amsterdam & Utrecht", "category": "Logistics & AI", "logo_initials": "PT" },
+      { "name": "Philips", "city": "Eindhoven & Amsterdam", "category": "HealthTech", "logo_initials": "PH" }
+    ]
+  },
+  "layout_and_grids": {
+    "navigation": {
+      "desktop_height": "h-18",
+      "mobile_height": "h-16",
+      "links": [
+        { "label_en": "Browse Jobs", "label_nl": "Vacatures", "href": "/jobs" },
+        { "label_en": "How It Works", "label_nl": "Hoe het werkt", "href": "/how-it-works" },
+        { "label_en": "For Employers", "label_nl": "Voor Werkgevers", "href": "/employers" },
+        { "label_en": "Student Guide & Visa", "label_nl": "Studentengids & Visum", "href": "/guide" },
+        { "label_en": "About Us", "label_nl": "Over Ons", "href": "/about" }
+      ],
+      "actions": [
+        { "type": "language_switcher", "options": ["EN", "NL"] },
+        { "type": "auth_buttons", "login": "/login", "register": "/register", "post_job": "/employer/post-job" }
+      ]
+    },
+    "home_page_sections": [
+      {
+        "id": "hero",
+        "title": "Find English-Friendly Student Jobs in the Netherlands",
+        "structure": "Split container with asymmetric Dutch Orange + Navy visual balance, direct keyword + city + English proficiency quick search bar, live verified badge counter."
+      },
+      {
+        "id": "stats_ribbon",
+        "title": "Key Indicators",
+        "items": [
+          { "value": "1,200+", "label_en": "English-speaking vacancies", "label_nl": "Engelstalige vacatures" },
+          { "value": "350+", "label_en": "Verified Dutch employers", "label_nl": "Geverifieerde Nederlandse werkgevers" },
+          { "value": "100%", "label_en": "No Dutch required filters", "label_nl": "Geen Nederlands vereist filters" },
+          { "value": "€14.80 - €22.50", "label_en": "Average student hourly rate", "label_nl": "Gemiddeld studentenuurloon" }
+        ]
+      },
+      {
+        "id": "featured_vacancies",
+        "title": "Fresh English Vacancies Across the Netherlands",
+        "layout": "Grid 3 cols on desktop with badges: 'English Only', 'Part-time (16h)', 'TWV Sponsored', 'BSN Support'"
+      },
+      {
+        "id": "how_it_works_bilingual",
+        "title": "Two Paths: For International Students & Dutch Employers",
+        "layout": "Interactive dual tab switcher (Student track vs Employer track) showing 3 straightforward steps with icon markers"
+      },
+      {
+        "id": "cities_cluster",
+        "title": "Explore Jobs by Top Dutch Student Hubs",
+        "layout": "6 interactive cards with custom photography and active job counters"
+      },
+      {
+        "id": "visa_and_legal_guide",
+        "title": "Demystifying Dutch Work Permits (TWV, 16h limit, Zoekjaar)",
+        "layout": "Accordion and callout cards with verified Dutch IND & UWV guidance in simple English"
+      },
+      {
+        "id": "cta_banner",
+        "title": "Ready to launch your Dutch career journey?",
+        "layout": "Energetic banner with dual action: 'Find Your Job' (Student) & 'Post a Vacancy' (Employer)"
+      }
+    ],
+    "jobs_search_layout": {
+      "type": "Responsive 3-Column / Master-Detail split",
+      "filters": [
+        "Language Requirement (100% English Only, Basic Dutch Welcome, Dutch Native)",
+        "Job Type (Part-time <= 16h/week, Internship / Stage, Working Student / Werkstudent, Graduate / Zoekjaar)",
+        "City (Amsterdam, Rotterdam, Utrecht, Eindhoven, Delft, Groningen, Remote NL)",
+        "Work Permit Support (TWV Provided, EU/EEA Direct, Freelance/KVK)",
+        "Salary / Hourly Range (€13 - €30+/hr)"
+      ]
+    },
+    "dashboards": {
+      "student_dashboard": {
+        "routes": ["/student/dashboard", "/student/applications", "/student/saved-jobs", "/student/profile"],
+        "widgets": ["Application status tracker (Applied, Under Review, Interview, Accepted, Rejected)", "Saved vacancies list", "CV & English proficiency profile", "Dutch legal work hours monitor (max 16h/week during semester)"]
+      },
+      "employer_dashboard": {
+        "routes": ["/employer/dashboard", "/employer/vacancies", "/employer/vacancies/new", "/employer/applicants"],
+        "widgets": ["Active vs draft vacancies overview", "New applicant pipeline with CV review & status changers", "Applicant English rating filter", "Post new vacancy editor with English requirement checklist"]
+      }
+    }
+  },
+  "motion": {
+    "page_transitions": "Subtle fade & translate-y (opacity 0 to 1, y: 10px to 0px, duration 0.25s)",
+    "hover_states": "translate-y -2px, border color transition 0.15s, shadow-md glow",
+    "filter_tags": "Spring scale pop (scale 0.95 to 1.0) on active toggle",
+    "prefers_reduced_motion": "Wrap animations with Framer Motion respects reduced motion media query"
+  },
+  "accessibility": {
+    "wcag_level": "WCAG 2.1 AA Compliant",
+    "contrast_standards": "All normal text meets minimum 4.5:1 ratio against solid surface. Large titles meet 3:1.",
+    "testing_attributes": "All clickable buttons, navigation links, filters, form fields, and status badges MUST include semantic 'data-testid' attributes (e.g. data-testid='job-card-apply-btn', data-testid='lang-switch-nl', data-testid='filter-english-only').",
+    "keyboard_navigation": "Visible focus ring with offset (focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2)",
+    "aria_labels": "Explicit aria-label for language toggle, save job bookmark icon, filter collapse and modal dialogs"
+  },
+  "instructions_to_main_agent": [
+    "1. IMPLEMENTATION STACK: Use React 19 + TypeScript + Tailwind CSS v4 in frontend/src and FastAPI backend in backend/.",
+    "2. BILINGUAL EXPERIENCE (i18n): Create an internationalization helper (e.g. frontend/src/lib/i18n.ts or context) with complete EN/NL dictionaries for all static text, labels, badges, and navigation. Provide instant language switching with persistence in localStorage.",
+    "3. DATA SEEDING: Create a rich backend/seed.py populating: (a) 15+ high quality English student jobs in Amsterdam, Rotterdam, Utrecht, Eindhoven, Delft, Groningen with realistic pay (€15-€22/hr), (b) Verified Dutch employers (tech, hospitality, logistics, marketing, data, engineering), (c) Realistic demo user accounts (1 student, 1 employer, 1 admin), (d) Sample job applications with various status stages.",
+    "4. AUTHENTICATION: Build seamless cookie-based or JWT session auth for both 'Student' and 'Employer' roles with distinct dashboards.",
+    "5. DATA-TESTID PROTOCOL: Add comprehensive data-testid to every interactive component (job search inputs, filter checkboxes, apply modals, language switchers, submit buttons, dashboard tabs).",
+    "6. COMPONENT REUSE: Use pre-installed shadcn/ui components in frontend/src/components/ui/ (Dialog, Select, Tabs, Badge, Button, Input, Table, Card, Toaster) styled with our custom Dutch Orange/Navy aesthetic.",
+    "7. DUTCH LEGAL HELPER: Include educational info cards on Dutch employment rules: TWV work permits for non-EU students, 16 hours/week maximum during term time (or full-time in June/July/August), BSN requirement, and orientation year (zoekjaar)."
+  ]
+}
