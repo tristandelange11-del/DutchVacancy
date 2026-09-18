@@ -8,22 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useJobs, useToggleSave } from "@/lib/hooks";
+import { useLang } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import {
   CITIES,
-  ENGLISH_LEVEL_LABELS,
-  JOB_TYPE_LABELS,
-  PERMIT_LABELS,
+  ENGLISH_LEVELS,
+  JOB_TYPES,
+  PERMITS,
   type JobWithMeta,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-const RATE_OPTIONS = [
-  { value: "", label: "Any rate" },
-  { value: "15", label: "€ 15+ / hour" },
-  { value: "18", label: "€ 18+ / hour" },
-  { value: "22", label: "€ 22+ / hour" },
-];
 
 function FilterGroup({
   title,
@@ -64,6 +58,7 @@ function FilterGroup({
 export default function Jobs() {
   const [params, setParams] = useSearchParams();
   const { user } = useSession();
+  const { t } = useLang();
   const toggleSave = useToggleSave();
   const [showFilters, setShowFilters] = useState(false);
   const [q, setQ] = useState(params.get("q") ?? "");
@@ -95,16 +90,16 @@ export default function Jobs() {
 
   function handleSave(job: JobWithMeta) {
     if (!user) {
-      toast.error("Log in as a student to save jobs");
+      toast.error(t("toast.saveLogin"));
       return;
     }
     if (user.role !== "student") {
-      toast.error("Only student accounts can save jobs");
+      toast.error(t("toast.saveStudentOnly"));
       return;
     }
     toggleSave.mutate(job, {
-      onSuccess: () => toast.success(job.saved ? "Removed from saved jobs" : "Job saved"),
-      onError: () => toast.error("Could not update saved jobs"),
+      onSuccess: () => toast.success(job.saved ? t("toast.unsaved") : t("toast.saved")),
+      onError: () => toast.error(t("toast.saveFailed")),
     });
   }
 
@@ -114,23 +109,19 @@ export default function Jobs() {
     <Layout>
       <div className="border-b border-border bg-navy py-12 text-slate-100">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-          <h1 className="font-heading text-3xl font-extrabold sm:text-4xl">
-            English-speaking student jobs
-          </h1>
-          <p className="mt-2 text-slate-300">
-            Filter by city, English requirement and work-permit support.
-          </p>
+          <h1 className="font-heading text-3xl font-extrabold sm:text-4xl">{t("jobs.title")}</h1>
+          <p className="mt-2 text-slate-300">{t("jobs.lead")}</p>
           <div className="mt-6 flex gap-2">
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setFilter("q", q)}
-              placeholder="Search job title, company or keyword"
+              placeholder={t("jobs.searchPlaceholder")}
               data-testid="jobs-search-input"
               className="h-11 max-w-xl border-white/15 bg-white/10 text-white placeholder:text-slate-400"
             />
             <Button className="h-11 gap-2" onClick={() => setFilter("q", q)} data-testid="jobs-search-button">
-              <Search className="h-4 w-4" /> Search
+              <Search className="h-4 w-4" /> {t("home.search")}
             </Button>
           </div>
         </div>
@@ -145,7 +136,7 @@ export default function Jobs() {
             data-testid="jobs-filter-toggle"
           >
             <SlidersHorizontal className="h-4 w-4" />
-            Filters {activeCount > 0 && `(${activeCount})`}
+            {t("jobs.filters")} {activeCount > 0 && `(${activeCount})`}
           </Button>
         </div>
 
@@ -157,7 +148,7 @@ export default function Jobs() {
           data-testid="jobs-filter-panel"
         >
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-base font-bold">Filters</h2>
+            <h2 className="font-heading text-base font-bold">{t("jobs.filters")}</h2>
             {activeCount > 0 && (
               <button
                 type="button"
@@ -165,64 +156,64 @@ export default function Jobs() {
                 data-testid="jobs-clear-filters"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
               >
-                <X className="h-3 w-3" /> Clear all
+                <X className="h-3 w-3" /> {t("jobs.clearAll")}
               </button>
             )}
           </div>
           <FilterGroup
-            title="City"
+            title={t("jobs.filterCity")}
             testid="filter-city"
             value={filters.city}
             onChange={(v) => setFilter("city", v)}
             options={CITIES.map((c) => ({ value: c, label: c }))}
           />
           <FilterGroup
-            title="English requirement"
+            title={t("jobs.filterEnglish")}
             testid="filter-english"
             value={filters.english_level}
             onChange={(v) => setFilter("english_level", v)}
-            options={Object.entries(ENGLISH_LEVEL_LABELS).map(([value, label]) => ({ value, label }))}
+            options={ENGLISH_LEVELS.map((v) => ({ value: v, label: t(`label.${v}`) }))}
           />
           <FilterGroup
-            title="Job type"
+            title={t("jobs.filterType")}
             testid="filter-jobtype"
             value={filters.job_type}
             onChange={(v) => setFilter("job_type", v)}
-            options={Object.entries(JOB_TYPE_LABELS).map(([value, label]) => ({ value, label }))}
+            options={JOB_TYPES.map((v) => ({ value: v, label: t(`label.${v}`) }))}
           />
           <FilterGroup
-            title="Work permit support"
+            title={t("jobs.filterPermit")}
             testid="filter-permit"
             value={filters.permit_support}
             onChange={(v) => setFilter("permit_support", v)}
-            options={Object.entries(PERMIT_LABELS)
-              .filter(([value]) => value !== "none")
-              .map(([value, label]) => ({ value, label }))}
+            options={PERMITS.filter((v) => v !== "none").map((v) => ({ value: v, label: t(`label.${v}`) }))}
           />
           <FilterGroup
-            title="Hourly rate"
+            title={t("jobs.filterRate")}
             testid="filter-rate"
             value={filters.min_rate}
             onChange={(v) => setFilter("min_rate", v)}
-            options={RATE_OPTIONS.filter((o) => o.value)}
+            options={[
+              { value: "15", label: t("jobs.rate15") },
+              { value: "18", label: t("jobs.rate18") },
+              { value: "22", label: t("jobs.rate22") },
+            ]}
           />
         </aside>
 
         <section>
           <p className="mb-5 text-sm text-muted-foreground" data-testid="jobs-result-count">
             {isError
-              ? "Job data is temporarily unavailable."
+              ? t("jobs.offline")
               : isLoading
-                ? "Loading vacancies…"
-                : `${items.length} vacanc${items.length === 1 ? "y" : "ies"} found`}
+                ? t("jobs.loading")
+                : `${items.length} ${items.length === 1 ? t("jobs.foundOne") : t("jobs.found")}`}
           </p>
 
           {items.length === 0 && !isLoading ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center" data-testid="jobs-empty-state">
-              <h3 className="font-heading text-lg font-bold">No vacancies match these filters</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Try clearing a filter or widening your city selection.
-              </p>
+              <h3 className="font-heading text-lg font-bold">{t("jobs.emptyTitle")}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{t("jobs.emptyBody")}</p>
             </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2" data-testid="jobs-grid">

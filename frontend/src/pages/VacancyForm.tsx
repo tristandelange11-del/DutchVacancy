@@ -10,12 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
+import { useLang } from "@/lib/i18n";
 import {
   CATEGORIES,
   CITIES,
-  ENGLISH_LEVEL_LABELS,
-  JOB_TYPE_LABELS,
-  PERMIT_LABELS,
+  ENGLISH_LEVELS,
+  JOB_TYPES,
+  PERMITS,
   type EnglishLevel,
   type Job,
   type JobInput,
@@ -42,6 +43,7 @@ const EMPTY: JobInput = {
 export default function VacancyForm() {
   const { jobId } = useParams();
   const navigate = useNavigate();
+  const { t } = useLang();
   const editing = Boolean(jobId);
   const [form, setForm] = useState<JobInput>(EMPTY);
   const [reqText, setReqText] = useState("");
@@ -78,23 +80,21 @@ export default function VacancyForm() {
         : apiPost<Job>("/employer/jobs", payload);
     },
     onSuccess: () => {
-      toast.success(editing ? "Vacancy updated" : "Vacancy created");
+      toast.success(editing ? t("vf.updated") : t("vf.created"));
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       navigate("/employer/dashboard");
     },
-    onError: () => toast.error("Could not save the vacancy"),
+    onError: () => toast.error(t("vf.failed")),
   });
 
   return (
     <Layout>
       <div className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
         <h1 className="font-heading text-3xl font-extrabold" data-testid="vacancy-form-heading">
-          {editing ? "Edit vacancy" : "Post a new vacancy"}
+          {editing ? t("vf.editTitle") : t("vf.newTitle")}
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          Be explicit about the English requirement and permit support — it's why students trust this board.
-        </p>
+        <p className="mt-2 text-muted-foreground">{t("vf.lead")}</p>
 
         <form
           className="mt-8 space-y-5 rounded-2xl border border-border bg-card p-6"
@@ -105,65 +105,65 @@ export default function VacancyForm() {
           }}
         >
           <div>
-            <Label htmlFor="title">Job title *</Label>
+            <Label htmlFor="title">{t("vf.title")}</Label>
             <Input id="title" value={form.title} onChange={(e) => set("title", e.target.value)} required minLength={3} data-testid="vacancy-title-input" className="mt-1.5" />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city">{t("vf.city")}</Label>
               <select id="city" value={form.city} onChange={(e) => set("city", e.target.value)} data-testid="vacancy-city-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
                 {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">{t("vf.category")}</Label>
               <select id="category" value={form.category} onChange={(e) => set("category", e.target.value)} data-testid="vacancy-category-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <Label htmlFor="jobtype">Job type</Label>
+              <Label htmlFor="jobtype">{t("vf.jobType")}</Label>
               <select id="jobtype" value={form.job_type} onChange={(e) => set("job_type", e.target.value as JobType)} data-testid="vacancy-jobtype-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
-                {Object.entries(JOB_TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                {JOB_TYPES.map((v) => <option key={v} value={v}>{t(`label.${v}`)}</option>)}
               </select>
             </div>
             <div>
-              <Label htmlFor="english">English requirement</Label>
+              <Label htmlFor="english">{t("vf.english")}</Label>
               <select id="english" value={form.english_level} onChange={(e) => set("english_level", e.target.value as EnglishLevel)} data-testid="vacancy-english-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
-                {Object.entries(ENGLISH_LEVEL_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                {ENGLISH_LEVELS.map((v) => <option key={v} value={v}>{t(`label.${v}`)}</option>)}
               </select>
             </div>
             <div>
-              <Label htmlFor="permit">Work permit support</Label>
+              <Label htmlFor="permit">{t("vf.permit")}</Label>
               <select id="permit" value={form.permit_support} onChange={(e) => set("permit_support", e.target.value as PermitSupport)} data-testid="vacancy-permit-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
-                {Object.entries(PERMIT_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                {PERMITS.map((v) => <option key={v} value={v}>{t(`label.${v}`)}</option>)}
               </select>
             </div>
             <div>
-              <Label htmlFor="hours">Hours per week</Label>
+              <Label htmlFor="hours">{t("vf.hours")}</Label>
               <Input id="hours" type="number" min={1} max={40} value={form.hours_per_week} onChange={(e) => set("hours_per_week", Number(e.target.value))} data-testid="vacancy-hours-input" className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="hmin">Hourly rate from (€)</Label>
+              <Label htmlFor="hmin">{t("vf.rateFrom")}</Label>
               <Input id="hmin" type="number" step="0.5" min={1} value={form.hourly_min} onChange={(e) => set("hourly_min", Number(e.target.value))} data-testid="vacancy-hourlymin-input" className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="hmax">Hourly rate to (€)</Label>
+              <Label htmlFor="hmax">{t("vf.rateTo")}</Label>
               <Input id="hmax" type="number" step="0.5" min={1} value={form.hourly_max} onChange={(e) => set("hourly_max", Number(e.target.value))} data-testid="vacancy-hourlymax-input" className="mt-1.5" />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="desc">Description</Label>
+            <Label htmlFor="desc">{t("vf.description")}</Label>
             <Textarea id="desc" rows={6} value={form.description} onChange={(e) => set("description", e.target.value)} data-testid="vacancy-description-input" className="mt-1.5" />
           </div>
           <div>
-            <Label htmlFor="reqs">Requirements (one per line)</Label>
+            <Label htmlFor="reqs">{t("vf.requirements")}</Label>
             <Textarea id="reqs" rows={4} value={reqText} onChange={(e) => setReqText(e.target.value)} data-testid="vacancy-requirements-input" className="mt-1.5" />
           </div>
           <div>
-            <Label htmlFor="perks">Perks (one per line)</Label>
+            <Label htmlFor="perks">{t("vf.perks")}</Label>
             <Textarea id="perks" rows={3} value={perkText} onChange={(e) => setPerkText(e.target.value)} data-testid="vacancy-perks-input" className="mt-1.5" />
           </div>
 
@@ -173,15 +173,15 @@ export default function VacancyForm() {
               onCheckedChange={(c) => set("published", Boolean(c))}
               data-testid="vacancy-published-checkbox"
             />
-            Publish immediately (uncheck to keep as draft)
+            {t("vf.publishNow")}
           </label>
 
           <div className="flex gap-2">
             <Button type="submit" disabled={save.isPending} data-testid="vacancy-submit-button">
-              {save.isPending ? "Saving…" : editing ? "Save changes" : "Create vacancy"}
+              {save.isPending ? t("common.saving") : editing ? t("vf.saveChanges") : t("vf.create")}
             </Button>
             <Button type="button" variant="outline" onClick={() => navigate("/employer/dashboard")} data-testid="vacancy-cancel-button">
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </form>

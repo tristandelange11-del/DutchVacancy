@@ -121,33 +121,17 @@ export const CATEGORIES = [
   "Marketing & Communications",
 ];
 
-export const ENGLISH_LEVEL_LABELS: Record<EnglishLevel, string> = {
-  english_only: "English only",
-  basic_dutch: "Basic Dutch welcome",
-  dutch_required: "Dutch required",
-};
-
-export const JOB_TYPE_LABELS: Record<JobType, string> = {
-  part_time: "Part-time (≤16h)",
-  internship: "Internship / Stage",
-  working_student: "Working student",
-  graduate: "Graduate / Zoekjaar",
-};
-
-export const PERMIT_LABELS: Record<PermitSupport, string> = {
-  twv_provided: "TWV permit support",
-  eu_eea: "EU / EEA direct",
-  freelance_kvk: "Freelance / KVK",
-  none: "No permit support",
-};
-
-export const STATUS_LABELS: Record<AppStatus, string> = {
-  applied: "Applied",
-  under_review: "Under review",
-  interview: "Interview",
-  accepted: "Accepted",
-  rejected: "Not selected",
-};
+// Option orders — labels come from the i18n dictionary as `label.<value>`.
+export const ENGLISH_LEVELS: EnglishLevel[] = ["english_only", "basic_dutch", "dutch_required"];
+export const JOB_TYPES: JobType[] = ["part_time", "internship", "working_student", "graduate"];
+export const PERMITS: PermitSupport[] = ["twv_provided", "eu_eea", "freelance_kvk", "none"];
+export const STATUSES: AppStatus[] = [
+  "applied",
+  "under_review",
+  "interview",
+  "accepted",
+  "rejected",
+];
 
 export const STATUS_CLASSES: Record<AppStatus, string> = {
   applied: "bg-slate-100 text-slate-700",

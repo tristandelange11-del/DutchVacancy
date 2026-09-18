@@ -1,17 +1,19 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Briefcase, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
+import LanguageSwitch from "@/components/LanguageSwitch";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { useLang } from "@/lib/i18n";
 import { endSession, useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { label: "Browse Jobs", to: "/jobs" },
-  { label: "How It Works", to: "/how-it-works" },
-  { label: "Student Guide", to: "/guide" },
-  { label: "About", to: "/about" },
-  { label: "Contact", to: "/contact" },
+  { key: "nav.jobs", to: "/jobs" },
+  { key: "nav.how", to: "/how-it-works" },
+  { key: "nav.guide", to: "/guide" },
+  { key: "nav.about", to: "/about" },
+  { key: "nav.contact", to: "/contact" },
 ];
 
 function Logo() {
@@ -29,6 +31,7 @@ function Logo() {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useSession();
+  const { t } = useLang();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -43,7 +46,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-lg">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-6 px-4 sm:px-6 lg:h-18">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:h-18 lg:gap-6">
           <Logo />
           <nav className="hidden items-center gap-1 lg:flex">
             {NAV.map((item) => (
@@ -58,12 +61,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   )
                 }
               >
-                {item.label}
+                {t(item.key)}
               </NavLink>
             ))}
           </nav>
 
           <div className="ml-auto hidden items-center gap-2 lg:flex">
+            <LanguageSwitch />
             {user ? (
               <>
                 <Link
@@ -82,7 +86,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   data-testid="nav-logout-button"
                 >
                   <LogOut className="h-4 w-4" />
-                  Log out
+                  {t("nav.logout")}
                 </Button>
               </>
             ) : (
@@ -92,28 +96,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   data-testid="nav-login-link"
                   className={buttonVariants({ variant: "ghost", size: "sm" })}
                 >
-                  Log in
+                  {t("nav.login")}
                 </Link>
                 <Link
                   to="/register"
                   data-testid="nav-register-link"
                   className={buttonVariants({ size: "sm" })}
                 >
-                  Get started
+                  {t("nav.register")}
                 </Link>
               </>
             )}
           </div>
 
-          <button
-            type="button"
-            aria-label="Toggle navigation"
-            data-testid="mobile-menu-toggle"
-            onClick={() => setOpen((v) => !v)}
-            className="ml-auto grid h-10 w-10 place-items-center rounded-lg border border-border lg:hidden"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="ml-auto flex items-center gap-2 lg:hidden">
+            <LanguageSwitch scope="mobile" />
+            <button
+              type="button"
+              aria-label="Toggle navigation"
+              data-testid="mobile-menu-toggle"
+              onClick={() => setOpen((v) => !v)}
+              className="grid h-10 w-10 place-items-center rounded-lg border border-border"
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
         {open && (
@@ -127,7 +134,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   data-testid={`mobile-nav-${item.to.replace("/", "")}`}
                   className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent"
                 >
-                  {item.label}
+                  {t(item.key)}
                 </Link>
               ))}
             </nav>
@@ -140,10 +147,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     className={cn(buttonVariants({ variant: "outline", size: "sm" }), "flex-1")}
                     data-testid="mobile-dashboard-link"
                   >
-                    Dashboard
+                    {t("nav.dashboard")}
                   </Link>
                   <Button size="sm" className="flex-1" onClick={handleLogout} data-testid="mobile-logout-button">
-                    Log out
+                    {t("nav.logout")}
                   </Button>
                 </>
               ) : (
@@ -154,7 +161,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     className={cn(buttonVariants({ variant: "outline", size: "sm" }), "flex-1")}
                     data-testid="mobile-login-link"
                   >
-                    Log in
+                    {t("nav.login")}
                   </Link>
                   <Link
                     to="/register"
@@ -162,7 +169,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     className={cn(buttonVariants({ size: "sm" }), "flex-1")}
                     data-testid="mobile-register-link"
                   >
-                    Get started
+                    {t("nav.register")}
                   </Link>
                 </>
               )}
@@ -179,32 +186,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="font-heading text-xl font-extrabold text-white">
               Dutch<span className="text-primary">Vacancy</span>
             </span>
-            <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">
-              The job board for international students in the Netherlands. Every vacancy states its
-              English requirement and work-permit support up front — no guessing, no dead ends.
-            </p>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">{t("footer.tagline")}</p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">Students</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">{t("footer.students")}</h4>
             <ul className="mt-4 space-y-2 text-sm">
-              <li><Link to="/jobs" className="hover:text-primary" data-testid="footer-jobs-link">Browse jobs</Link></li>
-              <li><Link to="/guide" className="hover:text-primary" data-testid="footer-guide-link">Work permits & rules</Link></li>
-              <li><Link to="/how-it-works" className="hover:text-primary" data-testid="footer-how-link">How it works</Link></li>
-              <li><Link to="/register" className="hover:text-primary" data-testid="footer-register-link">Create an account</Link></li>
+              <li><Link to="/jobs" className="hover:text-primary" data-testid="footer-jobs-link">{t("footer.browse")}</Link></li>
+              <li><Link to="/guide" className="hover:text-primary" data-testid="footer-guide-link">{t("footer.permits")}</Link></li>
+              <li><Link to="/how-it-works" className="hover:text-primary" data-testid="footer-how-link">{t("footer.how")}</Link></li>
+              <li><Link to="/register" className="hover:text-primary" data-testid="footer-register-link">{t("footer.createAccount")}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">Company</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">{t("footer.company")}</h4>
             <ul className="mt-4 space-y-2 text-sm">
-              <li><Link to="/about" className="hover:text-primary" data-testid="footer-about-link">About us</Link></li>
-              <li><Link to="/contact" className="hover:text-primary" data-testid="footer-contact-link">Contact</Link></li>
-              <li><Link to="/privacy" className="hover:text-primary" data-testid="footer-privacy-link">Privacy policy</Link></li>
-              <li><Link to="/terms" className="hover:text-primary" data-testid="footer-terms-link">Terms of service</Link></li>
+              <li><Link to="/about" className="hover:text-primary" data-testid="footer-about-link">{t("footer.about")}</Link></li>
+              <li><Link to="/contact" className="hover:text-primary" data-testid="footer-contact-link">{t("nav.contact")}</Link></li>
+              <li><Link to="/privacy" className="hover:text-primary" data-testid="footer-privacy-link">{t("footer.privacy")}</Link></li>
+              <li><Link to="/terms" className="hover:text-primary" data-testid="footer-terms-link">{t("footer.terms")}</Link></li>
             </ul>
           </div>
         </div>
         <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-slate-500">
-          © {new Date().getFullYear()} DutchVacancy — Amsterdam, the Netherlands. Not affiliated with IND or UWV.
+          © {new Date().getFullYear()} DutchVacancy — {t("footer.legal")}
         </div>
       </footer>
       <Toaster richColors />

@@ -32,5 +32,11 @@ Amsterdam/Rotterdam/Utrecht/Eindhoven/Delft/Groningen, 1 student (3 applications
 under_review, applied; 2 saved jobs), 2 employer accounts. Credentials: memory/test_credentials.md.
 
 ## Known deviations
-- Dutch (NL) translation not implemented — user chose English-only for now; no language switcher shipped.
 - CV is a URL field, not a file upload (user choice).
+
+## i18n (EN + NL)
+`frontend/src/lib/i18n.tsx` (LanguageProvider mounted in main.tsx, `useLang() -> {lang, setLang, t, tl}`)
++ `frontend/src/lib/dict.ts` (flat key → [en, nl]; `tl()` returns paragraph/step lists). Choice persists
+in localStorage `dv_lang` and sets `<html lang>`. Switcher: `components/LanguageSwitch.tsx`
+(testids `language-switch`, `lang-switch-en`, `lang-switch-nl`) in desktop and mobile header.
+All static UI copy is translated; job/company content stays as the employer entered it.

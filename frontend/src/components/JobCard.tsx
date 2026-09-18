@@ -1,13 +1,9 @@
 import { Link } from "react-router-dom";
 import { Bookmark, BookmarkCheck, Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import {
-  ENGLISH_LEVEL_LABELS,
-  JOB_TYPE_LABELS,
-  PERMIT_LABELS,
-  type JobWithMeta,
-} from "@/lib/types";
+import type { JobWithMeta } from "@/lib/types";
 
 export function euro(n: number) {
   return `€ ${n.toFixed(2).replace(".", ",")}`;
@@ -20,6 +16,8 @@ export default function JobCard({
   job: JobWithMeta;
   onToggleSave?: (job: JobWithMeta) => void;
 }) {
+  const { t } = useLang();
+
   return (
     <article
       data-testid={`job-card-${job.id}`}
@@ -44,7 +42,7 @@ export default function JobCard({
         {onToggleSave && (
           <button
             type="button"
-            aria-label={job.saved ? "Remove from saved jobs" : "Save this job"}
+            aria-label={job.saved ? t("toast.unsaved") : t("job.save")}
             data-testid={`job-card-save-${job.id}`}
             onClick={() => onToggleSave(job)}
             className={cn(
@@ -62,7 +60,8 @@ export default function JobCard({
           <MapPin className="h-3.5 w-3.5" /> {job.city}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5" /> {job.hours_per_week}h / week
+          <Clock className="h-3.5 w-3.5" /> {job.hours_per_week}
+          {t("job.perWeek")}
         </span>
       </div>
 
@@ -70,25 +69,25 @@ export default function JobCard({
 
       <div className="mt-4 flex flex-wrap gap-1.5">
         <Badge className="bg-[#EFF6FF] text-[#1E40AF]" data-testid={`job-card-english-${job.id}`}>
-          {ENGLISH_LEVEL_LABELS[job.english_level]}
+          {t(`label.${job.english_level}`)}
         </Badge>
-        <Badge variant="secondary">{JOB_TYPE_LABELS[job.job_type]}</Badge>
+        <Badge variant="secondary">{t(`label.${job.job_type}`)}</Badge>
         {job.permit_support !== "none" && (
-          <Badge className="bg-[#F0FDF4] text-[#166534]">{PERMIT_LABELS[job.permit_support]}</Badge>
+          <Badge className="bg-[#F0FDF4] text-[#166534]">{t(`label.${job.permit_support}`)}</Badge>
         )}
       </div>
 
       <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
         <span className="font-heading text-sm font-bold" data-testid={`job-card-rate-${job.id}`}>
           {euro(job.hourly_min)} – {euro(job.hourly_max)}
-          <span className="font-sans text-xs font-normal text-muted-foreground"> /hour</span>
+          <span className="font-sans text-xs font-normal text-muted-foreground"> {t("job.perHour")}</span>
         </span>
         <Link
           to={`/jobs/${job.id}`}
           data-testid={`job-card-view-${job.id}`}
           className="text-sm font-semibold text-primary hover:underline"
         >
-          {job.applied ? "Applied ✓" : "View & apply →"}
+          {job.applied ? t("job.appliedShort") : t("job.view")}
         </Link>
       </div>
     </article>

@@ -9,27 +9,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiPost } from "@/lib/api";
+import { useLang } from "@/lib/i18n";
 import type { OkResponse } from "@/lib/types";
 
 export default function Contact() {
+  const { t } = useLang();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
 
   const send = useMutation({
     mutationFn: () => apiPost<OkResponse>("/contact", form),
     onSuccess: () => {
-      toast.success("Thanks — we'll reply within two working days");
+      toast.success(t("contact.sent"));
       setForm({ name: "", email: "", subject: "", message: "" });
     },
-    onError: () => toast.error("Could not send your message"),
+    onError: () => toast.error(t("contact.failed")),
   });
 
   return (
     <Layout>
-      <PageHero
-        eyebrow="Contact"
-        title="Talk to the DutchVacancy team"
-        intro="Questions about a vacancy, your account, or hiring international students? Send us a message."
-      />
+      <PageHero eyebrow={t("contact.eyebrow")} title={t("contact.title")} intro={t("contact.intro")} />
       <div className="mx-auto grid w-full max-w-4xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_280px]">
         <form
           className="space-y-4 rounded-2xl border border-border bg-card p-6"
@@ -41,24 +39,24 @@ export default function Contact() {
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="cname">Your name</Label>
+              <Label htmlFor="cname">{t("contact.name")}</Label>
               <Input id="cname" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required minLength={2} data-testid="contact-name-input" className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="cemail">Email</Label>
+              <Label htmlFor="cemail">{t("contact.email")}</Label>
               <Input id="cemail" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required data-testid="contact-email-input" className="mt-1.5" />
             </div>
           </div>
           <div>
-            <Label htmlFor="csubject">Subject</Label>
+            <Label htmlFor="csubject">{t("contact.subject")}</Label>
             <Input id="csubject" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required minLength={2} data-testid="contact-subject-input" className="mt-1.5" />
           </div>
           <div>
-            <Label htmlFor="cmessage">Message</Label>
+            <Label htmlFor="cmessage">{t("contact.message")}</Label>
             <Textarea id="cmessage" rows={6} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required minLength={10} data-testid="contact-message-input" className="mt-1.5" />
           </div>
           <Button type="submit" disabled={send.isPending} data-testid="contact-submit-button">
-            {send.isPending ? "Sending…" : "Send message"}
+            {send.isPending ? t("contact.sending") : t("contact.send")}
           </Button>
         </form>
 
@@ -66,20 +64,18 @@ export default function Contact() {
           <div className="flex gap-3">
             <Mail className="mt-0.5 h-4 w-4" />
             <div>
-              <p className="font-heading text-sm font-bold">Email</p>
+              <p className="font-heading text-sm font-bold">{t("contact.emailLabel")}</p>
               <p className="text-sm">hello@dutchvacancy.nl</p>
             </div>
           </div>
           <div className="flex gap-3">
             <MapPin className="mt-0.5 h-4 w-4" />
             <div>
-              <p className="font-heading text-sm font-bold">Office</p>
+              <p className="font-heading text-sm font-bold">{t("contact.office")}</p>
               <p className="text-sm">Science Park 400, 1098 XH Amsterdam</p>
             </div>
           </div>
-          <p className="text-sm">
-            We answer in English and Dutch, usually within two working days.
-          </p>
+          <p className="text-sm">{t("contact.answerNote")}</p>
         </aside>
       </div>
     </Layout>

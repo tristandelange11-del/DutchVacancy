@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { buttonVariants } from "@/components/ui/button";
+import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function PageHero({ eyebrow, title, intro }: { eyebrow: string; title: string; intro: string }) {
@@ -32,17 +33,28 @@ export function Section({ title, children }: { title: string; children: React.Re
   );
 }
 
+/** A dictionary-driven prose section: title key + body key holding a paragraph list. */
+export function TextSection({ titleKey, bodyKey }: { titleKey: string; bodyKey: string }) {
+  const { t, tl } = useLang();
+  return (
+    <Section title={t(titleKey)}>
+      {tl(bodyKey).map((p, i) => (
+        <p key={i}>{p}</p>
+      ))}
+    </Section>
+  );
+}
+
 export function NotFound() {
+  const { t } = useLang();
   return (
     <Layout>
       <div className="mx-auto max-w-lg px-4 py-28 text-center" data-testid="not-found-page">
         <p className="font-heading text-6xl font-extrabold text-primary">404</p>
-        <h1 className="mt-4 font-heading text-2xl font-extrabold">Page not found</h1>
-        <p className="mt-3 text-muted-foreground">
-          That page doesn't exist. Try the job board instead.
-        </p>
+        <h1 className="mt-4 font-heading text-2xl font-extrabold">{t("nf.title")}</h1>
+        <p className="mt-3 text-muted-foreground">{t("nf.body")}</p>
         <Link to="/jobs" className={cn(buttonVariants(), "mt-6")} data-testid="notfound-jobs-link">
-          Browse jobs
+          {t("footer.browse")}
         </Link>
       </div>
     </Layout>
