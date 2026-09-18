@@ -40,6 +40,8 @@ Credentials: memory/test_credentials.md.
 when that CV is attached to an application for their own company (else 403). Profile and applications
 carry `cv_url` + `cv_filename`. Frontend: `components/CvUploadField.tsx` (used on the student profile
 tab and in the apply dialog, which prefills the profile CV) + `apiUpload()` in `lib/api.ts`.
+Employers skim a PDF inline via `components/CvPreview.tsx` (collapsible same-origin iframe on
+`/api/cv/<id>`, plus an open-in-new-tab link); non-PDF uploads only offer the link.
 
 ## Known deviations
 - Students upload a CV file (PDF/DOC/DOCX); the old paste-a-link field is gone.

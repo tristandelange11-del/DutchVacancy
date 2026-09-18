@@ -250,6 +250,17 @@ export const DICT: Record<string, Entry> = {
   "cv.tooBig": ["That file is larger than 5 MB", "Dit bestand is groter dan 5 MB"],
   "cv.wrongType": ["Upload a PDF, DOC or DOCX file", "Upload een PDF-, DOC- of DOCX-bestand"],
   "cv.fromProfile": ["Using the CV from your profile", "Cv uit je profiel wordt gebruikt"],
+  "cv.preview": ["Preview", "Voorbeeld"],
+  "cv.hidePreview": ["Hide preview", "Voorbeeld verbergen"],
+  "cv.openTab": ["Open in new tab", "Openen in nieuw tabblad"],
+  "cv.previewHint": [
+    "Scroll inside the preview to read the rest, or open it in a new tab to download.",
+    "Scroll in het voorbeeld om verder te lezen, of open het in een nieuw tabblad om te downloaden.",
+  ],
+  "cv.previewUnsupported": [
+    "This browser can't display PDFs inline.",
+    "Deze browser kan PDF's niet direct weergeven.",
+  ],
   "cv.applyHint": [
     "Upload a different CV for this application, or leave it to send the one on your profile.",
     "Upload een ander cv voor deze sollicitatie, of laat het staan om het cv uit je profiel te versturen.",

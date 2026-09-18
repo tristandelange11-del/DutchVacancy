@@ -6,14 +6,58 @@ from lib.auth import hash_password
 from lib.db import db, ensure_indexes
 from models.schemas import Application, Company, Job, StudentProfile, User, new_id, utcnow
 
-# Minimal valid one-page PDF so the demo student has a real, downloadable CV file.
-DEMO_CV_BYTES = (
-    b"%PDF-1.4\n"
-    b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
-    b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
-    b"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]>>endobj\n"
-    b"trailer<</Root 1 0 R>>\n%%EOF\n"
-)
+# A real one-page PDF (with xref table) so the employer's inline preview renders, not just downloads.
+def _demo_cv_pdf() -> bytes:
+    lines = [
+        "Aarav Sharma",
+        "MSc Information Studies - University of Amsterdam",
+        "Amsterdam, Netherlands  |  +31 6 1234 5678  |  student@dutchvacancy.nl",
+        "",
+        "PROFILE",
+        "International MSc student seeking 16h/week work in an English-speaking team.",
+        "Fluent English, basic Dutch (A2). Eligible for a TWV via employer.",
+        "",
+        "EXPERIENCE",
+        "Teaching Assistant, UvA - Data Structures tutorials for 60 students (2025-now)",
+        "Frontend Intern, Bengaluru - React and TypeScript dashboards (2024)",
+        "",
+        "SKILLS",
+        "TypeScript, React, Python, SQL, pandas, Playwright, Git",
+    ]
+    text_ops = ["BT", "/F1 11 Tf", "14 TL", "1 0 0 1 56 780 Tm"]
+    for line in lines:
+        safe = line.replace("\\", r"\\").replace("(", r"\(").replace(")", r"\)")
+        text_ops.append(f"({safe}) Tj T*")
+    text_ops.append("ET")
+    stream = "\n".join(text_ops).encode("latin-1")
+
+    objects = [
+        b"<</Type/Catalog/Pages 2 0 R>>",
+        b"<</Type/Pages/Kids[3 0 R]/Count 1>>",
+        b"<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]"
+        b"/Resources<</Font<</F1 5 0 R>>>>/Contents 4 0 R>>",
+        b"<</Length " + str(len(stream)).encode() + b">>stream\n" + stream + b"\nendstream",
+        b"<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>",
+    ]
+
+    out = bytearray(b"%PDF-1.4\n")
+    offsets = []
+    for i, body in enumerate(objects, start=1):
+        offsets.append(len(out))
+        out += f"{i} 0 obj".encode() + body + b"endobj\n"
+
+    xref_at = len(out)
+    out += f"xref\n0 {len(objects) + 1}\n".encode()
+    out += b"0000000000 65535 f \n"
+    for offset in offsets:
+        out += f"{offset:010d} 00000 n \n".encode()
+    out += (
+        f"trailer<</Size {len(objects) + 1}/Root 1 0 R>>\nstartxref\n{xref_at}\n%%EOF\n".encode()
+    )
+    return bytes(out)
+
+
+DEMO_CV_BYTES = _demo_cv_pdf()
 DEMO_CV_NAME = "aarav-sharma-cv.pdf"
 
 COMPANIES = [

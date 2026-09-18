@@ -5,6 +5,7 @@ import { BriefcaseBusiness, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { euro } from "@/components/JobCard";
+import CvPreview from "@/components/CvPreview";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -174,7 +175,7 @@ export default function EmployerDashboard() {
           </TabsContent>
 
           <TabsContent value="applicants" className="pt-7">
-            <div className="mb-5 flex flex-wrap gap-2" data-testid="applicant-status-filter">
+            <div className="mb-5 flex flex-wrap gap-2" data-testid="applicant-filter-row">
               {[{ value: "", label: t("ed.filterAll") }, ...STATUSES.map((s) => ({ value: s, label: t(`label.${s}`) }))].map((o) => (
                 <button
                   key={o.value || "all"}
@@ -216,18 +217,7 @@ export default function EmployerDashboard() {
                     <p className="mt-3 rounded-xl bg-secondary p-3 text-sm leading-relaxed text-muted-foreground">
                       {a.motivation}
                     </p>
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      {a.cv_url && (
-                        <a
-                          href={a.cv_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={buttonVariants({ variant: "outline", size: "sm" })}
-                          data-testid={`applicant-cv-${a.id}`}
-                        >
-                          {a.cv_filename || t("ed.openCv")}
-                        </a>
-                      )}
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
                       <select
                         value={a.status}
                         onChange={(e) => setStatus.mutate({ id: a.id, status: e.target.value as AppStatus })}
@@ -239,6 +229,9 @@ export default function EmployerDashboard() {
                           <option key={s} value={s}>{t(`label.${s}`)}</option>
                         ))}
                       </select>
+                      {a.cv_url && (
+                        <CvPreview url={a.cv_url} filename={a.cv_filename} testidSuffix={a.id} />
+                      )}
                     </div>
                   </div>
                 ))}
