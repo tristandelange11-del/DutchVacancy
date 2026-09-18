@@ -4,7 +4,17 @@ import asyncio
 
 from lib.auth import hash_password
 from lib.db import db, ensure_indexes
-from models.schemas import Application, Company, Job, StudentProfile, User
+from models.schemas import Application, Company, Job, StudentProfile, User, new_id, utcnow
+
+# Minimal valid one-page PDF so the demo student has a real, downloadable CV file.
+DEMO_CV_BYTES = (
+    b"%PDF-1.4\n"
+    b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+    b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+    b"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]>>endobj\n"
+    b"trailer<</Root 1 0 R>>\n%%EOF\n"
+)
+DEMO_CV_NAME = "aarav-sharma-cv.pdf"
 
 COMPANIES = [
     Company(
@@ -98,7 +108,7 @@ JOBS = [
 
 
 async def main() -> None:
-    for coll in ("users", "sessions", "companies", "jobs", "applications", "saved_jobs"):
+    for coll in ("users", "sessions", "companies", "jobs", "applications", "saved_jobs", "cv_files"):
         await db[coll].delete_many({})
     await ensure_indexes()
 
@@ -124,11 +134,25 @@ async def main() -> None:
             study="MSc Information Studies",
             city="Amsterdam",
             english_level="fluent",
-            cv_url="https://example.com/aarav-sharma-cv.pdf",
             bio="MSc student from India looking for 16h/week tech work alongside my studies.",
             phone="+31 6 1234 5678",
         ),
     )
+    # The demo CV is a stored file, not a link: uploads live in the cv_files collection.
+    cv_id = new_id()
+    await db.cv_files.insert_one(
+        {
+            "id": cv_id,
+            "owner_id": student.id,
+            "filename": DEMO_CV_NAME,
+            "content_type": "application/pdf",
+            "size": len(DEMO_CV_BYTES),
+            "data": DEMO_CV_BYTES,
+            "created_at": utcnow(),
+        }
+    )
+    student.profile.cv_url = f"/api/cv/{cv_id}"
+    student.profile.cv_filename = DEMO_CV_NAME
     sdoc = student.model_dump()
     sdoc["password_hash"] = hash_password("Student123!")
     await db.users.insert_one(sdoc)
@@ -173,6 +197,7 @@ async def main() -> None:
             student_university=student.profile.university,
             motivation=note,
             cv_url=student.profile.cv_url,
+            cv_filename=student.profile.cv_filename,
             status=status,  # type: ignore[arg-type]
         )
         await db.applications.insert_one(app.model_dump())

@@ -129,6 +129,7 @@ async def apply(
         student_university=(user.get("profile") or {}).get("university", ""),
         motivation=payload.motivation,
         cv_url=payload.cv_url or (user.get("profile") or {}).get("cv_url", ""),
+        cv_filename=payload.cv_filename or (user.get("profile") or {}).get("cv_filename", ""),
     )
     await db.applications.insert_one(app.model_dump())
     return app

@@ -12,8 +12,16 @@ export interface StudentProfile {
   city: string;
   english_level: string;
   cv_url: string;
+  cv_filename: string;
   bio: string;
   phone: string;
+}
+
+export interface CvUpload {
+  id: string;
+  url: string;
+  filename: string;
+  size: number;
 }
 
 export interface User {
@@ -88,6 +96,7 @@ export interface Application {
   student_university: string;
   motivation: string;
   cv_url: string;
+  cv_filename: string;
   status: AppStatus;
   created_at: string;
 }

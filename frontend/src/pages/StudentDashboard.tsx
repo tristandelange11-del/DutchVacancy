@@ -5,6 +5,7 @@ import { Bookmark, ClipboardList, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
+import CvUploadField from "@/components/CvUploadField";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ export default function StudentDashboard() {
       city: "",
       english_level: "fluent",
       cv_url: "",
+      cv_filename: "",
       bio: "",
       phone: "",
     },
@@ -198,9 +200,18 @@ export default function StudentDashboard() {
                   <Label htmlFor="phone">{t("sd.phone")}</Label>
                   <Input id="phone" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} data-testid="profile-phone-input" className="mt-1.5" />
                 </div>
-                <div>
-                  <Label htmlFor="cv">{t("sd.cv")}</Label>
-                  <Input id="cv" value={profile.cv_url} onChange={(e) => setProfile({ ...profile, cv_url: e.target.value })} data-testid="profile-cv-input" className="mt-1.5" />
+              </div>
+              <div>
+                <Label>{t("sd.cv")}</Label>
+                <div className="mt-1.5">
+                  <CvUploadField
+                    url={profile.cv_url}
+                    filename={profile.cv_filename}
+                    testidPrefix="profile"
+                    onChange={(next) =>
+                      setProfile({ ...profile, cv_url: next.url, cv_filename: next.filename })
+                    }
+                  />
                 </div>
               </div>
               <div>

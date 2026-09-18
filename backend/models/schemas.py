@@ -27,8 +27,16 @@ class StudentProfile(BaseModel):
     city: str = ""
     english_level: str = "fluent"
     cv_url: str = ""
+    cv_filename: str = ""
     bio: str = ""
     phone: str = ""
+
+
+class CvUpload(BaseModel):
+    id: str
+    url: str
+    filename: str
+    size: int
 
 
 class User(BaseModel):
@@ -112,6 +120,7 @@ class JobList(BaseModel):
 class ApplicationCreate(BaseModel):
     motivation: str = Field(min_length=10)
     cv_url: str = ""
+    cv_filename: str = ""
 
 
 class Application(BaseModel):
@@ -126,6 +135,7 @@ class Application(BaseModel):
     student_university: str = ""
     motivation: str
     cv_url: str = ""
+    cv_filename: str = ""
     status: AppStatus = "applied"
     created_at: datetime = Field(default_factory=utcnow)
 

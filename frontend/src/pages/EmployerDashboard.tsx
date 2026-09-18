@@ -225,7 +225,7 @@ export default function EmployerDashboard() {
                           className={buttonVariants({ variant: "outline", size: "sm" })}
                           data-testid={`applicant-cv-${a.id}`}
                         >
-                          {t("ed.openCv")}
+                          {a.cv_filename || t("ed.openCv")}
                         </a>
                       )}
                       <select

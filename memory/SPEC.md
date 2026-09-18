@@ -29,11 +29,20 @@ Employer: GET/PUT /employer/company, GET/POST /employer/jobs, PUT/DELETE /employ
 ## Seed facts (`cd /app/backend && python seed.py`, idempotent — wipes and reseeds)
 2 companies (Picnic Technologies, Canalside Hospitality Group), 14 published vacancies across
 Amsterdam/Rotterdam/Utrecht/Eindhoven/Delft/Groningen, 1 student (3 applications: interview,
-under_review, applied; 2 saved jobs), 2 employer accounts. Credentials: memory/test_credentials.md.
+under_review, applied; 2 saved jobs), 2 employer accounts. The demo student has a real stored CV
+(`cv_files` collection, `aarav-sharma-cv.pdf`) referenced as `/api/cv/<id>`.
+Credentials: memory/test_credentials.md.
+
+## CV uploads
+`POST /api/uploads/cv` (student only, multipart `file`, PDF/DOC/DOCX ≤ 5 MB) stores the bytes in the
+`cv_files` collection — no disk dependency — and returns `{id, url, filename, size}` where `url` is
+`/api/cv/<id>`. `GET /api/cv/{file_id}` requires login: the owning student always, an employer only
+when that CV is attached to an application for their own company (else 403). Profile and applications
+carry `cv_url` + `cv_filename`. Frontend: `components/CvUploadField.tsx` (used on the student profile
+tab and in the apply dialog, which prefills the profile CV) + `apiUpload()` in `lib/api.ts`.
 
 ## Known deviations
-- CV is a URL field, not a file upload (user choice).
-
+- Students upload a CV file (PDF/DOC/DOCX); the old paste-a-link field is gone.
 ## i18n (EN + NL)
 `frontend/src/lib/i18n.tsx` (LanguageProvider mounted in main.tsx, `useLang() -> {lang, setLang, t, tl}`)
 + `frontend/src/lib/dict.ts` (flat key → [en, nl]; `tl()` returns paragraph/step lists). Choice persists

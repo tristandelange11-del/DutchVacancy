@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { euro } from "@/components/JobCard";
+import CvUploadField from "@/components/CvUploadField";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -44,7 +45,7 @@ export default function JobDetail() {
   const toggleSave = useToggleSave();
   const [open, setOpen] = useState(false);
   const [motivation, setMotivation] = useState("");
-  const [cvUrl, setCvUrl] = useState("");
+  const [cv, setCv] = useState({ url: "", filename: "" });
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["job", jobId],
@@ -54,7 +55,11 @@ export default function JobDetail() {
 
   const apply = useMutation({
     mutationFn: () =>
-      apiPost<Application>(`/jobs/${jobId}/apply`, { motivation, cv_url: cvUrl }),
+      apiPost<Application>(`/jobs/${jobId}/apply`, {
+        motivation,
+        cv_url: cv.url,
+        cv_filename: cv.filename,
+      }),
     onSuccess: () => {
       toast.success(t("detail.sent"));
       setOpen(false);
@@ -104,7 +109,7 @@ export default function JobDetail() {
       toast.error(t("detail.applyStudentOnly"));
       return;
     }
-    setCvUrl(user.profile.cv_url ?? "");
+    setCv({ url: user.profile.cv_url ?? "", filename: user.profile.cv_filename ?? "" });
     setOpen(true);
   }
 
@@ -272,15 +277,16 @@ export default function JobDetail() {
               />
             </div>
             <div>
-              <Label htmlFor="cv">{t("detail.cvLabel")}</Label>
-              <Input
-                id="cv"
-                value={cvUrl}
-                onChange={(e) => setCvUrl(e.target.value)}
-                placeholder="https://drive.google.com/..."
-                data-testid="apply-cv-input"
-                className="mt-1.5"
-              />
+              <Label>{t("detail.cvLabel")}</Label>
+              <div className="mt-1.5">
+                <CvUploadField
+                  url={cv.url}
+                  filename={cv.filename}
+                  testidPrefix="apply"
+                  onChange={setCv}
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">{t("cv.applyHint")}</p>
             </div>
           </div>
           <DialogFooter>
