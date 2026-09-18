@@ -1,0 +1,93 @@
+{
+  "iteration": 1,
+  "summary": "All 8 acceptance-matrix criteria exercised: 8 browser checks + 3 backend test files (6 tests), all passing.",
+  "passed": 11,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "Student signup via UI",
+      "name": "student-signup-via-ui",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Registered tscheck-student-<ts>@example.com via /register (student tab), landed on /student/dashboard, heading visible, nav shows first name 'TSCheck' + Log out button."
+    },
+    {
+      "criterion": "Employer signup via UI",
+      "name": "employer-signup-via-ui",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Registered employer with company 'TSCheck Co <ts>' via /register (employer tab), landed on /employer/dashboard; heading = company name; stats published/drafts/applicants all '0'."
+    },
+    {
+      "criterion": "Signup validation",
+      "name": "signup-validation-rejects-bad-input",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Duplicate email re-register showed 'already exists' toast and stayed on /register (backend 409 seen in console); employer submit with blank company blocked by HTML5 required validation (checkValidity()==false); password 'abc' blocked by minLength=6 validation, stayed on /register."
+    },
+    {
+      "criterion": "Signup validation (server-side)",
+      "name": "test_tscheck_signup_validation.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /auth/register duplicate email -> 409 'An account with this email already exists'; POST /auth/register employer with company_name='' -> 422, and subsequent login for that email -> 401 (no account created)."
+    },
+    {
+      "criterion": "Login with seeded demo accounts",
+      "name": "login-with-demo-accounts",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Demo student button prefilled student@dutchvacancy.nl, login -> /student/dashboard with stat-applications=3, stat-saved=2. Demo employer button prefilled employer@picnic.nl, login -> /employer/dashboard with stat-published=8 and applicants tab list visible."
+    },
+    {
+      "criterion": "Wrong credentials",
+      "name": "wrong-credentials-shows-error",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Login with student@dutchvacancy.nl + wrong password -> toast 'Invalid email or password' visible, stayed on /login, anonymous nav-login-link still present. Backend 401 observed in console (expected)."
+    },
+    {
+      "criterion": "Wrong credentials (server-side)",
+      "name": "test_tscheck_wrong_credentials.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /auth/login with wrong password -> 401 'Invalid email or password'; correct password for same account -> 200 with matching email."
+    },
+    {
+      "criterion": "Session persistence and logout",
+      "name": "session-persists-and-logout-guards-dashboards",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "After signup + full page reload, still on /student/dashboard with logout button visible. Logout -> redirected to '/', anonymous (login link visible). Direct nav to /student/dashboard and /employer/dashboard both redirect to /login."
+    },
+    {
+      "criterion": "Role separation",
+      "name": "role-separation-redirects-and-anonymous-apply",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Student visiting /employer/dashboard redirected to /student/dashboard; employer visiting /student/dashboard redirected to /employer/dashboard; anonymous visitor clicking Apply on a job detail page got a 'log in' error toast and apply-dialog stayed hidden."
+    },
+    {
+      "criterion": "Role separation (server-side)",
+      "name": "test_tscheck_role_separation.py",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "Logged-in student GET /employer/jobs -> 403; logged-in employer GET /student/applications -> 403 (session cookie forwarded explicitly per httpx localhost cookiejar note in test file docstring)."
+    },
+    {
+      "criterion": "Auth works in Dutch too",
+      "name": "auth-works-in-dutch",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Switched to NL on /login: submit button and h1 show 'Inloggen'; /register login-link shows 'Inloggen'; demo-student login in NL succeeded and landed on /student/dashboard."
+    }
+  ],
+  "notes": [
+    "Matrix has 8 criteria; 2 of them (signup validation, role separation) are covered by both a browser check and a backend test file, yielding 11 total check artifacts.",
+    "Backend tests use an explicit Cookie header instead of relying on the httpx client's automatic cookie jar, because http.cookiejar (which httpx wraps) special-cases the bare host 'localhost' and drops cookies marked Secure sent over plain http — a test-tooling quirk, not an application bug. Real browsers treat localhost as a secure context, which is why the browser checks work fine with the default cookie flow.",
+    "seed.py was re-run once at the start of this iteration to ensure demo-account data matched the briefing's seed_facts (idempotent, as documented)."
+  ]
+}
