@@ -106,6 +106,17 @@ export default defineConfig(async () => {
           target: "http://localhost:8001",
           changeOrigin: true,
         },
+        // Crawlers fetch these at the site root; the handlers live on api_router.
+        "/sitemap.xml": {
+          target: "http://localhost:8001",
+          changeOrigin: true,
+          rewrite: () => "/api/seo/sitemap.xml",
+        },
+        "/robots.txt": {
+          target: "http://localhost:8001",
+          changeOrigin: true,
+          rewrite: () => "/api/seo/robots.txt",
+        },
       },
     },
   } satisfies UserConfig;

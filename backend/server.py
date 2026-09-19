@@ -65,7 +65,9 @@ from routers.auth import router as auth_router  # noqa: E402
 from routers.employer import router as employer_router  # noqa: E402
 from routers.jobs import router as jobs_router  # noqa: E402
 from routers.uploads import router as uploads_router  # noqa: E402
+from routers.seo import router as seo_router  # noqa: E402
 
+api_router.include_router(seo_router)
 api_router.include_router(auth_router)
 api_router.include_router(jobs_router)
 api_router.include_router(employer_router)

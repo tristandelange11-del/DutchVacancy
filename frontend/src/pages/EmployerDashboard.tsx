@@ -21,10 +21,16 @@ import {
   type Job,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
 
 export default function EmployerDashboard() {
   const { user } = useSession();
   const { t } = useLang();
+  useSeo({
+    title: "Employer dashboard",
+    description: "Manage your vacancies and review student applicants.",
+    noindex: true,
+  });
   const [statusFilter, setStatusFilter] = useState<string>("");
 
   const jobs = useQuery({ queryKey: ["employer-jobs"], queryFn: () => apiGet<Job[]>("/employer/jobs") });

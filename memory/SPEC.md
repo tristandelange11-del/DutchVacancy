@@ -57,3 +57,17 @@ the browser (`navigator.languages` containing an `nl*` tag → Dutch, otherwise 
 switch always wins and is remembered. Switcher: `components/LanguageSwitch.tsx`
 (testids `language-switch`, `lang-switch-en`, `lang-switch-nl`) in desktop and mobile header.
 All static UI copy is translated; job/company content stays as the employer entered it.
+
+## SEO
+- `frontend/src/lib/seo.ts`: `useSeo({title, description, image?, type?, noindex?, jsonLd?})` sets
+  title (auto-suffixed ` · DutchVacancy`), description, robots, canonical, og:* and twitter:* on every
+  route change, and injects/removes a `#dv-json-ld` script. `jobPostingJsonLd(job)` builds a
+  schema.org JobPosting (employmentType, place/NL, EUR hourly baseSalary, TELECOMMUTE when remote)
+  used on `/jobs/:jobId` so vacancies are eligible for Google Jobs.
+- Called on every page. Auth pages and both dashboards pass `noindex: true`.
+- Social card asset: `frontend/public/og-cover.jpg` (also the index.html default og:image).
+- `backend/routers/seo.py` → `GET /api/seo/sitemap.xml` and `/api/seo/robots.txt`; the Vite proxy
+  rewrites the crawler paths `/sitemap.xml` and `/robots.txt` onto them. The sitemap lists the 8
+  public static routes plus every published job (with lastmod); dashboards/auth/api are excluded and
+  disallowed in robots.txt. The base URL comes from the request's forwarded host — never APP_URL,
+  which can be a stale preview hostname.

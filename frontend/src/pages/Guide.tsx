@@ -1,9 +1,16 @@
 import Layout from "@/components/Layout";
 import { PageHero, Prose, TextSection } from "@/components/Static";
 import { useLang } from "@/lib/i18n";
+import { useSeo } from "@/lib/seo";
 
 export default function Guide() {
   const { t } = useLang();
+  useSeo({
+    title: "Student Guide — Working in the Netherlands",
+    description:
+      "Work permits, the 16-hour rule, BSN, DigiD, payslips and Dutch employment basics explained in plain English for international students.",
+    type: "article",
+  });
   return (
     <Layout>
       <PageHero eyebrow={t("guide.eyebrow")} title={t("guide.title")} intro={t("guide.intro")} />

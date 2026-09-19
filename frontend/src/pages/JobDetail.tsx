@@ -35,6 +35,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useToggleSave } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
+import { jobPostingJsonLd, useSeo } from "@/lib/seo";
 import type { Application, JobDetail as JobDetailType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,21 @@ export default function JobDetail() {
       const detail = err instanceof ApiError ? (err.body as { detail?: string })?.detail : null;
       toast.error(detail ?? t("detail.sendFailed"));
     },
+  });
+
+  // Hooks run before the loading/error returns: on the first paint the fallback
+  // copy applies, then the real vacancy title, summary and JobPosting JSON-LD.
+  const seoJob = data?.job;
+  useSeo({
+    title: seoJob ? `${seoJob.title} at ${seoJob.company_name} — ${seoJob.city}` : "Student vacancy",
+    description: seoJob
+      ? `${seoJob.title} at ${seoJob.company_name} in ${seoJob.city}. ${seoJob.hours_per_week} hours per week, € ${seoJob.hourly_min}–${seoJob.hourly_max} per hour. ${seoJob.description}`.slice(
+          0,
+          300,
+        )
+      : "English-speaking student vacancy in the Netherlands on DutchVacancy.",
+    type: "article",
+    jsonLd: seoJob ? jobPostingJsonLd(seoJob) : null,
   });
 
   if (isLoading) {

@@ -17,6 +17,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useToggleSave } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
 import { SESSION_KEY, useSession } from "@/lib/session";
+import { useSeo } from "@/lib/seo";
 import {
   CITIES,
   STATUS_CLASSES,
@@ -30,6 +31,11 @@ export default function StudentDashboard() {
   const { user } = useSession();
   const { t, lang } = useLang();
   const toggleSave = useToggleSave();
+  useSeo({
+    title: "Student dashboard",
+    description: "Your applications, saved jobs and student profile.",
+    noindex: true,
+  });
 
   const applications = useQuery({
     queryKey: ["applications"],

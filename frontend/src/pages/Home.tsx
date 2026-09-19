@@ -20,6 +20,7 @@ import { apiGet } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 import { CITIES, type JobList, type Stats } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
 
 const STUDENT_STEPS = [
   { icon: Search, key: "student1" },
@@ -36,6 +37,11 @@ const EMPLOYER_STEPS = [
 export default function Home() {
   const navigate = useNavigate();
   const { t } = useLang();
+  useSeo({
+    title: "DutchVacancy — English-Speaking Student Jobs in the Netherlands",
+    description:
+      "Find Dutch employers that hire English-speaking international students. Part-time jobs, internships, working-student and graduate roles with the hours, hourly rate and work-permit support stated up front.",
+  });
   const [q, setQ] = useState("");
   const [city, setCity] = useState("");
 

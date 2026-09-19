@@ -10,6 +10,7 @@ import { ApiError, apiPost } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 import { beginSession } from "@/lib/session";
 import type { User } from "@/lib/types";
+import { useSeo } from "@/lib/seo";
 
 const DEMOS = [
   { labelKey: "login.demoStudent", email: "student@dutchvacancy.nl", password: "Student123!" },
@@ -19,6 +20,11 @@ const DEMOS = [
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useLang();
+  useSeo({
+    title: "Log in",
+    description: "Log in to your DutchVacancy student or employer account.",
+    noindex: true,
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 

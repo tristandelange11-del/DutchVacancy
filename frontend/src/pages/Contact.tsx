@@ -11,9 +11,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiPost } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 import type { OkResponse } from "@/lib/types";
+import { useSeo } from "@/lib/seo";
 
 export default function Contact() {
   const { t } = useLang();
+  useSeo({
+    title: "Contact DutchVacancy",
+    description:
+      "Questions about a vacancy, your student profile or hiring international students? Send the DutchVacancy team a message and we will get back to you.",
+  });
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
 
   const send = useMutation({

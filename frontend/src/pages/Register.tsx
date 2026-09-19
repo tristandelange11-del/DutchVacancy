@@ -11,10 +11,17 @@ import { useLang } from "@/lib/i18n";
 import { beginSession } from "@/lib/session";
 import { CITIES, type Role, type User } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
 
 export default function Register() {
   const navigate = useNavigate();
   const { t } = useLang();
+  useSeo({
+    title: "Create an account",
+    description:
+      "Create a free DutchVacancy account — students to apply and track applications, employers to post and manage vacancies.",
+    noindex: true,
+  });
   const [params] = useSearchParams();
   const [role, setRole] = useState<Role>(params.get("role") === "employer" ? "employer" : "student");
   const [form, setForm] = useState({

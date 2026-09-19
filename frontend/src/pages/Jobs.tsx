@@ -19,6 +19,7 @@ import {
   type JobWithMeta,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
 
 function FilterGroup({
   title,
@@ -61,6 +62,11 @@ export default function Jobs() {
   const { user } = useSession();
   const { t } = useLang();
   const toggleSave = useToggleSave();
+  useSeo({
+    title: "English-Speaking Student Jobs in the Netherlands",
+    description:
+      "Search student vacancies across Amsterdam, Utrecht, Groningen, Leiden, Tilburg and more. Filter by city, work arrangement, English requirement, job type and hourly rate.",
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [q, setQ] = useState(params.get("q") ?? "");
 
