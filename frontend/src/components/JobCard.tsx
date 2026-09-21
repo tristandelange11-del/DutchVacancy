@@ -23,6 +23,13 @@ export default function JobCard({
       data-testid={`job-card-${job.id}`}
       className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
     >
+      {job.homepage_feature && (
+        <div className="mb-3">
+          <Badge className={job.fresh_sponsored ? "bg-orange-50 text-orange-800" : "bg-slate-100 text-slate-600"}>
+            {job.fresh_sponsored ? t("job.freshSponsored") : t("job.featuredOrganic")}
+          </Badge>
+        </div>
+      )}
       <div className="flex items-start gap-3">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-navy font-heading text-sm font-bold text-white">
           {job.company_name.slice(0, 2).toUpperCase()}
