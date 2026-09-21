@@ -24,7 +24,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("email", ASCENDING)], name="email", unique=True),
     ],
     "sessions": [
-        IndexModel([("token", ASCENDING)], name="token", unique=True),
+        IndexModel([("token_hash", ASCENDING)], name="token_hash", unique=True),
         IndexModel([("expires_at", ASCENDING)], name="expires_ttl", expireAfterSeconds=0),
     ],
     "companies": [IndexModel([("id", ASCENDING)], name="id", unique=True)],
@@ -50,6 +50,11 @@ INDEXES: dict[str, list[IndexModel]] = {
     "cv_files": [
         IndexModel([("id", ASCENDING)], name="id", unique=True),
         IndexModel([("owner_id", ASCENDING), ("created_at", DESCENDING)], name="owner_created"),
+    ],
+    "auth_tokens": [
+        IndexModel([("token_hash", ASCENDING)], name="token_hash", unique=True),
+        IndexModel([("expires_at", ASCENDING)], name="expires_ttl", expireAfterSeconds=0),
+        IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING)], name="user_purpose"),
     ],
 }
 
