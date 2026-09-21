@@ -93,11 +93,21 @@ async def stats():
     english_only = await db.jobs.count_documents({"published": True, "english_level": "english_only"})
     docs = await db.jobs.find({"published": True}, {"hourly_min": 1, "hourly_max": 1}).to_list(500)
     rates = [(d.get("hourly_min", 0) + d.get("hourly_max", 0)) / 2 for d in docs] or [0]
+    city_rows = await db.jobs.aggregate([
+        {"$match": {"published": True}},
+        {"$group": {"_id": "$city", "count": {"$sum": 1}}},
+    ]).to_list(500)
+    city_counts = {
+        str(row["_id"]): int(row["count"])
+        for row in city_rows
+        if row.get("_id")
+    }
     return Stats(
         jobs=jobs,
         employers=employers,
         english_only=english_only,
         avg_hourly=round(sum(rates) / len(rates), 2),
+        city_counts=city_counts,
     )
 
 
@@ -130,7 +140,12 @@ async def fresh_jobs(user: Optional[dict[str, Any]] = Depends(optional_user)):
 @router.get("/jobs/{job_id}", response_model=JobDetail)
 async def get_job(job_id: str, user: Optional[dict[str, Any]] = Depends(optional_user)):
     doc = await db.jobs.find_one({"id": job_id})
-    if not doc:
+    is_owner = bool(
+        user
+        and user.get("role") == "employer"
+        and user.get("company_id") == (doc or {}).get("company_id")
+    )
+    if not doc or (not doc.get("published", False) and not is_owner):
         raise HTTPException(status_code=404, detail="Job not found")
     items = await _decorate([doc], user)
     job = items[0]

@@ -234,7 +234,7 @@ export default function Home() {
             >
               <span className="font-heading text-base font-bold group-hover:text-primary">{c}</span>
               <p className="mt-1 text-xs text-muted-foreground">
-                {featured.data?.items.filter((j) => j.city === c).length ?? 0}
+                {stats.data?.city_counts[c] ?? 0}
                 {t("home.citiesRoles")}
               </p>
             </Link>

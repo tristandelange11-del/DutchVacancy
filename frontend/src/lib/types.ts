@@ -112,6 +112,7 @@ export interface Stats {
   employers: number;
   english_only: number;
   avg_hourly: number;
+  city_counts: Record<string, number>;
 }
 
 export interface OkResponse {

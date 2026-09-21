@@ -174,6 +174,7 @@ class Stats(BaseModel):
     employers: int
     english_only: int
     avg_hourly: float
+    city_counts: dict[str, int] = Field(default_factory=dict)
 
 
 class ContactMessage(BaseModel):
