@@ -78,7 +78,7 @@ export default function Contact() {
             <MapPin className="mt-0.5 h-4 w-4" />
             <div>
               <p className="font-heading text-sm font-bold">{t("contact.office")}</p>
-              <p className="text-sm">Science Park 400, 1098 XH Amsterdam</p>
+              <p className="text-sm">Online, the Netherlands</p>
             </div>
           </div>
           <p className="text-sm">{t("contact.answerNote")}</p>
