@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { euro } from "@/components/JobCard";
 import CvPreview from "@/components/CvPreview";
+import DeleteAccount from "@/components/DeleteAccount";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -269,6 +270,7 @@ export default function EmployerDashboard() {
             )}
           </TabsContent>
         </Tabs>
+        <DeleteAccount />
       </div>
     </Layout>
   );
