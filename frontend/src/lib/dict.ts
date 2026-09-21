@@ -27,8 +27,8 @@ export const DICT: Record<string, Entry> = {
   "footer.privacy": ["Privacy policy", "Privacybeleid"],
   "footer.terms": ["Terms of service", "Algemene voorwaarden"],
   "footer.legal": [
-    "Amsterdam, the Netherlands. Not affiliated with IND or UWV.",
-    "Amsterdam, Nederland. Niet verbonden aan de IND of het UWV.",
+    "The Netherlands. Not affiliated with IND or UWV.",
+    "Nederland. Niet verbonden aan de IND of het UWV.",
   ],
 
   // ---------- shared labels ----------
@@ -57,6 +57,8 @@ export const DICT: Record<string, Entry> = {
   "job.appliedShort": ["Applied ✓", "Gesolliciteerd ✓"],
   "job.save": ["Save job", "Vacature opslaan"],
   "job.saved": ["Saved", "Opgeslagen"],
+  "job.freshSponsored": ["Fresh Vacancy. Sponsored", "Fresh Vacancy. Gesponsord"],
+  "job.featuredOrganic": ["Featured. Not sponsored", "Uitgelicht. Niet gesponsord"],
   "toast.saved": ["Job saved", "Vacature opgeslagen"],
   "toast.unsaved": ["Removed from saved jobs", "Verwijderd uit opgeslagen vacatures"],
   "toast.saveLogin": ["Log in as a student to save jobs", "Log in als student om vacatures op te slaan"],
@@ -64,6 +66,13 @@ export const DICT: Record<string, Entry> = {
   "toast.saveFailed": ["Could not update saved jobs", "Kon opgeslagen vacatures niet bijwerken"],
   "common.cancel": ["Cancel", "Annuleren"],
   "common.saving": ["Saving…", "Opslaan…"],
+  "verify.banner": [
+    "Verify your email before applying or publishing a vacancy.",
+    "Bevestig je e-mailadres voordat je solliciteert of een vacature publiceert.",
+  ],
+  "verify.resend": ["Resend verification email", "Verificatiemail opnieuw sturen"],
+  "verify.sent": ["Verification email sent", "Verificatiemail verstuurd"],
+  "verify.failed": ["Could not send the email", "Kon de e-mail niet versturen"],
 
   // ---------- home ----------
   "home.badge": ["For international students in NL", "Voor internationale studenten in NL"],
@@ -79,14 +88,18 @@ export const DICT: Record<string, Entry> = {
   "home.studentCta": ["Create a student account", "Maak een studentaccount"],
   "home.employerCta": ["I'm hiring students", "Ik zoek studenten"],
   "home.statJobs": ["Live student vacancies", "Actuele studentenvacatures"],
-  "home.statEmployers": ["Verified Dutch employers", "Gecontroleerde Nederlandse werkgevers"],
+  "home.statEmployers": ["Employers on the platform", "Werkgevers op het platform"],
   "home.statEnglish": ["No Dutch required", "Geen Nederlands vereist"],
   "home.statRate": ["Average hourly rate", "Gemiddeld uurloon"],
   "home.featuredTitle": ["Fresh English vacancies", "Nieuwe Engelstalige vacatures"],
   "home.featuredLead": [
-    "Hand-checked roles across the Randstad and the student cities — part-time, internships, working-student and graduate positions.",
-    "Handmatig gecontroleerde functies in de Randstad en de studentensteden — bijbanen, stages, werkstudentrollen en startersfuncties.",
+    "Roles across the Netherlands with clear language, hours and permit information.",
+    "Functies door heel Nederland met duidelijke informatie over taal, uren en vergunningen.",
   ],
+  "home.cardEnglish": ["English requirements up front", "Engelse taaleis direct duidelijk"],
+  "home.cardEnglishBody": ["Know the working language before you apply", "Ken de werktaal voordat je solliciteert"],
+  "home.cardClear": ["Clear employment details", "Duidelijke arbeidsvoorwaarden"],
+  "home.cardClearBody": ["Hours, pay range and permit support", "Uren, loonindicatie en vergunningshulp"],
   "home.viewAll": ["View all jobs", "Alle vacatures bekijken"],
   "home.featuredOffline": [
     "Vacancies load as soon as the job service is reachable. Meanwhile, browse the guide below.",
@@ -127,8 +140,8 @@ export const DICT: Record<string, Entry> = {
   ],
   "home.employer3t": ["Hire international talent", "Neem internationaal talent aan"],
   "home.employer3b": [
-    "Reach 100k+ international students studying across the Netherlands.",
-    "Bereik meer dan 100.000 internationale studenten in heel Nederland.",
+    "Reach international students and English-speaking candidates across the Netherlands.",
+    "Bereik internationale studenten en Engelstalige kandidaten in heel Nederland.",
   ],
   "home.citiesTitle": ["Explore the student hubs", "Ontdek de studentensteden"],
   "home.citiesRoles": ["+ roles", "+ functies"],
@@ -289,12 +302,17 @@ export const DICT: Record<string, Entry> = {
   "login.pending": ["Logging in…", "Inloggen…"],
   "login.failed": ["Login failed", "Inloggen mislukt"],
   "login.welcome": ["Welcome back", "Welkom terug"],
+  "login.forgot": ["Forgot password?", "Wachtwoord vergeten?"],
   "login.demo": ["Demo accounts", "Demo-accounts"],
   "login.demoStudent": ["Student demo", "Studentdemo"],
   "login.demoEmployer": ["Employer demo", "Werkgeversdemo"],
   "login.noAccount": ["No account yet?", "Nog geen account?"],
   "login.createFree": ["Create one free", "Maak er gratis een aan"],
   "login.sideTitle": ["Welcome back to DutchVacancy", "Welkom terug bij DutchVacancy"],
+  "login.sideBody": [
+    "Search English-friendly jobs, manage applications and keep your profile in one place.",
+    "Zoek Engelstalige vacatures, beheer sollicitaties en houd je profiel op één plek bij.",
+  ],
   "login.quote": [
     "“I moved to Amsterdam without a word of Dutch. Two weeks later I had a 16-hour working-student contract in an English-speaking engineering team.”",
     "“Ik verhuisde naar Amsterdam zonder een woord Nederlands. Twee weken later had ik een werkstudentcontract van 16 uur in een Engelstalig engineeringteam.”",
@@ -304,13 +322,17 @@ export const DICT: Record<string, Entry> = {
   "register.roleStudent": ["I'm a student", "Ik ben student"],
   "register.roleEmployer": ["I'm an employer", "Ik ben werkgever"],
   "register.name": ["Full name", "Volledige naam"],
-  "register.password": ["Password (min. 6 characters)", "Wachtwoord (min. 6 tekens)"],
+  "register.password": ["Password (min. 8 characters)", "Wachtwoord (min. 8 tekens)"],
   "register.company": ["Company name", "Bedrijfsnaam"],
   "register.companyCity": ["Company city", "Vestigingsplaats"],
   "register.submitStudent": ["Create student account", "Studentaccount aanmaken"],
   "register.submitEmployer": ["Create employer account", "Werkgeversaccount aanmaken"],
   "register.pending": ["Creating…", "Aanmaken…"],
   "register.created": ["Account created — welcome to DutchVacancy", "Account aangemaakt — welkom bij DutchVacancy"],
+  "register.createdVerify": [
+    "Account created. Check your inbox to verify your email.",
+    "Account aangemaakt. Controleer je inbox om je e-mailadres te bevestigen.",
+  ],
   "register.failed": ["Could not create your account", "Kon je account niet aanmaken"],
   "register.already": ["Already registered?", "Al geregistreerd?"],
   "register.sideTitle": [
@@ -394,6 +416,9 @@ export const DICT: Record<string, Entry> = {
   "ed.deleteFailed": ["Could not delete the vacancy", "Kon de vacature niet verwijderen"],
   "ed.statusUpdated": ["Applicant status updated", "Status kandidaat bijgewerkt"],
   "ed.statusFailed": ["Could not update the applicant", "Kon de kandidaat niet bijwerken"],
+  "ed.fresh": ["Fresh. €14.95 excl. VAT", "Fresh. €14,95 excl. btw"],
+  "ed.freshActive": ["Fresh active", "Fresh actief"],
+  "ed.freshFailed": ["Could not start Fresh Vacancy checkout", "Kon de Fresh Vacancy-betaling niet starten"],
   "ed.filterAll": ["All", "Alle"],
   "ed.emptyAppsTitle": ["No applicants in this view", "Geen kandidaten in deze weergave"],
   "ed.emptyAppsBody": [
@@ -444,31 +469,31 @@ export const DICT: Record<string, Entry> = {
   // ---------- about ----------
   "about.eyebrow": ["About us", "Over ons"],
   "about.title": [
-    "Built by international students, for international students",
-    "Gemaakt door internationale studenten, voor internationale studenten",
+    "English-friendly jobs, without the guesswork",
+    "Engelstalige vacatures, zonder giswerk",
   ],
   "about.intro": [
-    "DutchVacancy started as a spreadsheet passed between friends in Amsterdam who were tired of applying to jobs that turned out to require fluent Dutch.",
-    "DutchVacancy begon als een spreadsheet die rondging tussen vrienden in Amsterdam die het zat waren om te solliciteren op banen waarvoor toch vloeiend Nederlands nodig bleek.",
+    "DutchVacancy helps international students and English-speaking candidates find roles in the Netherlands with clear requirements.",
+    "DutchVacancy helpt internationale studenten en Engelstalige kandidaten functies in Nederland te vinden met duidelijke vereisten.",
   ],
   "about.s1t": ["Why we exist", "Waarom wij bestaan"],
   "about.s1b": [
     [
-      "More than 120,000 international students study in the Netherlands, and most of them want to work alongside their degree. The obstacle is rarely skill — it is information. Dutch job boards rarely say whether a team actually works in English, whether a company will arrange a TWV work permit, or whether 16 contract hours are possible.",
+      "Finding work in the Netherlands can be unnecessarily unclear when a vacancy does not state its working language, hours or permit support.",
       "We only list vacancies where that information is explicit. Every role on DutchVacancy carries its English requirement, its weekly hours, its hourly range and its permit support, stated by the employer at publication.",
     ],
     [
-      "Meer dan 120.000 internationale studenten studeren in Nederland, en de meesten willen naast hun studie werken. Het probleem is zelden kunde — het is informatie. Nederlandse vacaturebanken vermelden zelden of een team echt in het Engels werkt, of een bedrijf een TWV-vergunning regelt, of 16 contracturen mogelijk zijn.",
+      "Werk vinden in Nederland is onnodig onduidelijk wanneer een vacature niets zegt over de werktaal, uren of vergunningshulp.",
       "Wij plaatsen alleen vacatures waarin die informatie expliciet staat. Bij elke functie op DutchVacancy staan de Engelse taaleis, de weekuren, het uurloon en de vergunningshulp, opgegeven door de werkgever bij publicatie.",
     ],
   ],
   "about.s2t": ["What we do for employers", "Wat wij voor werkgevers doen"],
   "about.s2b": [
     [
-      "Dutch employers tell us the same thing: they want international talent but their postings get lost on general boards. A DutchVacancy listing reaches students who are already in the Netherlands, already enrolled, and already able to start this semester.",
+      "Employers can publish the information international candidates need and manage applications from one dashboard.",
     ],
     [
-      "Nederlandse werkgevers zeggen allemaal hetzelfde: ze willen internationaal talent, maar hun vacatures verdwijnen op algemene vacaturebanken. Een vacature op DutchVacancy bereikt studenten die al in Nederland zijn, al ingeschreven staan en dit semester kunnen beginnen.",
+      "Werkgevers kunnen de informatie publiceren die internationale kandidaten nodig hebben en sollicitaties vanuit één dashboard beheren.",
     ],
   ],
   "about.s3t": ["What we are not", "Wat wij niet zijn"],
@@ -668,19 +693,19 @@ export const DICT: Record<string, Entry> = {
   "privacy.s4t": ["Retention", "Bewaartermijn"],
   "privacy.s4b": [
     [
-      "Account data is kept while your account exists. Applications are kept for 24 months so you and the employer keep a record, then deleted. You can request deletion at any time.",
+      "Account and application data is kept while your account exists. You can delete your account or request deletion at any time. Employers may need to retain limited records where Dutch law requires it.",
     ],
     [
-      "Accountgegevens bewaren wij zolang je account bestaat. Sollicitaties bewaren wij 24 maanden zodat jij en de werkgever een dossier houden, daarna verwijderen wij ze. Je kunt altijd om verwijdering vragen.",
+      "Account- en sollicitatiegegevens bewaren wij zolang je account bestaat. Je kunt je account verwijderen of altijd om verwijdering vragen. Werkgevers moeten mogelijk beperkte gegevens bewaren als de Nederlandse wet dat vereist.",
     ],
   ],
   "privacy.s5t": ["Your rights", "Jouw rechten"],
   "privacy.s5b": [
     [
-      "You have the right to access, correct, export, restrict or delete your data, and to object to processing. Email hello@dutchvacancy.nl and we will respond within one month. You may also complain to the Autoriteit Persoonsgegevens, the Dutch data protection authority.",
+      "You have the right to access, correct, export, restrict or delete your data, and to object to processing. Contact us through the contact form and we will respond within one month. You may also complain to the Autoriteit Persoonsgegevens, the Dutch data protection authority.",
     ],
     [
-      "Je hebt het recht je gegevens in te zien, te corrigeren, te exporteren, te beperken of te laten verwijderen, en om bezwaar te maken tegen de verwerking. Mail hello@dutchvacancy.nl en wij reageren binnen een maand. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.",
+      "Je hebt het recht je gegevens in te zien, te corrigeren, te exporteren, te beperken of te laten verwijderen, en om bezwaar te maken tegen de verwerking. Neem contact op via het contactformulier en wij reageren binnen een maand. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.",
     ],
   ],
 
