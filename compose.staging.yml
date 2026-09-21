@@ -61,10 +61,33 @@ services:
       - internal
     mem_limit: 128m
 
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      STAGING_DOMAIN: ${STAGING_DOMAIN}
+      STAGING_AUTH_USER: ${STAGING_AUTH_USER}
+      STAGING_AUTH_HASH: ${STAGING_AUTH_HASH}
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./Caddyfile.staging:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - internal
+    mem_limit: 128m
+
 networks:
   internal:
     driver: bridge
 
 volumes:
   mongo_data:
-
+  caddy_data:
+  caddy_config:
