@@ -145,6 +145,8 @@ jobs:
             for attempt in $(seq 1 30); do
               if curl --fail --silent http://127.0.0.1:8080/healthz >/dev/null; then
                 curl --fail --silent http://127.0.0.1:8080/api/status >/dev/null
+                staging_status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --resolve staging.dutchvacancy.nl:443:127.0.0.1 https://staging.dutchvacancy.nl/)"
+                test "$staging_status" = "401"
                 sudo docker compose --env-file .env.staging -f compose.staging.yml ps
                 exit 0
               fi
