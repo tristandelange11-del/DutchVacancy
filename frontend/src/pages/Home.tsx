@@ -48,7 +48,7 @@ export default function Home() {
   const stats = useQuery({ queryKey: ["stats"], queryFn: () => apiGet<Stats>("/stats") });
   const featured = useQuery({
     queryKey: ["jobs", "featured"],
-    queryFn: () => apiGet<JobList>("/jobs?limit=6"),
+    queryFn: () => apiGet<JobList>("/jobs/fresh"),
   });
 
   function search() {
@@ -58,7 +58,7 @@ export default function Home() {
     navigate(`/jobs?${params.toString()}`);
   }
 
-  const items = featured.data?.items.slice(0, 6) ?? [];
+  const items = featured.data?.items ?? [];
 
   return (
     <Layout>
@@ -126,8 +126,8 @@ export default function Home() {
               />
               <div className="mt-5 space-y-3">
                 {[
-                  ["Junior Frontend Developer", "Picnic · Amsterdam · € 19,00–24,00"],
-                  ["Barista — English team", "Canalside · Utrecht · € 14,50–16,80"],
+                  [t("home.cardEnglish"), t("home.cardEnglishBody")],
+                  [t("home.cardClear"), t("home.cardClearBody")],
                 ].map(([title, meta]) => (
                   <div key={title} className="rounded-xl border border-white/10 bg-navy-soft/70 p-4">
                     <p className="font-heading text-sm font-bold text-white">{title}</p>
