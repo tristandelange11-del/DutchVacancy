@@ -48,7 +48,7 @@ export default function Register() {
       }),
     onSuccess: async (user) => {
       await beginSession();
-      toast.success(t("register.created"));
+      toast.success(t("register.createdVerify"));
       navigate(user.role === "employer" ? "/employer/dashboard" : "/student/dashboard");
     },
     onError: (err) => {
@@ -110,7 +110,7 @@ export default function Register() {
             </div>
             <div>
               <Label htmlFor="rpassword">{t("register.password")}</Label>
-              <Input id="rpassword" type="password" value={form.password} onChange={(e) => set("password", e.target.value)} required minLength={6} data-testid="register-password-input" className="mt-1.5" />
+              <Input id="rpassword" type="password" value={form.password} onChange={(e) => set("password", e.target.value)} required minLength={8} data-testid="register-password-input" className="mt-1.5" />
             </div>
 
             {role === "employer" && (
