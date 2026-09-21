@@ -1,11 +1,15 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Briefcase, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { useLang } from "@/lib/i18n";
 import { endSession, useSession } from "@/lib/session";
+import { apiPost } from "@/lib/api";
+import type { OkResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -34,6 +38,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useLang();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const resendVerification = useMutation({
+    mutationFn: () => apiPost<OkResponse>("/auth/resend-verification", { email: user?.email }),
+    onSuccess: () => toast.success(t("verify.sent")),
+    onError: () => toast.error(t("verify.failed")),
+  });
 
   const dashboardPath = user?.role === "employer" ? "/employer/dashboard" : "/student/dashboard";
 
@@ -177,6 +186,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </header>
+
+      {user && !user.email_verified && (
+        <div className="border-b border-orange-200 bg-orange-50 px-4 py-3 text-orange-950">
+          <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 text-sm">
+            <p>{t("verify.banner")}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-orange-300 bg-white"
+              onClick={() => resendVerification.mutate()}
+              disabled={resendVerification.isPending}
+            >
+              {t("verify.resend")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1">{children}</main>
 
