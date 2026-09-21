@@ -48,6 +48,7 @@ class User(BaseModel):
     company_id: Optional[str] = None
     company_name: Optional[str] = None
     profile: StudentProfile = Field(default_factory=StudentProfile)
+    email_verified: bool = False
     created_at: datetime = Field(default_factory=utcnow)
 
 
@@ -63,6 +64,10 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str
 
 
 class Company(BaseModel):

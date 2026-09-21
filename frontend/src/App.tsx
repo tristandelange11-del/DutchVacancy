@@ -4,6 +4,7 @@ import Jobs from "@/pages/Jobs";
 import JobDetail from "@/pages/JobDetail";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import VerifyEmail from "@/pages/VerifyEmail";
 import StudentDashboard from "@/pages/StudentDashboard";
 import EmployerDashboard from "@/pages/EmployerDashboard";
 import VacancyForm from "@/pages/VacancyForm";
@@ -24,6 +25,7 @@ export default function App() {
       <Route path="/jobs/:jobId" element={<JobDetail />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/guide" element={<Guide />} />
       <Route path="/about" element={<About />} />

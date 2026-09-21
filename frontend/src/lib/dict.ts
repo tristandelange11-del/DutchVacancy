@@ -310,7 +310,10 @@ export const DICT: Record<string, Entry> = {
   "register.submitStudent": ["Create student account", "Studentaccount aanmaken"],
   "register.submitEmployer": ["Create employer account", "Werkgeversaccount aanmaken"],
   "register.pending": ["Creating…", "Aanmaken…"],
-  "register.created": ["Account created — welcome to DutchVacancy", "Account aangemaakt — welkom bij DutchVacancy"],
+  "register.created": [
+    "Account created — check your inbox to verify your email",
+    "Account aangemaakt — bevestig je e-mailadres via de link in je inbox",
+  ],
   "register.failed": ["Could not create your account", "Kon je account niet aanmaken"],
   "register.already": ["Already registered?", "Al geregistreerd?"],
   "register.sideTitle": [
@@ -745,4 +748,30 @@ export const DICT: Record<string, Entry> = {
       "De dienst wordt geleverd “zoals hij is”. Voor zover de wet dit toestaat, is onze aansprakelijkheid beperkt tot directe schade tot € 250. Op deze voorwaarden is Nederlands recht van toepassing; de rechtbank Amsterdam is bevoegd.",
     ],
   ],
+  "verifyEmail.missingTitle": ["No verification link", "Geen bevestigingslink"],
+  "verifyEmail.missingBody": [
+    "This page needs a verification link from your email — check your inbox for the message we sent when you registered.",
+    "Deze pagina heeft een bevestigingslink uit je e-mail nodig — check je inbox voor het bericht dat we bij je registratie stuurden.",
+  ],
+  "verifyEmail.pendingTitle": ["Verifying your email…", "E-mailadres bevestigen…"],
+  "verifyEmail.successTitle": ["Email verified", "E-mailadres bevestigd"],
+  "verifyEmail.successBody": [
+    "You're all set — you can now apply to jobs or publish vacancies.",
+    "Je bent klaar — je kunt nu solliciteren op vacatures of vacatures publiceren.",
+  ],
+  "verifyEmail.errorTitle": ["Verification failed", "Bevestigen mislukt"],
+  "verifyEmail.errorBody": [
+    "This link is invalid or has expired. Request a new one from your dashboard.",
+    "Deze link is ongeldig of verlopen. Vraag een nieuwe aan vanuit je dashboard.",
+  ],
+  "verifyEmail.cta": ["Go to homepage", "Naar de homepage"],
+  "verifyBanner.title": ["Verify your email", "Bevestig je e-mailadres"],
+  "verifyBanner.body": [
+    "You can't apply to jobs or publish vacancies yet. We sent a verification link to",
+    "Je kunt nog niet solliciteren of vacatures publiceren. We stuurden een bevestigingslink naar",
+  ],
+  "verifyBanner.resend": ["Resend email", "E-mail opnieuw versturen"],
+  "verifyBanner.sending": ["Sending…", "Versturen…"],
+  "verifyBanner.sent": ["Verification email sent", "Bevestigingsmail verstuurd"],
+  "verifyBanner.sendFailed": ["Could not send the email — try again shortly", "Kon de e-mail niet versturen — probeer het zo weer"],
 };

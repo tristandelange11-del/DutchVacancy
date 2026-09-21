@@ -92,3 +92,15 @@ async def current_employer(user: dict[str, Any] = Depends(current_user)) -> dict
     if user.get("role") != "employer":
         raise HTTPException(status_code=403, detail="Employer account required")
     return user
+
+
+async def verified_student(user: dict[str, Any] = Depends(current_student)) -> dict[str, Any]:
+    if not user.get("email_verified"):
+        raise HTTPException(status_code=403, detail="Please verify your email before applying to a job")
+    return user
+
+
+async def verified_employer(user: dict[str, Any] = Depends(current_employer)) -> dict[str, Any]:
+    if not user.get("email_verified"):
+        raise HTTPException(status_code=403, detail="Please verify your email before publishing a vacancy")
+    return user

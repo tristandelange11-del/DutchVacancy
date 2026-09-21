@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
 import CvUploadField from "@/components/CvUploadField";
+import VerifyEmailBanner from "@/components/VerifyEmailBanner";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,6 +96,7 @@ export default function StudentDashboard() {
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+        {user && !user.email_verified && <VerifyEmailBanner email={user.email} />}
         <Tabs defaultValue="applications">
           <TabsList variant="line" data-testid="student-tabs">
             <TabsTrigger value="applications" data-testid="student-tab-applications" className="gap-2">

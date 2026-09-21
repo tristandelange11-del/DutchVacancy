@@ -33,6 +33,7 @@ export interface User {
   company_id: string | null;
   company_name: string | null;
   profile: StudentProfile;
+  email_verified: boolean;
   created_at: string;
 }
 

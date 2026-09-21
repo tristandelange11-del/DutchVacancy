@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from lib.auth import current_student, optional_user
+from lib.auth import current_student, optional_user, verified_student
 from lib.db import db
 from models.schemas import (
     Application,
@@ -113,7 +113,7 @@ async def get_job(job_id: str, user: Optional[dict[str, Any]] = Depends(optional
 
 @router.post("/jobs/{job_id}/apply", response_model=Application)
 async def apply(
-    job_id: str, payload: ApplicationCreate, user: dict[str, Any] = Depends(current_student)
+    job_id: str, payload: ApplicationCreate, user: dict[str, Any] = Depends(verified_student)
 ):
     doc = await db.jobs.find_one({"id": job_id, "published": True})
     if not doc:

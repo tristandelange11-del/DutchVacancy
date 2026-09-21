@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from lib.auth import current_employer
+from lib.auth import current_employer, verified_employer
 from lib.db import db
 from models.schemas import (
     Application,
@@ -50,7 +50,7 @@ async def my_jobs(user: dict[str, Any] = Depends(current_employer)):
 
 
 @router.post("/jobs", response_model=Job)
-async def create_job(payload: JobCreate, user: dict[str, Any] = Depends(current_employer)):
+async def create_job(payload: JobCreate, user: dict[str, Any] = Depends(verified_employer)):
     job = Job(
         **payload.model_dump(),
         company_id=user["company_id"],

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { euro } from "@/components/JobCard";
 import CvPreview from "@/components/CvPreview";
+import VerifyEmailBanner from "@/components/VerifyEmailBanner";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -103,6 +104,7 @@ export default function EmployerDashboard() {
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+        {user && !user.email_verified && <VerifyEmailBanner email={user.email} />}
         <Tabs defaultValue="vacancies">
           <TabsList variant="line" data-testid="employer-tabs">
             <TabsTrigger value="vacancies" data-testid="employer-tab-vacancies" className="gap-2">
