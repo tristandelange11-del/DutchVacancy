@@ -73,6 +73,18 @@ export const DICT: Record<string, Entry> = {
   "verify.resend": ["Resend verification email", "Verificatiemail opnieuw sturen"],
   "verify.sent": ["Verification email sent", "Verificatiemail verstuurd"],
   "verify.failed": ["Could not send the email", "Kon de e-mail niet versturen"],
+  "account.deleteTitle": ["Delete account", "Account verwijderen"],
+  "account.deleteBody": [
+    "Permanently delete your account and the data attached to it. This cannot be undone.",
+    "Verwijder je account en de gekoppelde gegevens definitief. Dit kan niet ongedaan worden gemaakt.",
+  ],
+  "account.deleteConfirm": [
+    "Permanently delete your DutchVacancy account?",
+    "Je DutchVacancy-account definitief verwijderen?",
+  ],
+  "account.deleteButton": ["Delete my account", "Mijn account verwijderen"],
+  "account.deleted": ["Your account has been deleted", "Je account is verwijderd"],
+  "account.deleteFailed": ["Could not delete your account", "Kon je account niet verwijderen"],
 
   // ---------- home ----------
   "home.badge": ["For international students in NL", "Voor internationale studenten in NL"],
