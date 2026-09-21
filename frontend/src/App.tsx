@@ -13,6 +13,9 @@ import Guide from "@/pages/Guide";
 import HowItWorks from "@/pages/HowItWorks";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import VerifyEmail from "@/pages/VerifyEmail";
 import RequireRole from "@/components/RequireRole";
 import { NotFound } from "@/components/Static";
 
@@ -24,6 +27,9 @@ export default function App() {
       <Route path="/jobs/:jobId" element={<JobDetail />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/guide" element={<Guide />} />
       <Route path="/about" element={<About />} />
