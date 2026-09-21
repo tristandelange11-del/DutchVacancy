@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
 import CvUploadField from "@/components/CvUploadField";
+import DeleteAccount from "@/components/DeleteAccount";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -242,6 +243,7 @@ export default function StudentDashboard() {
             </form>
           </TabsContent>
         </Tabs>
+        <DeleteAccount />
       </div>
     </Layout>
   );
