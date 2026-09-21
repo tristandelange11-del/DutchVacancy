@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -34,11 +35,15 @@ async def _decorate(
     out = []
     for doc in jobs:
         clean = {k: v for k, v in doc.items() if k != "_id"}
+        homepage_feature = bool(clean.pop("_homepage_feature", False))
+        fresh_sponsored = bool(clean.pop("_fresh_sponsored", False))
         out.append(
             JobWithMeta(
                 **clean,
                 saved=clean["id"] in saved_ids,
                 applied=clean["id"] in applied_ids,
+                homepage_feature=homepage_feature,
+                fresh_sponsored=fresh_sponsored,
             )
         )
     return out
@@ -96,6 +101,32 @@ async def stats():
     )
 
 
+@router.get("/jobs/fresh", response_model=JobList)
+async def fresh_jobs(user: Optional[dict[str, Any]] = Depends(optional_user)):
+    now = datetime.now(timezone.utc)
+    paid = await db.jobs.find({
+        "published": True,
+        "fresh_until": {"$gt": now},
+    }).sort("fresh_until", 1).to_list(3)
+    paid_ids = [job["id"] for job in paid]
+    remaining = 3 - len(paid)
+    fillers: list[dict[str, Any]] = []
+    if remaining:
+        pipeline = [
+            {"$match": {"published": True, "id": {"$nin": paid_ids}}},
+            {"$sample": {"size": remaining}},
+        ]
+        fillers = await db.jobs.aggregate(pipeline).to_list(remaining)
+    for job in paid:
+        job["_homepage_feature"] = True
+        job["_fresh_sponsored"] = True
+    for job in fillers:
+        job["_homepage_feature"] = True
+        job["_fresh_sponsored"] = False
+    items = await _decorate(paid + fillers, user)
+    return JobList(items=items, total=len(items))
+
+
 @router.get("/jobs/{job_id}", response_model=JobDetail)
 async def get_job(job_id: str, user: Optional[dict[str, Any]] = Depends(optional_user)):
     doc = await db.jobs.find_one({"id": job_id})
@@ -115,6 +146,8 @@ async def get_job(job_id: str, user: Optional[dict[str, Any]] = Depends(optional
 async def apply(
     job_id: str, payload: ApplicationCreate, user: dict[str, Any] = Depends(current_student)
 ):
+    if not user.get("email_verified", False):
+        raise HTTPException(status_code=403, detail="Verify your email before applying")
     doc = await db.jobs.find_one({"id": job_id, "published": True})
     if not doc:
         raise HTTPException(status_code=404, detail="Job not found")
