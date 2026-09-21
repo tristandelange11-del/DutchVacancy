@@ -112,3 +112,11 @@ jobs:
             exit 1
           REMOTE
 
+      - name: Show deployment diagnostics
+        if: failure()
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+            cd /opt/dutchvacancy
+            sudo docker compose --env-file .env.staging -f compose.staging.yml ps || true
+            sudo docker compose --env-file .env.staging -f compose.staging.yml logs --tail=150 || true
+          REMOTE
