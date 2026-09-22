@@ -74,6 +74,12 @@ FastAPI, async throughout. `python` is the app venv interpreter
   above its local imports, and `lib/db.py` self-loads it so standalone scripts
   inherit it too. The pod runs `mongod` locally, so `MONGO_URL` points at
   `localhost`. Add new secrets/config here; read them with `os.environ`.
+- **Email (Resend)**: `backend/lib/email.py` sends transactional email through
+  Resend. Configure `RESEND_API_KEY`, `EMAIL_FROM` (for example
+  `DutchVacancy <noreply@dutchvacancy.nl>`) and `APP_URL`. `APP_URL` is used to
+  build verification and password-reset links. On staging it must be
+  `https://staging.dutchvacancy.nl`; in production it must be
+  `https://dutchvacancy.nl`. Store the API key as a secret and never commit it.
 - **Dates**: `backend/lib/dates.py` — `today_iso(tz=None)`. The pod clock is
   UTC; anchor "today" server-side with this, never with client-side date math.
 - **Interactive check**: `cd /app/backend && python -c 'import server'` catches
