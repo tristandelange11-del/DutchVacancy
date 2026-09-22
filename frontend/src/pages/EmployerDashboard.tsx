@@ -21,6 +21,7 @@ import {
   type Application,
   type CheckoutResponse,
   type Job,
+  type PublicConfig,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
@@ -40,6 +41,7 @@ export default function EmployerDashboard() {
     queryKey: ["employer-applications"],
     queryFn: () => apiGet<Application[]>("/employer/applications"),
   });
+  const config = useQuery({ queryKey: ["public-config"], queryFn: () => apiGet<PublicConfig>("/config") });
 
   const togglePublish = useMutation({
     mutationFn: (job: Job) =>
@@ -159,7 +161,7 @@ export default function EmployerDashboard() {
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      {job.published && !(job.fresh_until && new Date(job.fresh_until) > new Date()) && (
+                      {config.data?.payments_enabled && job.published && !(job.fresh_until && new Date(job.fresh_until) > new Date()) && (
                         <Button
                           variant="outline"
                           size="sm"

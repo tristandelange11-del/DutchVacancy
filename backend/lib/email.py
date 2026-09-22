@@ -26,12 +26,16 @@ async def send_email(to: str, subject: str, title: str, body: str, action: str, 
       <p style="font-size:12px;color:#64748b">If you did not request this email, you can ignore it.</p>
     </div>
     """
-    async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.post(
-            "https://api.resend.com/emails",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json={"from": sender, "to": [to], "subject": subject, "html": html},
-        )
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={"from": sender, "to": [to], "subject": subject, "html": html},
+            )
+    except httpx.HTTPError as exc:
+        logger.error("Resend request failed for %s: %s", to, exc)
+        return False
     if response.is_error:
         logger.error("Resend rejected email to %s: %s", to, response.text[:500])
         return False

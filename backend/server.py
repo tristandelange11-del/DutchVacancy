@@ -60,6 +60,17 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+
+@api_router.get("/config")
+async def public_config():
+    """Expose feature availability without exposing secret values."""
+    return {
+        "payments_enabled": bool(
+            os.environ.get("STRIPE_SECRET_KEY", "").strip()
+            and os.environ.get("STRIPE_WEBHOOK_SECRET", "").strip()
+        )
+    }
+
 # Feature routers
 from routers.auth import router as auth_router  # noqa: E402
 from routers.employer import router as employer_router  # noqa: E402

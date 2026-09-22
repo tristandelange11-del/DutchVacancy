@@ -123,6 +123,10 @@ export interface CheckoutResponse {
   url: string;
 }
 
+export interface PublicConfig {
+  payments_enabled: boolean;
+}
+
 export const CITIES = [
   "Leeuwarden",
   "Groningen",
