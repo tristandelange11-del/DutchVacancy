@@ -10,8 +10,10 @@ logger = logging.getLogger(__name__)
 
 resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
-FROM_EMAIL = os.environ.get("RESEND_FROM_EMAIL", "DutchVacancy <onboarding@resend.dev>")
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+# Names match the existing staging convention (.env.staging / deploy-staging.yml),
+# not invented here — APP_URL is also what backend/routers/seo.py falls back to.
+FROM_EMAIL = os.environ.get("EMAIL_FROM", "DutchVacancy <onboarding@resend.dev>")
+APP_URL = os.environ.get("APP_URL", "http://localhost:3000").rstrip("/")
 
 
 def _send(to: str, subject: str, html: str) -> None:
@@ -25,7 +27,7 @@ def _send(to: str, subject: str, html: str) -> None:
 
 
 def send_verification_email(to: str, name: str, token: str) -> None:
-    link = f"{FRONTEND_URL}/verify-email?token={token}"
+    link = f"{APP_URL}/verify-email?token={token}"
     html = f"""
     <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:480px;margin:0 auto;color:#0f172a">
       <h2 style="margin-bottom:4px">Welcome to DutchVacancy, {name}</h2>

@@ -79,11 +79,12 @@ FastAPI, async throughout. `python` is the app venv interpreter
   Set in `backend/.env`:
   - `RESEND_API_KEY` — from the Resend dashboard. Without it, `send_verification_email`
     logs a warning and no-ops instead of failing the request that triggered it.
-  - `RESEND_FROM_EMAIL` — e.g. `DutchVacancy <noreply@dutchvacancy.nl>`. The domain
+  - `EMAIL_FROM` — e.g. `DutchVacancy <noreply@dutchvacancy.nl>`. The domain
     must be a verified sender domain in Resend, or use the shared
     `onboarding@resend.dev` sender for testing only.
-  - `FRONTEND_URL` — the site's public origin (e.g. `https://dutchvacancy.nl`),
-    used to build the `/verify-email?token=...` link. Defaults to
+  - `APP_URL` — the site's public origin (e.g. `https://dutchvacancy.nl`; also
+    used by `backend/routers/seo.py`), used to build the `/verify-email?token=...`
+    link. Defaults to
     `http://localhost:3000`.
 - **Dates**: `backend/lib/dates.py` — `today_iso(tz=None)`. The pod clock is
   UTC; anchor "today" server-side with this, never with client-side date math.
