@@ -24,6 +24,20 @@ cd backend && uvicorn server:app --host 0.0.0.0 --port 8001 --reload   # http://
 cd frontend && yarn dev                                                # http://localhost:3000
 ```
 
+## Deployment environments
+
+- Private staging deploys automatically from `codex/launch-readiness` through
+  `.github/workflows/deploy-staging.yml` and is protected with HTTP basic auth.
+- Production preparation uses `.github/workflows/deploy-production.yml`. It is
+  manual-only, only runs from `main`, and requires typing `DEPLOY` explicitly.
+- The production candidate runs privately on `127.0.0.1:8180` on the VPS. The
+  workflow does not alter DNS, Caddy, or the existing WordPress website.
+- Production uses its own Docker project, MongoDB volume and `.env.production`
+  under `/opt/dutchvacancy-production`. Use `production.env.example` only as a
+  reference and store actual values in GitHub Actions secrets.
+- Required production secret: `PRODUCTION_RESEND_API_KEY`. Stripe secrets are
+  optional until Fresh Vacancy payments are enabled.
+
 ## The `/api` proxy convention
 
 Every backend route lives under `/api` (the backend mounts one
