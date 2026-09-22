@@ -24,6 +24,27 @@ cd backend && uvicorn server:app --host 0.0.0.0 --port 8001 --reload   # http://
 cd frontend && yarn dev                                                # http://localhost:3000
 ```
 
+## Deployment environments
+
+- Private staging deploys automatically from `codex/launch-readiness` through
+  `.github/workflows/deploy-staging.yml` and is protected with HTTP basic auth.
+- Production preparation uses `.github/workflows/deploy-production.yml`. It is
+  manual-only, only runs from `main`, and requires typing `DEPLOY` explicitly.
+- The production candidate runs privately on `127.0.0.1:8180` on the VPS. The
+  workflow does not alter DNS, Caddy, or the existing WordPress website.
+- Production uses its own Docker project, MongoDB volume and `.env.production`
+  under `/opt/dutchvacancy-production`. Use `production.env.example` only as a
+  reference and store actual values in GitHub Actions secrets.
+- Required production secret: `PRODUCTION_RESEND_API_KEY`. Stripe secrets are
+  optional until Fresh Vacancy payments are enabled.
+- Successful production deployments are retained as commit-addressed releases
+  under `/opt/dutchvacancy-production/releases`; the five newest are kept.
+- `.github/workflows/backup-production.yml` creates a compressed MongoDB backup
+  every night and retains fourteen days locally on the VPS. A backup is also
+  created immediately before every production deployment and rollback.
+- `.github/workflows/rollback-production.yml` can switch back to a retained
+  release only from `main` and only after typing `ROLLBACK` explicitly.
+
 ## The `/api` proxy convention
 
 Every backend route lives under `/api` (the backend mounts one
@@ -74,18 +95,12 @@ FastAPI, async throughout. `python` is the app venv interpreter
   above its local imports, and `lib/db.py` self-loads it so standalone scripts
   inherit it too. The pod runs `mongod` locally, so `MONGO_URL` points at
   `localhost`. Add new secrets/config here; read them with `os.environ`.
-- **Email (Resend)**: `backend/lib/email.py` sends transactional email (currently
-  just the registration verification link) through [Resend](https://resend.com).
-  Set in `backend/.env`:
-  - `RESEND_API_KEY` — from the Resend dashboard. Without it, `send_verification_email`
-    logs a warning and no-ops instead of failing the request that triggered it.
-  - `EMAIL_FROM` — e.g. `DutchVacancy <noreply@dutchvacancy.nl>`. The domain
-    must be a verified sender domain in Resend, or use the shared
-    `onboarding@resend.dev` sender for testing only.
-  - `APP_URL` — the site's public origin (e.g. `https://dutchvacancy.nl`; also
-    used by `backend/routers/seo.py`), used to build the `/verify-email?token=...`
-    link. Defaults to
-    `http://localhost:3000`.
+- **Email (Resend)**: `backend/lib/email.py` sends transactional email through
+  Resend. Configure `RESEND_API_KEY`, `EMAIL_FROM` (for example
+  `DutchVacancy <noreply@dutchvacancy.nl>`) and `APP_URL`. `APP_URL` is used to
+  build verification and password-reset links. On staging it must be
+  `https://staging.dutchvacancy.nl`; in production it must be
+  `https://dutchvacancy.nl`. Store the API key as a secret and never commit it.
 - **Dates**: `backend/lib/dates.py` — `today_iso(tz=None)`. The pod clock is
   UTC; anchor "today" server-side with this, never with client-side date math.
 - **Interactive check**: `cd /app/backend && python -c 'import server'` catches

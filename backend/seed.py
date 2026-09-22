@@ -164,10 +164,7 @@ async def main() -> None:
         ("employer@canalside.nl", "Marcus Oyelaran", "c-canalside", "Canalside Hospitality Group"),
     ]
     for email, name, cid, cname in employers:
-        user = User(
-            email=email, name=name, role="employer", company_id=cid, company_name=cname,
-            email_verified=True,
-        )
+        user = User(email=email, name=name, role="employer", company_id=cid, company_name=cname)
         doc = user.model_dump()
         doc["password_hash"] = hash_password("Employer123!")
         await db.users.insert_one(doc)
@@ -176,7 +173,6 @@ async def main() -> None:
         email="student@dutchvacancy.nl",
         name="Aarav Sharma",
         role="student",
-        email_verified=True,
         profile=StudentProfile(
             university="University of Amsterdam",
             study="MSc Information Studies",

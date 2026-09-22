@@ -60,14 +60,27 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+
+@api_router.get("/config")
+async def public_config():
+    """Expose feature availability without exposing secret values."""
+    return {
+        "payments_enabled": bool(
+            os.environ.get("STRIPE_SECRET_KEY", "").strip()
+            and os.environ.get("STRIPE_WEBHOOK_SECRET", "").strip()
+        )
+    }
+
 # Feature routers
 from routers.auth import router as auth_router  # noqa: E402
 from routers.employer import router as employer_router  # noqa: E402
 from routers.jobs import router as jobs_router  # noqa: E402
 from routers.uploads import router as uploads_router  # noqa: E402
 from routers.seo import router as seo_router  # noqa: E402
+from routers.payments import router as payments_router  # noqa: E402
 
 api_router.include_router(seo_router)
+api_router.include_router(payments_router)
 api_router.include_router(auth_router)
 api_router.include_router(jobs_router)
 api_router.include_router(employer_router)
@@ -79,7 +92,9 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=[origin.strip() for origin in os.environ.get(
+        'CORS_ORIGINS', os.environ.get('APP_URL', 'http://localhost:5173')
+    ).split(',') if origin.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )

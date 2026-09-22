@@ -1,0 +1,180 @@
+name: Deploy private staging
+
+on:
+  push:
+    branches:
+      - codex/launch-readiness
+  workflow_dispatch:
+
+concurrency:
+  group: dutchvacancy-staging
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VPS_HOST: 85.10.151.123
+      VPS_USER: deploy
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+        run: |
+          test -n "$VPS_SSH_PRIVATE_KEY"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          for attempt in $(seq 1 60); do
+            if ssh-keyscan -T 5 -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+              break
+            fi
+            sleep 10
+          done
+          test -s ~/.ssh/known_hosts
+
+      - name: Prepare VPS
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            sudo apt-get update
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io docker-compose-v2 curl
+            sudo systemctl enable --now docker
+
+            if ! sudo swapon --show | grep -q /swapfile; then
+              if [ ! -f /swapfile ]; then
+                sudo fallocate -l 2G /swapfile
+                sudo chmod 600 /swapfile
+                sudo mkswap /swapfile
+              fi
+              sudo swapon /swapfile
+              grep -q '^/swapfile ' /etc/fstab || echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab >/dev/null
+            fi
+
+            sudo install -d -o "$USER" -g "$USER" /opt/dutchvacancy
+          REMOTE
+
+      - name: Upload application
+        run: |
+          tar \
+            --exclude=.git \
+            --exclude=.venv \
+            --exclude=node_modules \
+            --exclude=dist \
+            --exclude=__pycache__ \
+            --exclude=.pytest_cache \
+            -czf - . \
+          | ssh "$VPS_USER@$VPS_HOST" 'tar -xzf - -C /opt/dutchvacancy'
+
+      - name: Configure staging secrets
+        env:
+          STAGING_AUTH_HASH: ${{ secrets.STAGING_AUTH_HASH }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          test -n "$STAGING_AUTH_HASH"
+          test -n "$RESEND_API_KEY"
+          hash_file="$RUNNER_TEMP/dutchvacancy-staging-auth-hash"
+          resend_file="$RUNNER_TEMP/dutchvacancy-resend-api-key"
+          umask 077
+          printf '%s\n' "$STAGING_AUTH_HASH" > "$hash_file"
+          printf '%s\n' "$RESEND_API_KEY" > "$resend_file"
+          scp \
+            "$hash_file" \
+            "$resend_file" \
+            "$VPS_USER@$VPS_HOST:/tmp/"
+          shred -u "$hash_file" "$resend_file"
+
+          ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            staging_hash="$(cat /tmp/dutchvacancy-staging-auth-hash)"
+            resend_api_key="$(cat /tmp/dutchvacancy-resend-api-key)"
+            shred -u \
+              /tmp/dutchvacancy-staging-auth-hash \
+              /tmp/dutchvacancy-resend-api-key
+            cd /opt/dutchvacancy
+
+            if [ ! -f .env.staging ]; then
+              umask 077
+              mongo_password="$(openssl rand -hex 32)"
+              cat > .env.staging <<ENV
+          MONGO_ROOT_USERNAME=dutchvacancy
+          MONGO_ROOT_PASSWORD=${mongo_password}
+          DB_NAME=dutchvacancy
+          RESEND_API_KEY=
+          EMAIL_FROM=DutchVacancy <noreply@dutchvacancy.nl>
+          STRIPE_SECRET_KEY=
+          STRIPE_WEBHOOK_SECRET=
+          ENV
+            fi
+
+            temporary_env="$(mktemp)"
+            grep -Ev '^(APP_URL|CORS_ORIGINS|RESEND_API_KEY|EMAIL_FROM|STAGING_DOMAIN|STAGING_AUTH_USER|STAGING_AUTH_HASH)=' .env.staging > "$temporary_env"
+            cat >> "$temporary_env" <<ENV
+          APP_URL=https://staging.dutchvacancy.nl
+          CORS_ORIGINS=https://staging.dutchvacancy.nl
+          RESEND_API_KEY=${resend_api_key}
+          EMAIL_FROM='DutchVacancy <noreply@dutchvacancy.nl>'
+          STAGING_DOMAIN=staging.dutchvacancy.nl
+          STAGING_AUTH_USER=tristan
+          STAGING_AUTH_HASH='${staging_hash}'
+          ENV
+            mv "$temporary_env" .env.staging
+            chmod 600 .env.staging
+          REMOTE
+
+      - name: Start private staging
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            cd /opt/dutchvacancy
+
+            if [ ! -f .env.staging ]; then
+              umask 077
+              mongo_password="$(openssl rand -hex 32)"
+              cat > .env.staging <<ENV
+          MONGO_ROOT_USERNAME=dutchvacancy
+          MONGO_ROOT_PASSWORD=${mongo_password}
+          DB_NAME=dutchvacancy
+          APP_URL=http://127.0.0.1:8080
+          CORS_ORIGINS=http://127.0.0.1:8080
+          RESEND_API_KEY=
+          EMAIL_FROM=DutchVacancy <noreply@dutchvacancy.nl>
+          STRIPE_SECRET_KEY=
+          STRIPE_WEBHOOK_SECRET=
+          ENV
+            fi
+
+            sudo docker compose --env-file .env.staging -f compose.staging.yml up -d --build
+
+            for attempt in $(seq 1 30); do
+              if curl --fail --silent http://127.0.0.1:8080/healthz >/dev/null; then
+                curl --fail --silent http://127.0.0.1:8080/api/status >/dev/null
+                staging_status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --resolve staging.dutchvacancy.nl:443:127.0.0.1 https://staging.dutchvacancy.nl/)"
+                test "$staging_status" = "401"
+                sudo docker compose --env-file .env.staging -f compose.staging.yml ps
+                exit 0
+              fi
+              sleep 5
+            done
+
+            sudo docker compose --env-file .env.staging -f compose.staging.yml ps
+            sudo docker compose --env-file .env.staging -f compose.staging.yml logs --tail=100
+            exit 1
+          REMOTE
+
+      - name: Show deployment diagnostics
+        if: failure()
+        run: |
+          ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+            cd /opt/dutchvacancy
+            sudo docker compose --env-file .env.staging -f compose.staging.yml ps || true
+            sudo docker compose --env-file .env.staging -f compose.staging.yml logs --tail=150 || true
+          REMOTE

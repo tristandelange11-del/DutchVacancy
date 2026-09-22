@@ -1,6 +1,7 @@
 """Session auth: httpOnly cookie + sessions collection. Never returns tokens in JSON."""
 
 import secrets
+import hashlib
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
@@ -32,9 +33,13 @@ def now_utc() -> datetime:
 
 async def create_session(response: Response, user_id: str) -> None:
     token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
     await db.sessions.insert_one(
         {
-            "token": token,
+            # Keep the legacy unique index satisfied during a rolling migration.
+            # Both fields contain only the one-way hash, never the cookie value.
+            "token": token_hash,
+            "token_hash": token_hash,
             "user_id": user_id,
             "created_at": now_utc(),
             "expires_at": now_utc() + timedelta(days=SESSION_DAYS),
@@ -54,7 +59,8 @@ async def create_session(response: Response, user_id: str) -> None:
 async def destroy_session(request: Request, response: Response) -> None:
     token = request.cookies.get(COOKIE_NAME)
     if token:
-        await db.sessions.delete_many({"token": token})
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        await db.sessions.delete_many({"token_hash": token_hash})
     response.delete_cookie(COOKIE_NAME, path="/")
 
 
@@ -62,7 +68,8 @@ async def optional_user(request: Request) -> Optional[dict[str, Any]]:
     token = request.cookies.get(COOKIE_NAME)
     if not token:
         return None
-    sess = await db.sessions.find_one({"token": token})
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    sess = await db.sessions.find_one({"token_hash": token_hash})
     if not sess:
         return None
     exp = sess.get("expires_at")
@@ -70,7 +77,7 @@ async def optional_user(request: Request) -> Optional[dict[str, Any]]:
         if exp.tzinfo is None:
             exp = exp.replace(tzinfo=timezone.utc)
         if exp < now_utc():
-            await db.sessions.delete_many({"token": token})
+            await db.sessions.delete_many({"token_hash": token_hash})
             return None
     user = await db.users.find_one({"id": sess["user_id"]})
     return user
@@ -91,16 +98,4 @@ async def current_student(user: dict[str, Any] = Depends(current_user)) -> dict[
 async def current_employer(user: dict[str, Any] = Depends(current_user)) -> dict[str, Any]:
     if user.get("role") != "employer":
         raise HTTPException(status_code=403, detail="Employer account required")
-    return user
-
-
-async def verified_student(user: dict[str, Any] = Depends(current_student)) -> dict[str, Any]:
-    if not user.get("email_verified"):
-        raise HTTPException(status_code=403, detail="Please verify your email before applying to a job")
-    return user
-
-
-async def verified_employer(user: dict[str, Any] = Depends(current_employer)) -> dict[str, Any]:
-    if not user.get("email_verified"):
-        raise HTTPException(status_code=403, detail="Please verify your email before publishing a vacancy")
     return user

@@ -12,11 +12,6 @@ import { beginSession } from "@/lib/session";
 import type { User } from "@/lib/types";
 import { useSeo } from "@/lib/seo";
 
-const DEMOS = [
-  { labelKey: "login.demoStudent", email: "student@dutchvacancy.nl", password: "Student123!" },
-  { labelKey: "login.demoEmployer", email: "employer@picnic.nl", password: "Employer123!" },
-];
-
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useLang();
@@ -47,8 +42,7 @@ export default function Login() {
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center">
         <div className="hidden rounded-3xl bg-navy p-10 text-slate-200 lg:block">
           <h2 className="font-heading text-3xl font-extrabold text-white">{t("login.sideTitle")}</h2>
-          <p className="mt-4 leading-relaxed text-slate-300">{t("login.quote")}</p>
-          <p className="mt-3 text-sm font-semibold text-primary">{t("login.quoteBy")}</p>
+          <p className="mt-4 leading-relaxed text-slate-300">{t("login.sideBody")}</p>
           <img
             src="https://images.pexels.com/photos/16254452/pexels-photo-16254452.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
             alt="Amsterdam tech office"
@@ -73,31 +67,16 @@ export default function Login() {
             <div>
               <Label htmlFor="password">{t("login.password")}</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required data-testid="login-password-input" className="mt-1.5" />
+              <div className="mt-2 text-right">
+                <Link to="/forgot-password" className="text-sm font-semibold text-primary hover:underline">
+                  {t("login.forgot")}
+                </Link>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={login.isPending} data-testid="login-submit-button">
               {login.isPending ? t("login.pending") : t("login.submit")}
             </Button>
           </form>
-
-          <div className="mt-6 rounded-xl border border-dashed border-border p-4">
-            <p className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground">{t("login.demo")}</p>
-            <div className="mt-3 space-y-2">
-              {DEMOS.map((d) => (
-                <button
-                  key={d.email}
-                  type="button"
-                  data-testid={`login-demo-${d.email.includes("student") ? "student" : "employer"}`}
-                  onClick={() => {
-                    setEmail(d.email);
-                    setPassword(d.password);
-                  }}
-                  className="w-full rounded-lg bg-secondary px-3 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                >
-                  <span className="font-semibold">{t(d.labelKey)}</span> — {d.email} / {d.password}
-                </button>
-              ))}
-            </div>
-          </div>
 
           <p className="mt-6 text-sm text-muted-foreground">
             {t("login.noAccount")}{" "}

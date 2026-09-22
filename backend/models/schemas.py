@@ -47,14 +47,14 @@ class User(BaseModel):
     role: Role
     company_id: Optional[str] = None
     company_name: Optional[str] = None
-    profile: StudentProfile = Field(default_factory=StudentProfile)
     email_verified: bool = False
+    profile: StudentProfile = Field(default_factory=StudentProfile)
     created_at: datetime = Field(default_factory=utcnow)
 
 
 class RegisterRequest(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=6)
+    password: str = Field(min_length=8)
     name: str = Field(min_length=2)
     role: Role
     company_name: Optional[str] = None
@@ -66,8 +66,16 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class VerifyEmailRequest(BaseModel):
-    token: str
+class EmailRequest(BaseModel):
+    email: EmailStr
+
+
+class TokenRequest(BaseModel):
+    token: str = Field(min_length=20)
+
+
+class ResetPasswordRequest(TokenRequest):
+    password: str = Field(min_length=8)
 
 
 class Company(BaseModel):
@@ -105,6 +113,7 @@ class Job(JobBase):
     id: str = Field(default_factory=new_id)
     company_id: str
     company_name: str
+    fresh_until: Optional[datetime] = None
     created_at: datetime = Field(default_factory=utcnow)
 
 
@@ -112,6 +121,8 @@ class JobWithMeta(Job):
     saved: bool = False
     applied: bool = False
     applicant_count: int = 0
+    homepage_feature: bool = False
+    fresh_sponsored: bool = False
 
 
 class JobDetail(BaseModel):
@@ -163,6 +174,7 @@ class Stats(BaseModel):
     employers: int
     english_only: int
     avg_hourly: float
+    city_counts: dict[str, int] = Field(default_factory=dict)
 
 
 class ContactMessage(BaseModel):
@@ -183,3 +195,7 @@ class ContactCreate(BaseModel):
 
 class OkResponse(BaseModel):
     ok: bool = True
+
+
+class CheckoutResponse(BaseModel):
+    url: str

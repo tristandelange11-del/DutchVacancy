@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { BriefcaseBusiness, Pencil, Plus, Trash2, Users } from "lucide-react";
+import { BriefcaseBusiness, Pencil, Plus, Sparkles, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { euro } from "@/components/JobCard";
 import CvPreview from "@/components/CvPreview";
-import VerifyEmailBanner from "@/components/VerifyEmailBanner";
+import DeleteAccount from "@/components/DeleteAccount";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { apiDelete, apiGet, apiPatch, apiPut } from "@/lib/api";
+import { ApiError, apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { useLang } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
@@ -19,7 +19,9 @@ import {
   STATUS_CLASSES,
   type AppStatus,
   type Application,
+  type CheckoutResponse,
   type Job,
+  type PublicConfig,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
@@ -39,6 +41,7 @@ export default function EmployerDashboard() {
     queryKey: ["employer-applications"],
     queryFn: () => apiGet<Application[]>("/employer/applications"),
   });
+  const config = useQuery({ queryKey: ["public-config"], queryFn: () => apiGet<PublicConfig>("/config") });
 
   const togglePublish = useMutation({
     mutationFn: (job: Job) =>
@@ -70,6 +73,15 @@ export default function EmployerDashboard() {
       queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
     },
     onError: () => toast.error(t("ed.statusFailed")),
+  });
+
+  const startFresh = useMutation({
+    mutationFn: (jobId: string) => apiPost<CheckoutResponse>(`/employer/jobs/${jobId}/fresh-checkout`),
+    onSuccess: ({ url }) => window.location.assign(url),
+    onError: (err) => {
+      const detail = err instanceof ApiError ? (err.body as { detail?: string })?.detail : null;
+      toast.error(detail ?? t("ed.freshFailed"));
+    },
   });
 
   const jobList = jobs.data ?? [];
@@ -104,7 +116,6 @@ export default function EmployerDashboard() {
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        {user && !user.email_verified && <VerifyEmailBanner email={user.email} />}
         <Tabs defaultValue="vacancies">
           <TabsList variant="line" data-testid="employer-tabs">
             <TabsTrigger value="vacancies" data-testid="employer-tab-vacancies" className="gap-2">
@@ -150,6 +161,20 @@ export default function EmployerDashboard() {
                       </p>
                     </div>
                     <div className="flex gap-2">
+                      {config.data?.payments_enabled && job.published && !(job.fresh_until && new Date(job.fresh_until) > new Date()) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5 border-orange-200 text-orange-800 hover:bg-orange-50"
+                          onClick={() => startFresh.mutate(job.id)}
+                          disabled={startFresh.isPending}
+                        >
+                          <Sparkles className="h-3.5 w-3.5" /> {t("ed.fresh")}
+                        </Button>
+                      )}
+                      {job.fresh_until && new Date(job.fresh_until) > new Date() && (
+                        <Badge className="bg-orange-50 text-orange-800">{t("ed.freshActive")}</Badge>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -247,6 +272,7 @@ export default function EmployerDashboard() {
             )}
           </TabsContent>
         </Tabs>
+        <DeleteAccount />
       </div>
     </Layout>
   );

@@ -1,43 +1,42 @@
-"""Transactional email via Resend. Missing RESEND_API_KEY logs and no-ops — a down or
-unconfigured mail provider must never fail the request that triggered the email."""
+"""Transactional email through Resend. Secrets are read only from environment variables."""
 
 import logging
 import os
+from html import escape
 
-import resend
+import httpx
 
 logger = logging.getLogger(__name__)
 
-resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
-# Names match the existing staging convention (.env.staging / deploy-staging.yml),
-# not invented here — APP_URL is also what backend/routers/seo.py falls back to.
-FROM_EMAIL = os.environ.get("EMAIL_FROM", "DutchVacancy <onboarding@resend.dev>")
-APP_URL = os.environ.get("APP_URL", "http://localhost:3000").rstrip("/")
+async def send_email(to: str, subject: str, title: str, body: str, action: str, url: str) -> bool:
+    api_key = os.getenv("RESEND_API_KEY", "").strip()
+    sender = os.getenv("EMAIL_FROM", "DutchVacancy <noreply@dutchvacancy.nl>").strip()
+    if not api_key:
+        logger.warning("RESEND_API_KEY is not configured. Email to %s was not sent.", to)
+        return False
 
-
-def _send(to: str, subject: str, html: str) -> None:
-    if not resend.api_key:
-        logger.warning("RESEND_API_KEY not set — skipping email to %s (%s)", to, subject)
-        return
-    try:
-        resend.Emails.send({"from": FROM_EMAIL, "to": [to], "subject": subject, "html": html})
-    except Exception as exc:  # a mail provider outage must never break the caller's flow
-        logger.error("Resend send to %s failed: %s", to, exc)
-
-
-def send_verification_email(to: str, name: str, token: str) -> None:
-    link = f"{APP_URL}/verify-email?token={token}"
     html = f"""
-    <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:480px;margin:0 auto;color:#0f172a">
-      <h2 style="margin-bottom:4px">Welcome to DutchVacancy, {name}</h2>
-      <p>Confirm your email address to start applying to jobs or posting vacancies.</p>
-      <p style="margin:24px 0">
-        <a href="{link}" style="display:inline-block;background:#0f172a;color:#fff;padding:12px 22px;
-          border-radius:8px;text-decoration:none;font-weight:600">Verify email</a>
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#172033">
+      <h1 style="font-size:24px">{escape(title)}</h1>
+      <p style="line-height:1.6">{escape(body)}</p>
+      <p style="margin:28px 0">
+        <a href="{escape(url, quote=True)}" style="background:#f97316;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:700">{escape(action)}</a>
       </p>
-      <p style="color:#475569;font-size:13px">Or paste this link into your browser:<br>{link}</p>
-      <p style="color:#94a3b8;font-size:12px">This link expires in 24 hours.</p>
+      <p style="font-size:12px;color:#64748b">If you did not request this email, you can ignore it.</p>
     </div>
     """
-    _send(to, "Confirm your DutchVacancy email", html)
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={"from": sender, "to": [to], "subject": subject, "html": html},
+            )
+    except httpx.HTTPError as exc:
+        logger.error("Resend request failed for %s: %s", to, exc)
+        return False
+    if response.is_error:
+        logger.error("Resend rejected email to %s: %s", to, response.text[:500])
+        return False
+    return True

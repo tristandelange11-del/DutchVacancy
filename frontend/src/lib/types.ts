@@ -32,8 +32,8 @@ export interface User {
   role: Role;
   company_id: string | null;
   company_name: string | null;
-  profile: StudentProfile;
   email_verified: boolean;
+  profile: StudentProfile;
   created_at: string;
 }
 
@@ -68,6 +68,7 @@ export interface Job extends JobInput {
   id: string;
   company_id: string;
   company_name: string;
+  fresh_until: string | null;
   created_at: string;
 }
 
@@ -75,6 +76,8 @@ export interface JobWithMeta extends Job {
   saved: boolean;
   applied: boolean;
   applicant_count: number;
+  homepage_feature: boolean;
+  fresh_sponsored: boolean;
 }
 
 export interface JobDetail {
@@ -109,10 +112,19 @@ export interface Stats {
   employers: number;
   english_only: number;
   avg_hourly: number;
+  city_counts: Record<string, number>;
 }
 
 export interface OkResponse {
   ok: boolean;
+}
+
+export interface CheckoutResponse {
+  url: string;
+}
+
+export interface PublicConfig {
+  payments_enabled: boolean;
 }
 
 export const CITIES = [

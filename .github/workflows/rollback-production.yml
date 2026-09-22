@@ -1,0 +1,51 @@
+name: Roll back production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Commit SHA of the retained production release
+        required: true
+        type: string
+      confirmation:
+        description: Type ROLLBACK to confirm
+        required: true
+        type: string
+
+concurrency:
+  group: dutchvacancy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  rollback:
+    if: github.ref == 'refs/heads/main' && inputs.confirmation == 'ROLLBACK'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      VPS_HOST: 85.10.151.123
+      VPS_USER: deploy
+
+    steps:
+      - name: Configure SSH
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+        run: |
+          test -n "$VPS_SSH_PRIVATE_KEY"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -T 10 -H "$VPS_HOST" >> ~/.ssh/known_hosts
+
+      - name: Roll back retained release
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          test -n "$RELEASE_SHA"
+          ssh "$VPS_USER@$VPS_HOST" \
+            /opt/dutchvacancy-production/current/scripts/rollback-production.sh \
+            "$RELEASE_SHA"
+
