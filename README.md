@@ -37,6 +37,13 @@ cd frontend && yarn dev                                                # http://
   reference and store actual values in GitHub Actions secrets.
 - Required production secret: `PRODUCTION_RESEND_API_KEY`. Stripe secrets are
   optional until Fresh Vacancy payments are enabled.
+- Successful production deployments are retained as commit-addressed releases
+  under `/opt/dutchvacancy-production/releases`; the five newest are kept.
+- `.github/workflows/backup-production.yml` creates a compressed MongoDB backup
+  every night and retains fourteen days locally on the VPS. A backup is also
+  created immediately before every production deployment and rollback.
+- `.github/workflows/rollback-production.yml` can switch back to a retained
+  release only from `main` and only after typing `ROLLBACK` explicitly.
 
 ## The `/api` proxy convention
 

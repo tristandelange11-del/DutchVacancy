@@ -24,6 +24,7 @@ jobs:
     env:
       VPS_HOST: 85.10.151.123
       VPS_USER: deploy
+      RELEASE_PATH: /opt/dutchvacancy-production/releases/${{ github.sha }}
 
     steps:
       - name: Check out source
@@ -47,7 +48,8 @@ jobs:
 
       - name: Upload application
         run: |
-          ssh "$VPS_USER@$VPS_HOST" 'sudo install -d -o "$USER" -g "$USER" /opt/dutchvacancy-production'
+          ssh "$VPS_USER@$VPS_HOST" \
+            "sudo install -d -o \"\$USER\" -g \"\$USER\" /opt/dutchvacancy-production /opt/dutchvacancy-production/releases /opt/dutchvacancy-production/backups && install -d '$RELEASE_PATH'"
           tar \
             --exclude=.git \
             --exclude=.venv \
@@ -56,7 +58,7 @@ jobs:
             --exclude=__pycache__ \
             --exclude=.pytest_cache \
             -czf - . \
-          | ssh "$VPS_USER@$VPS_HOST" 'tar -xzf - -C /opt/dutchvacancy-production'
+          | ssh "$VPS_USER@$VPS_HOST" "tar -xzf - -C '$RELEASE_PATH'"
 
       - name: Configure production secrets
         env:
@@ -112,32 +114,66 @@ jobs:
 
       - name: Build private production candidate
         run: |
-          ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<REMOTE
+          ssh "$VPS_USER@$VPS_HOST" bash -s -- "$RELEASE_PATH" '${{ github.sha }}' <<'REMOTE'
             set -euo pipefail
-            cd /opt/dutchvacancy-production
-            sudo docker compose \
-              --project-name dutchvacancy-production \
-              --env-file .env.production \
-              -f compose.production.yml \
-              up -d --build
+            release_path="$1"
+            commit_sha="$2"
+            base_dir=/opt/dutchvacancy-production
+            env_file="$base_dir/.env.production"
+            previous_release="$(readlink -f "$base_dir/current" 2>/dev/null || true)"
 
-            for attempt in \$(seq 1 30); do
+            if [ -x "$base_dir/current/scripts/backup-production.sh" ]; then
+              "$base_dir/current/scripts/backup-production.sh"
+            fi
+
+            if [ -e "$base_dir/current" ] && [ ! -L "$base_dir/current" ]; then
+              echo "Refusing to replace a non-symlink production current path."
+              exit 1
+            fi
+            ln -sfn "$release_path" "$base_dir/current"
+            cd "$base_dir/current"
+
+            if ! sudo docker compose \
+              --project-name dutchvacancy-production \
+              --env-file "$env_file" \
+              -f compose.production.yml \
+              up -d --build; then
+              if [ -n "$previous_release" ]; then
+                ln -sfn "$previous_release" "$base_dir/current"
+              fi
+              exit 1
+            fi
+
+            for attempt in $(seq 1 30); do
               if curl --fail --silent http://127.0.0.1:8180/healthz >/dev/null; then
                 curl --fail --silent http://127.0.0.1:8180/api/status >/dev/null
-                printf '%s\n' '${{ github.sha }}' > .deployed-commit
+                printf '%s\n' "$commit_sha" > "$base_dir/.deployed-commit"
                 sudo docker compose \
                   --project-name dutchvacancy-production \
-                  --env-file .env.production \
+                  --env-file "$env_file" \
                   -f compose.production.yml \
                   ps
+                find "$base_dir/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+                  | sort -nr \
+                  | awk 'NR > 5 {sub(/^[^ ]+ /, ""); print}' \
+                  | xargs -r rm -rf
                 exit 0
               fi
               sleep 5
             done
 
+            if [ -n "$previous_release" ]; then
+              ln -sfn "$previous_release" "$base_dir/current"
+              cd "$base_dir/current"
+              sudo docker compose \
+                --project-name dutchvacancy-production \
+                --env-file "$env_file" \
+                -f compose.production.yml \
+                up -d --build || true
+            fi
             sudo docker compose \
               --project-name dutchvacancy-production \
-              --env-file .env.production \
+              --env-file "$env_file" \
               -f compose.production.yml \
               logs --tail=100
             exit 1
@@ -147,10 +183,10 @@ jobs:
         if: failure()
         run: |
           ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
-            cd /opt/dutchvacancy-production
+            cd /opt/dutchvacancy-production/current
             sudo docker compose \
               --project-name dutchvacancy-production \
-              --env-file .env.production \
+              --env-file /opt/dutchvacancy-production/.env.production \
               -f compose.production.yml \
               ps || true
             sudo docker compose \
@@ -159,4 +195,3 @@ jobs:
               -f compose.production.yml \
               logs --tail=150 || true
           REMOTE
-
