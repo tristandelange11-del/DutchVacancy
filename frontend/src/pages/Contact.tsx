@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { apiPost } from "@/lib/api";
+import { ApiError, apiPost } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 import type { OkResponse } from "@/lib/types";
 import { useSeo } from "@/lib/seo";
@@ -28,7 +28,10 @@ export default function Contact() {
       toast.success(t("contact.sent"));
       setForm({ name: "", email: "", subject: "", message: "" });
     },
-    onError: () => toast.error(t("contact.failed")),
+    onError: (error) => {
+      const detail = error instanceof ApiError ? (error.body as { detail?: string })?.detail : null;
+      toast.error(detail ?? t("contact.failed"));
+    },
   });
 
   return (

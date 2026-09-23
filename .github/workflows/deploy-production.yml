@@ -30,6 +30,11 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
+      - name: Validate production contact and company details
+        env:
+          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL }}
+        run: node scripts/check-production-readiness.mjs
+
       - name: Configure SSH
         env:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
@@ -65,23 +70,28 @@ jobs:
           PRODUCTION_RESEND_API_KEY: ${{ secrets.PRODUCTION_RESEND_API_KEY }}
           PRODUCTION_STRIPE_SECRET_KEY: ${{ secrets.PRODUCTION_STRIPE_SECRET_KEY }}
           PRODUCTION_STRIPE_WEBHOOK_SECRET: ${{ secrets.PRODUCTION_STRIPE_WEBHOOK_SECRET }}
+          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL }}
         run: |
           test -n "$PRODUCTION_RESEND_API_KEY"
           resend_file="$RUNNER_TEMP/dutchvacancy-production-resend-api-key"
           stripe_file="$RUNNER_TEMP/dutchvacancy-production-stripe-secret-key"
           webhook_file="$RUNNER_TEMP/dutchvacancy-production-stripe-webhook-secret"
+          contact_file="$RUNNER_TEMP/dutchvacancy-production-contact-email"
           umask 077
           printf '%s\n' "$PRODUCTION_RESEND_API_KEY" > "$resend_file"
           printf '%s\n' "$PRODUCTION_STRIPE_SECRET_KEY" > "$stripe_file"
           printf '%s\n' "$PRODUCTION_STRIPE_WEBHOOK_SECRET" > "$webhook_file"
-          scp "$resend_file" "$stripe_file" "$webhook_file" "$VPS_USER@$VPS_HOST:/tmp/"
-          shred -u "$resend_file" "$stripe_file" "$webhook_file"
+          printf '%s\n' "$CONTACT_NOTIFICATION_EMAIL" > "$contact_file"
+          scp "$resend_file" "$stripe_file" "$webhook_file" "$contact_file" "$VPS_USER@$VPS_HOST:/tmp/"
+          shred -u "$resend_file" "$stripe_file" "$webhook_file" "$contact_file"
 
           ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
             set -euo pipefail
             resend_api_key="$(cat /tmp/dutchvacancy-production-resend-api-key)"
             stripe_secret_key="$(cat /tmp/dutchvacancy-production-stripe-secret-key)"
             stripe_webhook_secret="$(cat /tmp/dutchvacancy-production-stripe-webhook-secret)"
+            contact_email="$(cat /tmp/dutchvacancy-production-contact-email)"
+            shred -u /tmp/dutchvacancy-production-contact-email
             shred -u \
               /tmp/dutchvacancy-production-resend-api-key \
               /tmp/dutchvacancy-production-stripe-secret-key \
@@ -99,11 +109,12 @@ jobs:
             fi
 
             temporary_env="$(mktemp)"
-            grep -Ev '^(APP_URL|CORS_ORIGINS|RESEND_API_KEY|EMAIL_FROM|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET)=' .env.production > "$temporary_env"
+            grep -Ev '^(APP_URL|CORS_ORIGINS|RESEND_API_KEY|EMAIL_FROM|CONTACT_NOTIFICATION_EMAIL|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET)=' .env.production > "$temporary_env"
             {
               printf '%s\n' 'APP_URL=https://dutchvacancy.nl'
               printf '%s\n' 'CORS_ORIGINS=https://dutchvacancy.nl,https://www.dutchvacancy.nl'
               printf 'RESEND_API_KEY=%s\n' "$resend_api_key"
+              printf 'CONTACT_NOTIFICATION_EMAIL=%s\n' "$contact_email"
               printf '%s\n' "EMAIL_FROM='DutchVacancy <noreply@dutchvacancy.nl>'"
               printf 'STRIPE_SECRET_KEY=%s\n' "$stripe_secret_key"
               printf 'STRIPE_WEBHOOK_SECRET=%s\n' "$stripe_webhook_secret"
@@ -191,7 +202,7 @@ jobs:
               ps || true
             sudo docker compose \
               --project-name dutchvacancy-production \
-              --env-file .env.production \
+              --env-file /opt/dutchvacancy-production/.env.production \
               -f compose.production.yml \
               logs --tail=150 || true
           REMOTE
