@@ -10,18 +10,27 @@ db_name="$(sed -n 's/^DB_NAME=//p' "$base/.env.production" | tail -n 1)"
 [[ "$db_name" =~ ^[A-Za-z0-9_-]+$ ]]
 target="dv-restore-check-$(openssl rand -hex 8)"
 work="$(mktemp -d)"
-cleanup() { sudo docker rm -f "$target" >/dev/null 2>&1 || true; rm -rf "$work"; }
+cleanup() {
+  result=$?
+  if [ "$result" -ne 0 ]; then
+    echo "Restore verification failed (exit $result). Disposable database diagnostics:"
+    sudo docker inspect --format '{{.State.Status}} OOM={{.State.OOMKilled}} Exit={{.State.ExitCode}}' "$target" || true
+    sudo docker logs --tail 15 "$target" || true
+  fi
+  sudo docker rm -fv "$target" >/dev/null 2>&1 || true
+  rm -rf "$work"
+}
 trap cleanup EXIT
-sudo docker run -d --name "$target" --network none --memory 384m \
-  --tmpfs /data/db:rw,size=256m --tmpfs /data/configdb:rw,size=16m \
-  mongo:8.0 --bind_ip 127.0.0.1 --setParameter ttlMonitorEnabled=false >/dev/null
+# Mongo's image supplies anonymous data volumes; rm -v removes only this test's volumes.
+sudo docker run -d --name "$target" --network none --memory 512m \
+  mongo:8.0 --bind_ip 127.0.0.1 --wiredTigerCacheSizeGB 0.25 --setParameter ttlMonitorEnabled=false >/dev/null
 ready=false
 for attempt in $(seq 1 30); do
   if sudo docker exec "$target" mongosh --quiet --eval 'quit(db.adminCommand({ping:1}).ok ? 0 : 1)' >/dev/null 2>&1; then ready=true; break; fi
   sleep 2
 done
 test "$ready" = true
-sudo docker exec -i "$target" mongorestore --quiet --archive --gzip --stopOnError < "$archive"
+sudo docker exec -i "$target" mongorestore --archive --gzip --stopOnError < "$archive"
 # Compare collection names, document counts and complete index definitions.
 # Run only against the quiet private candidate, not a changing public database.
 summary='const d=db.getSiblingDB(process.env.CHECK_DB); print(JSON.stringify(d.getCollectionNames().sort().map(n=>({name:n,count:d.getCollection(n).countDocuments({}),indexes:d.getCollection(n).getIndexes().sort((a,b)=>a.name.localeCompare(b.name))}))))'
