@@ -35,7 +35,7 @@ sudo docker compose \
   -f compose.production.yml \
   exec -T mongo sh -c \
   'mongodump --quiet --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --db "$1" --archive --gzip' \
-  sh "$db_name" > "$temporary_backup"
+  sh "$db_name" < /dev/null > "$temporary_backup"
 
 test -s "$temporary_backup"
 gzip -t "$temporary_backup"
@@ -44,4 +44,3 @@ mv "$temporary_backup" "$final_backup"
 find "$backup_dir" -type f -name 'mongo-*.archive.gz' -mtime "+$retention_days" -delete
 
 echo "Production database backup created: $(basename "$final_backup")"
-
