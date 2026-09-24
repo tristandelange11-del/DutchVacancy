@@ -1,0 +1,98 @@
+name: Prepare isolated production and verify restore
+on:
+  push:
+    branches: [codex/private-production]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dutchvacancy-production
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/codex/private-production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure SSH
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+        run: |
+          test -n "$VPS_SSH_PRIVATE_KEY"
+          install -m 700 -d ~/.ssh
+          umask 077
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          ssh-keyscan -T 10 -H 85.10.151.123 >> ~/.ssh/known_hosts
+      - name: Preflight first private installation
+        run: |
+          ssh deploy@85.10.151.123 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            base=/opt/dutchvacancy-production
+            # Never overwrite an existing production installation.
+            test ! -e "$base/current"
+            test ! -e "$base/.deployed-commit"
+            test ! -e "$base/.env.production"
+            test -z "$(sudo docker ps -aq --filter label=com.docker.compose.project=dutchvacancy-production)"
+            test -z "$(sudo docker volume ls -q --filter label=com.docker.compose.project=dutchvacancy-production)"
+            free_kb=$(awk '/MemAvailable:|SwapFree:/ {sum+=$2} END {print sum}' /proc/meminfo)
+            test "$free_kb" -gt 1800000
+            df -Pk /opt | awk 'NR==2 {if ($4 < 4000000) exit 1}'
+            # Existing public proxy must not already point to the candidate port.
+            if grep -Eq '8180|dutchvacancy-production' /opt/dutchvacancy/Caddyfile.staging; then
+              echo 'Review proxy configuration before private preparation.'; exit 1
+            fi
+            sudo install -d -o "$USER" -g "$USER" "$base/releases" "$base/backups"
+          REMOTE
+      - name: Upload candidate
+        run: |
+          release=/opt/dutchvacancy-production/releases/${{ github.sha }}
+          ssh deploy@85.10.151.123 "mkdir -p '$release'"
+          git archive HEAD | ssh deploy@85.10.151.123 "tar -xf - -C '$release'"
+      - name: Build private candidate without outbound mail or payments
+        run: |
+          ssh deploy@85.10.151.123 bash -s -- '${{ github.sha }}' <<'REMOTE'
+            set -euo pipefail
+            umask 077
+            base=/opt/dutchvacancy-production
+            release="$base/releases/$1"
+            test ! -e "$base/.env.production"
+            password="$(openssl rand -hex 32)"
+            cat > "$base/.env.production" <<ENV
+          MONGO_ROOT_USERNAME=dutchvacancy
+          MONGO_ROOT_PASSWORD=$password
+          DB_NAME=dutchvacancy
+          APP_URL=http://127.0.0.1:8180
+          CORS_ORIGINS=http://127.0.0.1:8180
+          RESEND_API_KEY=
+          CONTACT_NOTIFICATION_EMAIL=info@dutchvacancy.nl
+          EMAIL_FROM='Dutch Vacancy <noreply@dutchvacancy.nl>'
+          STRIPE_SECRET_KEY=
+          STRIPE_WEBHOOK_SECRET=
+          ENV
+            ln -s "$release" "$base/current"
+            cd "$release"
+            sudo docker compose --project-name dutchvacancy-production --env-file "$base/.env.production" -f compose.production.yml up -d --build
+            for attempt in $(seq 1 60); do
+              if curl -fsS http://127.0.0.1:8180/healthz >/dev/null && curl -fsS http://127.0.0.1:8180/api/status >/dev/null; then
+                printf '%s\n' "$1" > "$base/.deployed-commit"
+                break
+              fi
+              sleep 3
+            done
+            test -s "$base/.deployed-commit"
+            web_id="$(sudo docker compose --project-name dutchvacancy-production --env-file "$base/.env.production" -f compose.production.yml ps -q web)"
+            test "$(sudo docker port "$web_id" 8080/tcp)" = '127.0.0.1:8180'
+            echo 'Private production healthy on loopback only; outbound mail and payments disabled.'
+          REMOTE
+      - name: Back up and restore into an isolated database
+        run: |
+          ssh deploy@85.10.151.123 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            base=/opt/dutchvacancy-production
+            bash "$base/current/scripts/backup-production.sh"
+            archive="$(find "$base/backups" -maxdepth 1 -name 'mongo-*.archive.gz' -type f | sort | tail -n 1)"
+            bash "$base/current/scripts/verify-production-backup.sh" "$archive"
+          REMOTE
+          echo 'Private production prepared. Local backup restore and nonempty fixture verified. No public launch; off-server backup remains outstanding.' >> "$GITHUB_STEP_SUMMARY"
