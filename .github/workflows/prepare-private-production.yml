@@ -1,7 +1,5 @@
 name: Prepare isolated production and verify restore
 on:
-  push:
-    branches: [codex/private-production]
   workflow_dispatch:
 permissions:
   contents: read
@@ -91,8 +89,8 @@ jobs:
           ssh deploy@85.10.151.123 'bash -s' <<'REMOTE'
             set -euo pipefail
             base=/opt/dutchvacancy-production
-            bash "$base/current/scripts/backup-production.sh"
+            bash "$base/current/scripts/backup-production.sh" < /dev/null
             archive="$(find "$base/backups" -maxdepth 1 -name 'mongo-*.archive.gz' -type f | sort | tail -n 1)"
-            bash "$base/current/scripts/verify-production-backup.sh" "$archive"
+            bash "$base/current/scripts/verify-production-backup.sh" "$archive" < /dev/null
           REMOTE
           echo 'Private production prepared. Local backup restore and nonempty fixture verified. No public launch; off-server backup remains outstanding.' >> "$GITHUB_STEP_SUMMARY"

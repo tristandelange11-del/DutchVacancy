@@ -27,7 +27,7 @@ sudo docker exec -i "$target" mongorestore --quiet --archive --gzip --stopOnErro
 summary='const d=db.getSiblingDB(process.env.CHECK_DB); print(JSON.stringify(d.getCollectionNames().sort().map(n=>({name:n,count:d.getCollection(n).countDocuments({}),indexes:d.getCollection(n).getIndexes().sort((a,b)=>a.name.localeCompare(b.name))}))))'
 sudo docker compose --project-name dutchvacancy-production --env-file "$base/.env.production" \
   -f "$base/current/compose.production.yml" exec -T -e CHECK_DB="$db_name" mongo \
-  sh -c 'mongosh --quiet --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "$1"' sh "$summary" > "$work/source.json"
+  sh -c 'mongosh --quiet --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "$1"' sh "$summary" < /dev/null > "$work/source.json"
 sudo docker exec -e CHECK_DB="$db_name" "$target" mongosh --quiet --eval "$summary" > "$work/restored.json"
 cmp "$work/source.json" "$work/restored.json"
 echo 'Production archive restored into an isolated container; collections, counts and indexes match.'
