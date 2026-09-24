@@ -78,7 +78,7 @@ jobs:
         env:
           STAGING_AUTH_HASH: ${{ secrets.STAGING_AUTH_HASH }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL }}
+          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL || 'info@dutchvacancy.nl' }}
         run: |
           test -n "$STAGING_AUTH_HASH"
           test -n "$RESEND_API_KEY"
