@@ -1,9 +1,43 @@
-# farm-ts
+# DutchVacancy
 
-Minimal split backend/frontend starter: **FastAPI + MongoDB** behind a
-**Vite + React 19 + TypeScript** frontend, joined by a small typed fetch layer
-over `/api`. This is a bare skeleton — no app features are implemented. Build on
-top of it.
+Vacancy platform using FastAPI and MongoDB with a Vite, React and TypeScript
+frontend. Private staging and production use separate Docker projects.
+
+## Launch completion
+
+- Set the GitHub Actions variable `CONTACT_NOTIFICATION_EMAIL` to a confirmed
+  receiving mailbox. It is passed to both deployment environments. Without it,
+  the contact endpoint returns 503 instead of claiming successful delivery.
+- The contact endpoint stores the message before requesting a Resend notification.
+  Only a successful Resend response returns success. Provider errors retain a
+  `pending` or `failed` notification for recovery. A Resend acceptance is not proof
+  of inbox delivery. Test the recipient mailbox before launch.
+- After resolving delivery issues, run `python retry_contact_notifications.py`
+  inside the backend container. Run one instance at a time. Resend idempotency
+  keys reduce duplicate delivery on retries within the provider's retention window.
+  Historical messages without a notification status are not emailed automatically.
+- Fill `frontend/src/config/business.json` with the owner's confirmed legal name,
+  business correspondence address, KvK number and public contact email. Both legal
+  pages use this file and show a draft notice until it is complete. Production
+  preparation fails before SSH if these fields or the notification recipient are
+  missing. Filling these fields does not constitute legal review of the template.
+- Demo seeding is disabled and excluded from backend images. No existing database
+  accounts are deleted by this change. Inspect existing data separately before launch.
+- Production backup checks report an explicit skipped backup step and a warning
+  when production does not exist. A missing script on an existing production
+  installation fails the run. Only the actual backup step can report an archive.
+- Backups are still local to the VPS. An external copy and a restore rehearsal are
+  required before relying on them for recovery. No production archive can exist
+  until the production database has been created.
+
+## Automated checks
+
+Install `backend/requirements-test.txt` and run `python -m pytest backend/tests`.
+Tests create fresh random accounts, exercise real FastAPI routes using an
+in-memory Mongo substitute, and mock outbound mail. They do not access staging or
+send verification emails. MongoDB indexes, real email delivery and backup restoration
+require separate integration checks. GitHub Actions runs these tests plus a clean
+frontend installation, typecheck and build on pushes and pull requests.
 
 ## Layout
 
