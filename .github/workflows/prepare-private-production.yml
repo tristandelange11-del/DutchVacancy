@@ -43,7 +43,7 @@ jobs:
             if grep -Eq '8180|dutchvacancy-production' /opt/dutchvacancy/Caddyfile.staging; then
               echo 'Review proxy configuration before private preparation.'; exit 1
             fi
-            sudo install -d -o "$USER" -g "$USER" "$base/releases" "$base/backups"
+            sudo install -d -o "$USER" -g "$USER" "$base" "$base/releases" "$base/backups"
           REMOTE
       - name: Upload candidate
         run: |
