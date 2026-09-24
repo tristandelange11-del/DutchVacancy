@@ -1,4 +1,5 @@
 import { useState } from "react";
+import business from "@/config/business.json";
 import { useMutation } from "@tanstack/react-query";
 import { Mail, MapPin } from "lucide-react";
 import { toast } from "sonner";
@@ -74,7 +75,7 @@ export default function Contact() {
             <Mail className="mt-0.5 h-4 w-4" />
             <div>
               <p className="font-heading text-sm font-bold">{t("contact.emailLabel")}</p>
-              <p className="text-sm">hello@dutchvacancy.nl</p>
+              <a className="text-sm underline" href={`mailto:${business.contact_email}`}>{business.contact_email}</a>
             </div>
           </div>
           <div className="flex gap-3">
