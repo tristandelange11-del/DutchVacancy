@@ -32,7 +32,7 @@ jobs:
 
       - name: Validate production contact and company details
         env:
-          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL }}
+          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL || 'info@dutchvacancy.nl' }}
         run: node scripts/check-production-readiness.mjs
 
       - name: Configure SSH
@@ -70,7 +70,7 @@ jobs:
           PRODUCTION_RESEND_API_KEY: ${{ secrets.PRODUCTION_RESEND_API_KEY }}
           PRODUCTION_STRIPE_SECRET_KEY: ${{ secrets.PRODUCTION_STRIPE_SECRET_KEY }}
           PRODUCTION_STRIPE_WEBHOOK_SECRET: ${{ secrets.PRODUCTION_STRIPE_WEBHOOK_SECRET }}
-          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL }}
+          CONTACT_NOTIFICATION_EMAIL: ${{ vars.CONTACT_NOTIFICATION_EMAIL || 'info@dutchvacancy.nl' }}
         run: |
           test -n "$PRODUCTION_RESEND_API_KEY"
           resend_file="$RUNNER_TEMP/dutchvacancy-production-resend-api-key"
