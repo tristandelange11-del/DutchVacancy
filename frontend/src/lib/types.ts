@@ -90,6 +90,24 @@ export interface JobList {
   total: number;
 }
 
+export type InterviewMode = "online" | "on_location";
+
+export interface Interview {
+  mode: InterviewMode;
+  location: string;
+  note: string;
+  slots: string[];
+  chosen_slot: string | null;
+  proposed_at: string;
+}
+
+export interface InterviewInput {
+  mode: InterviewMode;
+  location: string;
+  note: string;
+  slots: string[];
+}
+
 export interface Application {
   id: string;
   job_id: string;
@@ -104,6 +122,7 @@ export interface Application {
   cv_url: string;
   cv_filename: string;
   status: AppStatus;
+  interview: Interview | null;
   created_at: string;
 }
 

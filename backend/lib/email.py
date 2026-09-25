@@ -9,6 +9,10 @@ import httpx
 logger = logging.getLogger(__name__)
 
 
+def app_url() -> str:
+    return os.getenv("APP_URL", "http://localhost:5173").rstrip("/")
+
+
 async def send_email(to: str, subject: str, title: str, body: str, action: str, url: str) -> bool:
     api_key = os.getenv("RESEND_API_KEY", "").strip()
     sender = os.getenv("EMAIL_FROM", "DutchVacancy <noreply@dutchvacancy.nl>").strip()

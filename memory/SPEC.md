@@ -12,21 +12,25 @@ shadcn (base-nova). Auth = httpOnly session cookie (`dv_session`) + `sessions` c
 - `companies`: id, name, city, industry, website, about, logo_initials
 - `jobs`: id, company_id, company_name, title, city, category, job_type (part_time|internship|working_student|graduate), english_level (english_only|basic_dutch|dutch_required), permit_support (twv_provided|eu_eea|freelance_kvk|none), work_mode (on_site|hybrid|remote), hourly_min/max, hours_per_week, description, requirements[], perks[], published
 - `applications`: id, job_id/title, company_id/name, student_id/name/email/university, motivation, cv_url, status (applied|under_review|interview|accepted|rejected)
+  - `interview` (optional, set by the employer): mode (online|on_location), location (meeting link or address), note, slots[] (UTC datetimes, 1–5, future, ≤ 90 days ahead), chosen_slot (null until the candidate picks), proposed_at. All datetimes are serialised as UTC with an offset.
+- `users` also carry `email_verified` (bool). Single-use hashed tokens for email verification and password reset live in `auth_tokens`.
 - `saved_jobs`: student_id + job_id (unique)
 - `contact_messages`
 
 ## Endpoints (all on api_router, prefix /api)
 Auth: POST /auth/register, /auth/login, /auth/logout; GET /auth/me, /auth/session (null when anon); PUT /auth/profile (student)
+Auth extras: POST /auth/verify-email, /auth/resend-verification, /auth/forgot-password, /auth/reset-password; DELETE /auth/account. Applying and publishing/promoting a vacancy require `email_verified`.
 Public: GET /jobs (q, city, job_type, english_level, permit_support, work_mode, min_rate, limit), GET /jobs/{id}, GET /stats, POST /contact
 Student: POST /jobs/{id}/apply, GET /student/applications, GET/POST/DELETE /student/saved-jobs[/{job_id}]
 Employer: GET/PUT /employer/company, GET/POST /employer/jobs, PUT/DELETE /employer/jobs/{id}, GET /employer/applications, PATCH /employer/applications/{id}
+Interviews (backend/routers/interviews.py): PUT /employer/applications/{id}/interview (employer proposes 1–5 slots + mode/location/note; sets status `interview`, replaces any earlier proposal, emails the candidate a link to /student/applications/{id}/interview); POST /student/applications/{id}/interview/choose {slot} (candidate picks one offered, future slot once; the company's employer accounts are emailed). Errors: 404 not your application, 409 no proposal / already chosen / slot passed, 422 slot not offered or invalid proposal.
 
 ## Routes
 / · /jobs · /jobs/:jobId · /login · /register · /how-it-works · /guide · /about · /contact · /privacy
 · /terms · /student/dashboard · /employer/dashboard · /employer/vacancies/new ·
-/employer/vacancies/:jobId/edit · * (404)
+/employer/vacancies/:jobId/edit · /student/applications/:appId/interview (candidate picks a time) · * (404)
 
-## Seed facts (`cd /app/backend && python seed.py`, idempotent — wipes and reseeds)
+## Seed facts (historical demo data — NEVER run `backend/seed.py` against staging or production: it wipes the database)
 2 companies (Picnic Technologies, Canalside Hospitality Group), 14 published vacancies across
 Amsterdam/Rotterdam/Utrecht/Eindhoven/Delft/Groningen → replaced: the selectable cities are now
 Leeuwarden, Groningen, Assen, Enschede, Arnhem, Nijmegen, Tilburg, Leiden, Amsterdam, Utrecht,

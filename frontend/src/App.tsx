@@ -6,6 +6,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import StudentDashboard from "@/pages/StudentDashboard";
 import EmployerDashboard from "@/pages/EmployerDashboard";
+import InterviewPick from "@/pages/InterviewPick";
 import VacancyForm from "@/pages/VacancyForm";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
@@ -41,6 +42,14 @@ export default function App() {
         element={
           <RequireRole role="student">
             <StudentDashboard />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/student/applications/:appId/interview"
+        element={
+          <RequireRole role="student">
+            <InterviewPick />
           </RequireRole>
         }
       />

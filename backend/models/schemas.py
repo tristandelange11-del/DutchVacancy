@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Literal, Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 Role = Literal["student", "employer"]
 EnglishLevel = Literal["english_only", "basic_dutch", "dutch_required"]
@@ -12,6 +12,7 @@ JobType = Literal["part_time", "internship", "working_student", "graduate"]
 PermitSupport = Literal["twv_provided", "eu_eea", "freelance_kvk", "none"]
 WorkMode = Literal["on_site", "hybrid", "remote"]
 AppStatus = Literal["applied", "under_review", "interview", "accepted", "rejected"]
+InterviewMode = Literal["online", "on_location"]
 
 
 def new_id() -> str:
@@ -20,6 +21,13 @@ def new_id() -> str:
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def as_utc(value: datetime) -> datetime:
+    """MongoDB hands datetimes back naive (UTC); normalise so JSON always carries a UTC offset."""
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
 
 
 class StudentProfile(BaseModel):
@@ -141,6 +149,46 @@ class ApplicationCreate(BaseModel):
     cv_filename: str = ""
 
 
+class InterviewProposal(BaseModel):
+    mode: InterviewMode
+    location: str = Field(min_length=2, max_length=300)  # meeting link (online) or address (on location)
+    note: str = Field(default="", max_length=1000)
+    slots: list[datetime] = Field(min_length=1, max_length=5)
+
+    @field_validator("slots")
+    @classmethod
+    def _slots_utc(cls, value: list[datetime]) -> list[datetime]:
+        return [as_utc(v) for v in value]
+
+
+class Interview(BaseModel):
+    mode: InterviewMode
+    location: str
+    note: str = ""
+    slots: list[datetime]
+    chosen_slot: Optional[datetime] = None
+    proposed_at: datetime = Field(default_factory=utcnow)
+
+    @field_validator("slots")
+    @classmethod
+    def _slots_utc(cls, value: list[datetime]) -> list[datetime]:
+        return [as_utc(v) for v in value]
+
+    @field_validator("chosen_slot", "proposed_at")
+    @classmethod
+    def _one_utc(cls, value: Optional[datetime]) -> Optional[datetime]:
+        return as_utc(value) if value else value
+
+
+class SlotChoice(BaseModel):
+    slot: datetime
+
+    @field_validator("slot")
+    @classmethod
+    def _slot_utc(cls, value: datetime) -> datetime:
+        return as_utc(value)
+
+
 class Application(BaseModel):
     id: str = Field(default_factory=new_id)
     job_id: str
@@ -155,6 +203,7 @@ class Application(BaseModel):
     cv_url: str = ""
     cv_filename: str = ""
     status: AppStatus = "applied"
+    interview: Optional[Interview] = None
     created_at: datetime = Field(default_factory=utcnow)
 
 
