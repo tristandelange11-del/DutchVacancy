@@ -19,6 +19,7 @@ import { useToggleSave } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
 import { SESSION_KEY, useSession } from "@/lib/session";
 import { useSeo } from "@/lib/seo";
+import { formatDateTime } from "@/lib/utils";
 import {
   CITIES,
   STATUS_CLASSES,
@@ -132,6 +133,23 @@ export default function StudentDashboard() {
                       </Link>
                       <p className="text-sm text-muted-foreground">{a.company_name}</p>
                       <p className="mt-1.5 line-clamp-1 text-sm text-muted-foreground">{a.motivation}</p>
+                      {a.status === "interview" && a.interview && (
+                        <div className="mt-3" data-testid={`application-interview-${a.id}`}>
+                          {a.interview.chosen_slot ? (
+                            <p className="text-sm font-medium text-green-700">
+                              {t("iv.scheduled")}: {formatDateTime(a.interview.chosen_slot, lang)} · {a.interview.location}
+                            </p>
+                          ) : (
+                            <Link
+                              to={`/student/applications/${a.id}/interview`}
+                              className={buttonVariants({ size: "sm" })}
+                              data-testid={`application-choose-time-${a.id}`}
+                            >
+                              {t("iv.pick")}
+                            </Link>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <Badge className={STATUS_CLASSES[a.status]} data-testid={`application-status-${a.id}`}>

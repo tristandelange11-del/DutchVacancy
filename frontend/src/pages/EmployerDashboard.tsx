@@ -7,6 +7,7 @@ import Layout from "@/components/Layout";
 import { euro } from "@/components/JobCard";
 import CvPreview from "@/components/CvPreview";
 import DeleteAccount from "@/components/DeleteAccount";
+import InterviewDialog from "@/components/InterviewDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,18 +24,19 @@ import {
   type Job,
   type PublicConfig,
 } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 
 export default function EmployerDashboard() {
   const { user } = useSession();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   useSeo({
     title: "Employer dashboard",
     description: "Manage your vacancies and review student applicants.",
     noindex: true,
   });
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [interviewFor, setInterviewFor] = useState<Application | null>(null);
 
   const jobs = useQuery({ queryKey: ["employer-jobs"], queryFn: () => apiGet<Job[]>("/employer/jobs") });
   const applicants = useQuery({
@@ -253,7 +255,11 @@ export default function EmployerDashboard() {
                     <div className="mt-4 flex flex-wrap items-center gap-3">
                       <select
                         value={a.status}
-                        onChange={(e) => setStatus.mutate({ id: a.id, status: e.target.value as AppStatus })}
+                        onChange={(e) => {
+                          const next = e.target.value as AppStatus;
+                          if (next === "interview") setInterviewFor(a);
+                          else setStatus.mutate({ id: a.id, status: next });
+                        }}
                         data-testid={`applicant-status-select-${a.id}`}
                         aria-label={t("ed.statApplicants")}
                         className="h-9 rounded-lg border border-input bg-background px-3 text-sm"
@@ -265,7 +271,30 @@ export default function EmployerDashboard() {
                       {a.cv_url && (
                         <CvPreview url={a.cv_url} filename={a.cv_filename} testidSuffix={a.id} />
                       )}
+                      {a.status === "interview" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setInterviewFor(a)}
+                          data-testid={`applicant-interview-button-${a.id}`}
+                        >
+                          {a.interview ? t("iv.reschedule") : t("iv.propose")}
+                        </Button>
+                      )}
                     </div>
+                    {a.status === "interview" && a.interview && (
+                      <p className="mt-3 text-sm text-muted-foreground" data-testid={`applicant-interview-info-${a.id}`}>
+                        {a.interview.chosen_slot ? (
+                          <span className="font-medium text-green-700">
+                            {t("iv.scheduled")}: {formatDateTime(a.interview.chosen_slot, lang)}
+                          </span>
+                        ) : (
+                          t("iv.awaiting")
+                        )}
+                        {" · "}
+                        {a.interview.location}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -274,6 +303,9 @@ export default function EmployerDashboard() {
         </Tabs>
         <DeleteAccount />
       </div>
+      {interviewFor && (
+        <InterviewDialog key={interviewFor.id} application={interviewFor} onClose={() => setInterviewFor(null)} />
+      )}
     </Layout>
   );
 }
