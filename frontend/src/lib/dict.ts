@@ -466,6 +466,7 @@ export const DICT: Record<string, Entry> = {
     "Er wacht geen gesprek op een tijdstip bij deze sollicitatie.",
   ],
   "iv.back": ["Back to dashboard", "Terug naar dashboard"],
+  "iv.addToCalendar": ["Add to calendar", "Toevoegen aan agenda"],
   "ed.fresh": ["Fresh. €14.95 excl. VAT", "Fresh. €14,95 excl. btw"],
   "ed.freshActive": ["Fresh active", "Fresh actief"],
   "ed.freshFailed": ["Could not start Fresh Vacancy checkout", "Kon de Fresh Vacancy-betaling niet starten"],

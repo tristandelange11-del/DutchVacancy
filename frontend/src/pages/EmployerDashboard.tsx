@@ -293,6 +293,18 @@ export default function EmployerDashboard() {
                         )}
                         {" · "}
                         {a.interview.location}
+                        {a.interview.chosen_slot && (
+                          <>
+                            {" · "}
+                            <a
+                              href={`/api/employer/applications/${a.id}/interview.ics`}
+                              className="font-medium text-primary underline"
+                              data-testid={`applicant-interview-ics-${a.id}`}
+                            >
+                              {t("iv.addToCalendar")}
+                            </a>
+                          </>
+                        )}
                       </p>
                     )}
                   </div>

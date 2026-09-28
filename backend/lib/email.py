@@ -3,6 +3,7 @@
 import logging
 import os
 from html import escape
+from typing import Optional
 
 import httpx
 
@@ -13,7 +14,15 @@ def app_url() -> str:
     return os.getenv("APP_URL", "http://localhost:5173").rstrip("/")
 
 
-async def send_email(to: str, subject: str, title: str, body: str, action: str, url: str) -> bool:
+async def send_email(
+    to: str,
+    subject: str,
+    title: str,
+    body: str,
+    action: str,
+    url: str,
+    attachments: Optional[list[dict[str, str]]] = None,
+) -> bool:
     api_key = os.getenv("RESEND_API_KEY", "").strip()
     sender = os.getenv("EMAIL_FROM", "DutchVacancy <noreply@dutchvacancy.nl>").strip()
     if not api_key:
@@ -30,12 +39,15 @@ async def send_email(to: str, subject: str, title: str, body: str, action: str, 
       <p style="font-size:12px;color:#64748b">If you did not request this email, you can ignore it.</p>
     </div>
     """
+    payload = {"from": sender, "to": [to], "subject": subject, "html": html}
+    if attachments:
+        payload["attachments"] = attachments
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             response = await client.post(
                 "https://api.resend.com/emails",
                 headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                json={"from": sender, "to": [to], "subject": subject, "html": html},
+                json=payload,
             )
     except httpx.HTTPError as exc:
         logger.error("Resend request failed for %s: %s", to, exc)
