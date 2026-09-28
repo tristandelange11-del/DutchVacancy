@@ -6,6 +6,7 @@ normalisation is exercised too.
 """
 
 import asyncio
+import base64
 import importlib
 import os
 import secrets
@@ -157,7 +158,7 @@ def test_closed_application_cannot_get_interview(world):
     assert propose(world).status_code == 409
 
 
-def test_student_chooses_offered_slot_and_employer_is_notified(world):
+def test_student_chooses_offered_slot_and_both_sides_are_emailed_with_ics(world):
     slots = propose(world).json()["interview"]["slots"]
     world["mail"].reset_mock()
 
@@ -168,11 +169,46 @@ def test_student_chooses_offered_slot_and_employer_is_notified(world):
     chosen = r.json()["interview"]["chosen_slot"]
     assert datetime.fromisoformat(chosen.replace("Z", "+00:00")) == datetime.fromisoformat(slots[1].replace("Z", "+00:00"))
 
-    world["mail"].assert_awaited_once()
-    assert world["mail"].await_args.args[0].startswith("employer-")
+    assert world["mail"].await_count == 2
+    recipients = {call.args[0] for call in world["mail"].await_args_list}
+    assert any(r.startswith("student-") for r in recipients)
+    assert any(r.startswith("employer-") for r in recipients)
+
+    for call in world["mail"].await_args_list:
+        attachments = call.kwargs["attachments"]
+        assert attachments[0]["filename"] == "interview.ics"
+        ics = base64.b64decode(attachments[0]["content"]).decode("utf-8")
+        assert ics.startswith("BEGIN:VCALENDAR")
+        assert "BEGIN:VEVENT" in ics and "DTSTART:" in ics
 
     listed = world["student"].get("/student/applications").json()
     assert listed[0]["interview"]["chosen_slot"] == chosen
+
+
+def test_ics_download_requires_a_confirmed_time_and_the_right_owner(world):
+    student_url = f"/student/applications/{world['app_id']}/interview.ics"
+    employer_url = f"/employer/applications/{world['app_id']}/interview.ics"
+
+    assert world["student"].get(student_url).status_code == 409  # no interview proposed yet
+    slots = propose(world).json()["interview"]["slots"]
+    assert world["student"].get(student_url).status_code == 409  # proposed, not yet chosen
+    assert world["employer"].get(employer_url).status_code == 409
+
+    world["student"].post(f"/student/applications/{world['app_id']}/interview/choose", json={"slot": slots[0]})
+
+    r1 = world["student"].get(student_url)
+    assert r1.status_code == 200
+    assert r1.headers["content-type"].startswith("text/calendar")
+    assert r1.text.startswith("BEGIN:VCALENDAR")
+
+    r2 = world["employer"].get(employer_url)
+    assert r2.status_code == 200
+    assert r2.text.startswith("BEGIN:VCALENDAR")
+
+    assert world["other_student"].get(student_url).status_code == 404
+    assert world["other_employer"].get(employer_url).status_code == 404
+    assert world["employer"].get(student_url).status_code == 403
+    assert world["student"].get(employer_url).status_code == 403
 
 
 def test_choice_can_only_be_made_once(world):

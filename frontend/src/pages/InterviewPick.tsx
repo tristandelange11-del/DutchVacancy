@@ -69,6 +69,13 @@ export default function InterviewPick() {
         <p className="mt-2 text-sm text-muted-foreground">
           {t("iv.where")}: {interview.location}
         </p>
+        <a
+          href={`/api/student/applications/${app.id}/interview.ics`}
+          className={cn(buttonVariants({ variant: "outline" }), "mt-4 gap-2")}
+          data-testid="interview-add-to-calendar"
+        >
+          <CalendarCheck className="h-4 w-4" /> {t("iv.addToCalendar")}
+        </a>
         {backLink}
       </div>
     );
