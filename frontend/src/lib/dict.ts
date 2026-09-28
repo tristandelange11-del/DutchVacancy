@@ -759,6 +759,19 @@ export const DICT: Record<string, Entry> = {
       "Je hebt het recht je gegevens in te zien, te corrigeren, te exporteren, te beperken of te laten verwijderen, en om bezwaar te maken tegen de verwerking. Neem contact op via het contactformulier en wij reageren binnen een maand. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.",
     ],
   ],
+  "privacy.s6t": ["Other companies we work with", "Andere partijen waarmee wij werken"],
+  "privacy.s6b": [
+    [
+      "We share the minimum data needed with a small number of specialist companies that help us run DutchVacancy, each bound by their own data processing agreement. Resend delivers our transactional emails — account verification, password reset, interview invitations — and only receives the recipient's email address and the message content.",
+      "Stripe processes payments for paid employer features such as Fresh Vacancy. Stripe collects your payment details directly during checkout; we never see or store your card number, only the confirmation that a payment succeeded and the amount paid.",
+      "We do not sell your data, and we do not share it with advertisers or data brokers.",
+    ],
+    [
+      "Wij delen alleen de gegevens die noodzakelijk zijn met een klein aantal gespecialiseerde bedrijven die ons helpen DutchVacancy te laten draaien, elk gebonden aan een eigen verwerkersovereenkomst. Resend verstuurt onze transactionele e-mails — accountverificatie, wachtwoord-reset, gespreksuitnodigingen — en ontvangt daarvoor alleen het e-mailadres van de ontvanger en de inhoud van het bericht.",
+      "Stripe verwerkt betalingen voor betaalde werkgeversfuncties zoals Fresh Vacancy. Stripe verzamelt je betaalgegevens rechtstreeks tijdens het afrekenen; wij zien of bewaren je kaartnummer nooit, alleen de bevestiging dat de betaling is gelukt en het betaalde bedrag.",
+      "Wij verkopen je gegevens niet en delen ze niet met adverteerders of databrokers.",
+    ],
+  ],
 
   // ---------- terms ----------
   "terms.eyebrow": ["Terms of service", "Algemene voorwaarden"],
@@ -819,6 +832,17 @@ export const DICT: Record<string, Entry> = {
     ],
     [
       "De dienst wordt geleverd “zoals hij is”. Voor zover de wet dit toestaat, is onze aansprakelijkheid beperkt tot directe schade tot € 250. Op deze voorwaarden is Nederlands recht van toepassing; de rechtbank Amsterdam is bevoegd.",
+    ],
+  ],
+  "terms.s7t": ["Fresh Vacancy (paid promotion)", "Fresh Vacancy (betaalde promotie)"],
+  "terms.s7b": [
+    [
+      "Employers may promote one published vacancy as “Fresh Vacancy” for € 14.95 excluding VAT, which keeps it marked as newly listed and pinned near the top of search results for 24 hours. At most 3 vacancies can be Fresh at the same time, platform-wide.",
+      "Payment is processed by Stripe at the moment of purchase. Once a Fresh Vacancy placement has started, the fee is not refundable, including if you unpublish or delete the vacancy early. We may change the price, duration or availability of this feature at any time; the terms shown at checkout apply to that purchase.",
+    ],
+    [
+      "Werkgevers kunnen één gepubliceerde vacature promoten als “Fresh Vacancy” voor € 14,95 excl. btw, waardoor deze 24 uur lang als nieuw gemarkeerd blijft en bovenaan de zoekresultaten wordt vastgezet. Er kunnen platformbreed maximaal 3 vacatures tegelijk Fresh zijn.",
+      "Betaling wordt verwerkt door Stripe op het moment van aankoop. Zodra een Fresh Vacancy-plaatsing is gestart, wordt het bedrag niet terugbetaald, ook niet als je de vacature vroegtijdig depubliceert of verwijdert. Wij kunnen de prijs, duur of beschikbaarheid van deze functie op elk moment wijzigen; de voorwaarden die bij het afrekenen worden getoond, gelden voor die aankoop.",
     ],
   ],
 };
