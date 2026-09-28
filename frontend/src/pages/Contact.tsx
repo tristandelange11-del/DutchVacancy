@@ -1,4 +1,5 @@
 import { useState } from "react";
+import business from "@/config/business.json";
 import { useMutation } from "@tanstack/react-query";
 import { Mail, MapPin } from "lucide-react";
 import { toast } from "sonner";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { apiPost } from "@/lib/api";
+import { ApiError, apiPost } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 import type { OkResponse } from "@/lib/types";
 import { useSeo } from "@/lib/seo";
@@ -28,7 +29,10 @@ export default function Contact() {
       toast.success(t("contact.sent"));
       setForm({ name: "", email: "", subject: "", message: "" });
     },
-    onError: () => toast.error(t("contact.failed")),
+    onError: (error) => {
+      const detail = error instanceof ApiError ? (error.body as { detail?: string })?.detail : null;
+      toast.error(detail ?? t("contact.failed"));
+    },
   });
 
   return (
@@ -71,7 +75,7 @@ export default function Contact() {
             <Mail className="mt-0.5 h-4 w-4" />
             <div>
               <p className="font-heading text-sm font-bold">{t("contact.emailLabel")}</p>
-              <p className="text-sm">hello@dutchvacancy.nl</p>
+              <a className="text-sm underline" href={`mailto:${business.contact_email}`}>{business.contact_email}</a>
             </div>
           </div>
           <div className="flex gap-3">

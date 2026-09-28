@@ -1,0 +1,56 @@
+name: Verify private production backup restoration
+on:
+  push:
+    branches: [codex/private-production]
+    paths:
+      - scripts/backup-production.sh
+      - scripts/verify-production-backup.sh
+      - .github/workflows/verify-private-backup.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dutchvacancy-production
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/codex/private-production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure SSH
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+        run: |
+          test -n "$VPS_SSH_PRIVATE_KEY"
+          install -m 700 -d ~/.ssh
+          umask 077
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          ssh-keyscan -T 10 -H 85.10.151.123 >> ~/.ssh/known_hosts
+      - name: Verify private candidate and upload reviewed backup tools
+        run: |
+          ssh deploy@85.10.151.123 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            base=/opt/dutchvacancy-production
+            test -s "$base/.deployed-commit"
+            grep -qx 'APP_URL=http://127.0.0.1:8180' "$base/.env.production"
+            test -f /opt/dutchvacancy/Caddyfile.staging
+            if grep -Eq '8180|dutchvacancy-production' /opt/dutchvacancy/Caddyfile.staging; then exit 1; fi
+            web_id="$(sudo docker compose --project-name dutchvacancy-production --env-file "$base/.env.production" -f "$base/current/compose.production.yml" ps -q web < /dev/null)"
+            test "$(sudo docker port "$web_id" 8080/tcp)" = '127.0.0.1:8180'
+          REMOTE
+          scp scripts/backup-production.sh scripts/verify-production-backup.sh deploy@85.10.151.123:/opt/dutchvacancy-production/current/scripts/
+      - name: Create backup
+        run: ssh deploy@85.10.151.123 'bash /opt/dutchvacancy-production/current/scripts/backup-production.sh' < /dev/null
+      - name: Restore and verify
+        run: |
+          ssh deploy@85.10.151.123 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            base=/opt/dutchvacancy-production
+            archive="$(find "$base/backups" -maxdepth 1 -name 'mongo-*.archive.gz' -type f | sort | tail -n 1)"
+            bash "$base/current/scripts/verify-production-backup.sh" "$archive" < /dev/null
+            printf '%s\n' 'Restore verification completed.'
+          REMOTE
+          echo 'Actual production archive restored into an isolated database; metadata and nonempty fixture verified. Off-server backup still outstanding.' >> "$GITHUB_STEP_SUMMARY"

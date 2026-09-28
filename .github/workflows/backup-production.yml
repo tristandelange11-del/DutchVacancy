@@ -32,15 +32,37 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -T 10 -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
+      - name: Check production backup availability
+        id: availability
+        run: |
+          available="$(ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+            set -euo pipefail
+            base=/opt/dutchvacancy-production
+            if [ -x "$base/current/scripts/backup-production.sh" ]; then
+              echo true
+            elif [ -e "$base/.deployed-commit" ] || [ -e "$base/current" ]; then
+              echo "Production exists but the backup script is missing." >&2
+              exit 1
+            else
+              echo false
+            fi
+          REMOTE
+          )"
+          test "$available" = true || test "$available" = false
+          echo "available=$available" >> "$GITHUB_OUTPUT"
+          if [ "$available" = false ]; then
+            echo '::warning::No production backup created: production has not been deployed.'
+            echo '## No production backup created' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Production is not deployed. The backup step is explicitly skipped.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Back up MongoDB
+        if: steps.availability.outputs.available == 'true'
         run: |
           ssh "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
             set -euo pipefail
             script=/opt/dutchvacancy-production/current/scripts/backup-production.sh
-            if [ ! -x "$script" ]; then
-              echo "Production is not deployed yet; skipping backup."
-              exit 0
-            fi
+            test -x "$script"
             "$script"
           REMOTE
-
+          echo 'A production database archive was created and its gzip integrity checked. Restore testing and an external copy are separate checks.' >> "$GITHUB_STEP_SUMMARY"
