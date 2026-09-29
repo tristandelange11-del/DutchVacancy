@@ -92,3 +92,13 @@ is shortcut via a direct Mongo write (`tests/fixtures/db.ts`) since there's no r
 Runs as the `e2e` job in `.github/workflows/test.yml` against a disposable MongoDB service
 container, the real backend and `npm run dev` (not a preview build — the Vite `/api` proxy only
 applies to `vite dev`).
+
+## Error monitoring
+`backend/server.py` initialises Sentry (`sentry-sdk[fastapi]`) right after `load_dotenv`, before the
+app itself, so its FastAPI integration auto-instruments. No-ops without `SENTRY_DSN` set — local dev
+and any environment that hasn't configured one is unaffected. `traces_sample_rate=0.0` and
+`send_default_pii=False` are explicit (error capture only, no tracing/profiling; no request
+bodies/headers or user IP sent). `SENTRY_ENVIRONMENT` tags events `staging` vs `production`
+(`compose.staging.yml`/`compose.production.yml`) — one shared Sentry project/DSN for both, not two.
+The `SENTRY_DSN` GitHub secret is injected into `.env.staging`/`.env.production` by the deploy
+workflows the same way `RESEND_API_KEY` already is.

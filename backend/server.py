@@ -18,6 +18,24 @@ from slowapi.middleware import SlowAPIMiddleware
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Error monitoring: must init before the app itself so the FastAPI integration
+# auto-instruments (enabled automatically once `fastapi` is importable). No-ops
+# without a DSN, so local dev and any environment that hasn't set one is unaffected.
+import sentry_sdk  # noqa: E402
+
+_sentry_dsn = os.environ.get('SENTRY_DSN', '').strip()
+if _sentry_dsn:
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        environment=os.environ.get('SENTRY_ENVIRONMENT', 'development'),
+        # Error monitoring only — tracing/profiling were deliberately left off at
+        # setup (this app's traffic doesn't need it yet, and it's extra volume/cost).
+        traces_sample_rate=0.0,
+        # Default is already False; stated explicitly — request bodies/headers and
+        # user IP are not sent, matching this project's privacy posture.
+        send_default_pii=False,
+    )
+
 # MongoDB connection
 from lib.db import client, db, ensure_indexes
 from lib.ratelimit import limiter
