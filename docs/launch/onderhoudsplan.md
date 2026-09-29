@@ -14,6 +14,7 @@ Wijs een vervanger aan voor vakanties.
 | SVB-bronpagina | bij elke kennisbankcontrole | inhoudelijk eigenaar | geen: de SVB-site weigert scripts | handmatig lezen |
 | Privacyverklaring en voorwaarden | jaarlijks en bij elke nieuwe dienst of gegevensstroom | voorstel: Tristan (+ jurist) | — | tekst en datum "laatst bijgewerkt" aanpassen |
 | Foutmeldingen | wekelijks, en direct bij een melding | voorstel: Tristan | Sentry mailt bij nieuwe fouten (als meldingen aanstaan) | fout beoordelen; Claude kan helpen oplossen |
+| Fresh Vacancy-terugbetalingen (zodra betalen aanstaat) | wekelijks | voorstel: Tristan | betaling bij drie bezette plekken wordt vastgelegd als `manual_refund_required` in `payment_events` | de betaling handmatig terugbetalen in Stripe |
 | Metingen en maandrapport | maandelijks | voorstel: Tristan | Plausible verzamelt | rapport invullen volgens `meetplan.md` |
 | Back-ups | dagelijks automatisch; controle maandelijks | voorstel: Tristan | `backup-production.yml` draait elke nacht om 01:17 UTC | maandelijks nagaan of de laatste run groen is; eens per kwartaal een proefterugzetting |
 | Updates van software en afhankelijkheden | maandelijks | Claude op verzoek | CI draait alle tests bij elke wijziging | updates laten doorvoeren via een PR |

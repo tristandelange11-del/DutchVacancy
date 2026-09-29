@@ -26,7 +26,7 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
 | [#13](https://github.com/tristandelange11-del/DutchVacancy/pull/13) | Kennisbank met bronnen en publicatiepoort | groen |
 | [#14](https://github.com/tristandelange11-del/DutchVacancy/pull/14) | Werkgeverspagina en formulier, contact/over ons/privacy, metingen, SEO-correcties, tweetalige mails | loopt na openen |
 
-De PR's bouwen op elkaar voort: merge ze op volgorde. Daarna zet Claude staging bij (de preview, achter
+De PR's bouwen op elkaar voort: merge ze op volgorde. **PR #7** (privacy/voorwaarden) is in #14 opgenomen en gecorrigeerd: Fresh Vacancy staat op de homepage en niet bovenaan de zoekresultaten, en de verwerkersovereenkomsten zijn niet als feit vermeld. #7 kan dus dicht zonder merge. Daarna zet Claude staging bij (de preview, achter
 wachtwoord en niet vindbaar).
 
 **Nieuwe pagina's:** `/guide` (kennisbank "Werken als internationale student in Nederland", vervangt de oude

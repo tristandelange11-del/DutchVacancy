@@ -874,14 +874,16 @@ export const DICT: Record<string, Entry> = {
       "Email: account, application and interview emails are sent through Resend. When a student applies, we also send ourselves a short follow-up record (application number, vacancy, company and whether the notifications went out) — never the candidate's details, motivation or CV.",
       "Error monitoring: when something breaks, a technical error report goes to Sentry. We configured it not to send request contents, form data or IP addresses.",
       "Visitor statistics: on dutchvacancy.nl we count visits and a few actions (for example 'application sent') with Plausible Analytics, without cookies and without personal data. We never send names, email addresses, CV or form contents to it.",
-      "Payments: if an employer buys a paid option, the payment is handled by Stripe.",
+      "Payments: if an employer buys a paid option, Stripe collects the payment details directly during checkout. We never see or store card numbers — only the confirmation that the payment succeeded.",
+      "We do not sell your data and do not share it with advertisers or data brokers.",
     ],
     [
       "Hosting: de site en de database draaien op een server die wij huren bij TransIP.",
       "E-mail: e-mails over je account, sollicitaties en gesprekken versturen wij via Resend. Als een student solliciteert, sturen wij onszelf ook een kort opvolgbericht (sollicitatienummer, vacature, bedrijf en of de meldingen zijn verstuurd) — nooit de gegevens van de kandidaat, de motivatie of het cv.",
       "Foutmeldingen: als er iets misgaat, gaat een technisch foutrapport naar Sentry. Wij hebben dit zo ingesteld dat er geen verzoekinhoud, formuliergegevens of IP-adressen worden meegestuurd.",
       "Bezoekersstatistieken: op dutchvacancy.nl tellen wij bezoeken en enkele handelingen (bijvoorbeeld 'sollicitatie verstuurd') met Plausible Analytics, zonder cookies en zonder persoonsgegevens. Namen, e-mailadressen, cv's of formulierinhoud sturen wij daar nooit naartoe.",
-      "Betalingen: als een werkgever een betaalde optie koopt, wordt de betaling afgehandeld door Stripe.",
+      "Betalingen: als een werkgever een betaalde optie koopt, verzamelt Stripe de betaalgegevens rechtstreeks tijdens het afrekenen. Wij zien of bewaren nooit kaartnummers — alleen de bevestiging dat de betaling is gelukt.",
+      "Wij verkopen je gegevens niet en delen ze niet met adverteerders of databrokers.",
     ],
   ],
 
@@ -944,6 +946,17 @@ export const DICT: Record<string, Entry> = {
     ],
     [
       "De dienst wordt geleverd “zoals hij is”. Voor zover de wet dit toestaat, is onze aansprakelijkheid beperkt tot directe schade tot € 250. Op deze voorwaarden is Nederlands recht van toepassing; de rechtbank Amsterdam is bevoegd.",
+    ],
+  ],
+  "terms.s7t": ["Fresh Vacancy (paid promotion)", "Fresh Vacancy (betaalde promotie)"],
+  "terms.s7b": [
+    [
+      "Employers can promote one published vacancy as “Fresh Vacancy” for € 14.95 excluding VAT. For 24 hours it is shown in one of the three featured places on the home page, labelled as sponsored. At most 3 vacancies can be Fresh at the same time, platform-wide; if all places are taken at the moment of payment, the vacancy is not promoted and the payment is refunded.",
+      "Payment is processed by Stripe at the moment of purchase. Once a placement has started, the fee is not refundable, including if you unpublish or close the vacancy early. We may change the price, duration or availability of this feature; the terms shown at checkout apply to that purchase.",
+    ],
+    [
+      "Werkgevers kunnen één gepubliceerde vacature promoten als “Fresh Vacancy” voor € 14,95 excl. btw. De vacature staat dan 24 uur op een van de drie uitgelichte plekken op de homepage, met het label gesponsord. Er kunnen platformbreed maximaal 3 vacatures tegelijk Fresh zijn; zijn alle plekken bezet op het moment van betalen, dan wordt de vacature niet gepromoot en wordt de betaling terugbetaald.",
+      "Betaling wordt verwerkt door Stripe op het moment van aankoop. Zodra een plaatsing is gestart, wordt het bedrag niet terugbetaald, ook niet als je de vacature eerder depubliceert of sluit. Wij kunnen de prijs, duur of beschikbaarheid van deze functie wijzigen; de voorwaarden die bij het afrekenen worden getoond, gelden voor die aankoop.",
     ],
   ],
 };

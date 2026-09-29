@@ -17,7 +17,7 @@ export default function Terms() {
       <PageHero eyebrow={t("terms.eyebrow")} title={t("terms.title")} intro={t("terms.intro")} />
       <Prose testid="terms-page">
         <BusinessDetails />
-        {[1, 2, 3, 4, 5, 6].map((n) => (
+        {[1, 2, 3, 4, 5, 6, 7].map((n) => (
           <TextSection key={n} titleKey={`terms.s${n}t`} bodyKey={`terms.s${n}b`} />
         ))}
       </Prose>
