@@ -75,3 +75,9 @@ All static UI copy is translated; job/company content stays as the employer ente
   public static routes plus every published job (with lastmod); dashboards/auth/api are excluded and
   disallowed in robots.txt. The base URL comes from the request's forwarded host — never APP_URL,
   which can be a stale preview hostname.
+
+## Analytics
+`frontend/src/lib/analytics.ts`'s `initAnalytics()` (called once from `main.tsx`) loads the Plausible
+script — cookie-free, no consent banner needed. Gated by a runtime hostname check
+(`dutchvacancy.nl`/`www.dutchvacancy.nl` only), not a build-time env var, so staging/preview/local
+traffic never reaches the real visitor numbers and there's nothing to configure per environment.
