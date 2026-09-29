@@ -22,6 +22,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 # Always use an isolated database, regardless of developer environment settings.
 os.environ["MONGO_URL"] = "mongodb://127.0.0.1:1"
 os.environ["DB_NAME"] = "dutchvacancy_test"
+# The in-memory rate limiter is one shared bucket per process — off by default so
+# unrelated tests (e.g. account_factory registering several users) don't trip each
+# other's limits. test_rate_limiting.py flips it on for its own tests only.
+os.environ["DISABLE_RATE_LIMITS"] = "1"
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8001")
 API_URL = f"{BACKEND_URL}/api"
