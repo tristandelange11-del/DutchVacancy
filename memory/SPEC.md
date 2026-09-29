@@ -16,7 +16,7 @@ shadcn (base-nova). Auth = httpOnly session cookie (`dv_session`) + `sessions` c
 - `applications`: id, job_id/title, company_id/name, student_id/name/email/university, motivation, cv_url, status (applied|under_review|interview|accepted|rejected)
   - `notification_status` (stored, not in the API model): {student, employer, ops} each sent|failed|skipped_test_address|no_recipient|not_configured — set after the application is stored (`backend/lib/applications.py`).
   - `interview` (optional, set by the employer): mode (online|on_location), location (meeting link or address), note, slots[] (UTC datetimes, 1–5, future, ≤ 90 days ahead), chosen_slot (null until the candidate picks), proposed_at. All datetimes are serialised as UTC with an offset.
-- `users` also carry `email_verified` (bool) and `lang` (en|nl, set at registration from the UI language; used for transactional mail). Single-use hashed tokens for email verification and password reset live in `auth_tokens`.
+- `users` also carry `email_verified` (bool) and `lang` (en|nl, set at registration from the UI language). Every transactional mail — verification, password reset, application, interview invite/confirmation and the `.ics` text — is written in the recipient's own `lang` (`lib/mail_text.py`, `lib/applications.py`); dates are spelled out per language in Amsterdam time. Single-use hashed tokens for email verification and password reset live in `auth_tokens`.
 - `saved_jobs`: student_id + job_id (unique)
 - `contact_messages`: kind (general|employer), name, email, company, subject, message, notification_status
 

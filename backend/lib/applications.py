@@ -67,6 +67,7 @@ async def notify_application(app: dict[str, Any], student_lang: str, employers: 
             _msg("student_body", student_lang, **kw),
             _msg("student_action", student_lang, **kw),
             f"{app_url()}/student/dashboard",
+            lang=student_lang,
         )
         status["student"] = "sent" if ok else "failed"
 
@@ -81,6 +82,7 @@ async def notify_application(app: dict[str, Any], student_lang: str, employers: 
             _msg("employer_body", lang, **kw),
             _msg("employer_action", lang, **kw),
             f"{app_url()}/employer/dashboard",
+            lang=lang,
         ):
             delivered += 1
     if not employers:

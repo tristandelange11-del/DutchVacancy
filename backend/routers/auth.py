@@ -19,6 +19,7 @@ from lib.auth import (
 )
 from lib.db import db
 from lib.email import send_email
+from lib.mail_text import lang_of, text
 from lib.ratelimit import limiter
 from models.schemas import (
     Company,
@@ -65,13 +66,15 @@ async def _recent_token(user_id: str, purpose: str) -> bool:
 async def _send_verification(user: dict[str, Any]) -> None:
     token = await _new_token(user["id"], "verify_email", 24 * 60)
     url = f"{_app_url()}/verify-email?token={quote(token)}"
+    lang = lang_of(user)
     await send_email(
         user["email"],
-        "Verify your DutchVacancy email",
-        "Verify your email address",
-        "Confirm your email address to apply for jobs or publish vacancies.",
-        "Verify email",
+        text("verify_subject", lang),
+        text("verify_title", lang),
+        text("verify_body", lang),
+        text("verify_action", lang),
         url,
+        lang=lang,
     )
 
 
@@ -147,13 +150,15 @@ async def forgot_password(request: Request, payload: EmailRequest):
     if doc and not await _recent_token(doc["id"], "reset_password"):
         token = await _new_token(doc["id"], "reset_password", 60)
         url = f"{_app_url()}/reset-password?token={quote(token)}"
+        lang = lang_of(doc)
         await send_email(
             doc["email"],
-            "Reset your DutchVacancy password",
-            "Reset your password",
-            "Use the button below to choose a new password. The link expires after one hour.",
-            "Reset password",
+            text("reset_subject", lang),
+            text("reset_title", lang),
+            text("reset_body", lang),
+            text("reset_action", lang),
             url,
+            lang=lang,
         )
     return OkResponse()
 

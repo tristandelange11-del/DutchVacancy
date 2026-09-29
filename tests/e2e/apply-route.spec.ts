@@ -61,6 +61,14 @@ test.describe.serial("application route", () => {
     await expect(page.getByTestId("job-detail-posted")).toBeVisible();
     await expect(page.getByTestId("job-detail-closes")).toBeVisible();
 
+    // Google's required JobPosting properties are present, and nothing is invented:
+    // no pay was stated, so there is no baseSalary.
+    const ld = JSON.parse((await page.locator("#dv-json-ld").textContent()) ?? "{}");
+    for (const key of ["title", "description", "datePosted", "hiringOrganization", "jobLocation", "validThrough"]) {
+      expect(ld).toHaveProperty(key);
+    }
+    expect(ld).not.toHaveProperty("baseSalary");
+
     await page.getByTestId("job-apply-button").click();
     await expect(page).toHaveURL(new RegExp(`/register\\?next=${encodeURIComponent(`/jobs/${jobId}`)}`));
 

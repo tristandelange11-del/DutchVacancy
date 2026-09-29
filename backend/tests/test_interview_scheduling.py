@@ -240,3 +240,28 @@ def test_proposing_again_resets_the_chosen_time(world):
     again = propose(world, slots=[future(6)]).json()
     assert again["interview"]["chosen_slot"] is None
     assert world["student"].post(url, json={"slot": again["interview"]["slots"][0]}).status_code == 200
+
+
+def test_each_side_gets_interview_mail_in_its_own_language(world):
+    student_id = asyncio.run(world["db"].applications.find_one({"id": world["app_id"]}))["student_id"]
+    asyncio.run(world["db"].users.update_one({"id": student_id}, {"$set": {"lang": "nl"}}))
+
+    slots = propose(world).json()["interview"]["slots"]
+    invite = world["mail"].await_args
+    assert invite.args[1] == "Uitnodiging voor een gesprek bij Acme: Data Analyst"
+    assert invite.kwargs["lang"] == "nl"
+    world["mail"].reset_mock()
+
+    world["student"].post(f"/student/applications/{world['app_id']}/interview/choose", json={"slot": slots[0]})
+    by_recipient = {call.args[0].split("-")[0]: call for call in world["mail"].await_args_list}
+    student_mail, employer_mail = by_recipient["student"], by_recipient["employer"]
+
+    assert student_mail.args[1].startswith("Gesprek bevestigd: ")
+    assert "(Nederlandse tijd)" in student_mail.args[1]
+    student_ics = base64.b64decode(student_mail.kwargs["attachments"][0]["content"]).decode("utf-8")
+    assert "SUMMARY:Gesprek: Data Analyst bij Acme" in student_ics
+
+    # The employer registered in English and keeps getting English.
+    assert employer_mail.args[1].endswith("chose an interview time")
+    assert "(Amsterdam time)" in employer_mail.args[3]
+    assert employer_mail.kwargs["lang"] == "en"
