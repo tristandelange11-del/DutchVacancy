@@ -102,3 +102,9 @@ bodies/headers or user IP sent). `SENTRY_ENVIRONMENT` tags events `staging` vs `
 (`compose.staging.yml`/`compose.production.yml`) — one shared Sentry project/DSN for both, not two.
 The `SENTRY_DSN` GitHub secret is injected into `.env.staging`/`.env.production` by the deploy
 workflows the same way `RESEND_API_KEY` already is.
+
+## Analytics
+`frontend/src/lib/analytics.ts`'s `initAnalytics()` (called once from `main.tsx`) loads the Plausible
+script — cookie-free, no consent banner needed. Gated by a runtime hostname check
+(`dutchvacancy.nl`/`www.dutchvacancy.nl` only), not a build-time env var, so staging/preview/local
+traffic never reaches the real visitor numbers and there's nothing to configure per environment.
