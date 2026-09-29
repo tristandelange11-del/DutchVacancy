@@ -19,6 +19,7 @@ from lib.auth import (
 )
 from lib.db import db
 from lib.email import send_email
+from lib.ratelimit import limiter
 from models.schemas import (
     Company,
     EmailRequest,
@@ -79,7 +80,8 @@ def to_user(doc: dict[str, Any]) -> User:
 
 
 @router.post("/register", response_model=User)
-async def register(payload: RegisterRequest, response: Response):
+@limiter.limit("5/minute")
+async def register(request: Request, payload: RegisterRequest, response: Response):
     email = payload.email.lower().strip()
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=409, detail="An account with this email already exists")
@@ -115,7 +117,8 @@ async def register(payload: RegisterRequest, response: Response):
 
 
 @router.post("/resend-verification", response_model=OkResponse)
-async def resend_verification(payload: EmailRequest):
+@limiter.limit("5/minute")
+async def resend_verification(request: Request, payload: EmailRequest):
     doc = await db.users.find_one({"email": payload.email.lower().strip()})
     if doc and not doc.get("email_verified", False) and not await _recent_token(doc["id"], "verify_email"):
         await _send_verification(doc)
@@ -137,7 +140,8 @@ async def verify_email(payload: TokenRequest):
 
 
 @router.post("/forgot-password", response_model=OkResponse)
-async def forgot_password(payload: EmailRequest):
+@limiter.limit("5/minute")
+async def forgot_password(request: Request, payload: EmailRequest):
     doc = await db.users.find_one({"email": payload.email.lower().strip()})
     if doc and not await _recent_token(doc["id"], "reset_password"):
         token = await _new_token(doc["id"], "reset_password", 60)
@@ -189,7 +193,8 @@ async def delete_account(user: dict[str, Any] = Depends(current_user)):
 
 
 @router.post("/login", response_model=User)
-async def login(payload: LoginRequest, response: Response):
+@limiter.limit("10/minute")
+async def login(request: Request, payload: LoginRequest, response: Response):
     doc = await db.users.find_one({"email": payload.email.lower().strip()})
     if not doc or not verify_password(payload.password, doc.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid email or password")

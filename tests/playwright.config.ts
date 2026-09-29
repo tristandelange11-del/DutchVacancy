@@ -20,15 +20,12 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
   },
   projects: [
-    // Keep the project matching the brief's form factor; DELETE the other (both = 2x test time).
+    // DutchVacancy is a general responsive web app, not mobile-only — desktop matches
+    // the brief; the mobile project is deleted per this file's own instruction above.
     // Only chromium is installed — never switch to iPhone/webkit device descriptors.
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
-    },
-    {
-      name: 'mobile',
-      use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
     },
   ],
 });
