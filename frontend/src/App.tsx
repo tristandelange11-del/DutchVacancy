@@ -11,6 +11,7 @@ import VacancyForm from "@/pages/VacancyForm";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Guide from "@/pages/Guide";
+import GuideArticle from "@/pages/GuideArticle";
 import HowItWorks from "@/pages/HowItWorks";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
@@ -33,6 +34,7 @@ export default function App() {
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/guide" element={<Guide />} />
+      <Route path="/guide/:slug" element={<GuideArticle />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy" element={<Privacy />} />

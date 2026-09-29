@@ -23,7 +23,7 @@ shadcn (base-nova). Auth = httpOnly session cookie (`dv_session`) + `sessions` c
 ## Endpoints (all on api_router, prefix /api)
 Auth: POST /auth/register, /auth/login, /auth/logout; GET /auth/me, /auth/session (null when anon); PUT /auth/profile (student)
 Auth extras: POST /auth/verify-email, /auth/resend-verification, /auth/forgot-password, /auth/reset-password; DELETE /auth/account. Applying and publishing/promoting a vacancy require `email_verified`.
-Public: GET /jobs (q, city, job_type, english_level, permit_support, work_mode, min_rate, limit), GET /jobs/{id}, GET /stats, POST /contact
+Public: GET /jobs (q, city, job_type, english_level, permit_support, work_mode, min_rate, limit), GET /jobs/{id}, GET /stats, POST /contact, GET /kb, GET /kb/{slug} (knowledge base, see below)
 Student: POST /jobs/{id}/apply (errors carry `detail: {code, message}` — email_not_verified 403, job_not_found 404, job_closed/already_applied 409, cv_required 422; on success emails the student a confirmation, the company's employer accounts a notification, and APPLICATION_OPS_EMAIL (fallback CONTACT_NOTIFICATION_EMAIL) a minimal follow-up record — never motivation or CV contents), GET /student/applications, GET/POST/DELETE /student/saved-jobs[/{job_id}]
 Employer: GET/PUT /employer/company, GET/POST /employer/jobs, PUT/DELETE /employer/jobs/{id}, GET /employer/applications, PATCH /employer/applications/{id}
 Interviews (backend/routers/interviews.py): PUT /employer/applications/{id}/interview (employer proposes 1–5 slots + mode/location/note; sets status `interview`, replaces any earlier proposal, emails the candidate a link to /student/applications/{id}/interview); POST /student/applications/{id}/interview/choose {slot} (candidate picks one offered, future slot once; both the candidate and the company's employer accounts are emailed a confirmation with a `.ics` calendar invite attached — one VEVENT, UTC, `lib/ics.py`, no external dependency). GET /student/applications/{id}/interview.ics and GET /employer/applications/{id}/interview.ics re-download that same file once a slot is chosen (409 before then). Errors: 404 not your application, 409 no proposal / already chosen / slot passed / no confirmed time yet, 422 slot not offered or invalid proposal.
@@ -31,7 +31,7 @@ Interviews (backend/routers/interviews.py): PUT /employer/applications/{id}/inte
 Mail safety: `send_email` never contacts Resend for RFC 2606/6761 reserved domains (example.com/.org/.net, *.example, *.test, *.invalid, *.localhost) — all test accounts use these.
 
 ## Routes
-/ · /jobs · /jobs/:jobId · /login · /register · /how-it-works · /guide · /about · /contact · /privacy
+/ · /jobs · /jobs/:jobId · /login · /register · /how-it-works · /guide (knowledge base hub) · /guide/:slug · /about · /contact · /privacy
 · /terms · /student/dashboard · /employer/dashboard · /employer/vacancies/new ·
 /employer/vacancies/:jobId/edit · /student/applications/:appId/interview (candidate picks a time) · * (404)
 
@@ -67,6 +67,27 @@ switch always wins and is remembered. Switcher: `components/LanguageSwitch.tsx`
 (testids `language-switch`, `lang-switch-en`, `lang-switch-nl`) in desktop and mobile header.
 All static UI copy is translated; job/company content stays as the employer entered it.
 
+## Knowledge base ("Werken als internationale student in Nederland")
+- Content is code, not DB rows: `backend/content/kb/` — `sources.py` (official pages, each opened and read in
+  full, with `checked_on`), `articles/*.py` (7 articles, NL+EN side by side as `Text(nl, en)`), `model.py`.
+  Every article has the fixed structure: answer, applies_to, exceptions, next_steps, contacts (official body
+  for the next step), optional details sections, job_link (a `/jobs?` filter with a stated value only),
+  employer_link, related, sources, author, reviewer, reviewed_on. Internal only (never served): the claims
+  register (claim → sources, applies_to, checked_on, open questions), drafted_by, open_questions, review signals.
+- Publication gate (`content/kb/__init__.py: publication_problems`): live only when status `published`, a named
+  author, and for `sensitive` articles a named reviewer, with `reviewed_on` not in the future and not older than
+  any claim check. `reviewed_on` moves only after a real content review. All 7 are drafts until the content owner
+  is named. `backend/tests/test_knowledge_base.py` enforces the gate and content integrity in CI.
+- Visibility: production serves only live articles; `KB_SHOW_DRAFTS=1` (set in `compose.staging.yml`) also
+  serves drafts with `live: false` — rendered with a draft banner, noindex, no JSON-LD. Sitemap: live only.
+- Periodic review: `review_every_days` (182) + dated `signals` (known law changes). `backend/scripts/kb_report.py`
+  writes `docs/launch/kennisbank-verificatie.md`; `--check-sources` compares every source page with the
+  fingerprint recorded at the last human read (`content/kb/fingerprints.json`, `--record` after re-reading);
+  `.github/workflows/kb-sources.yml` runs it weekly (red = a person should look; a signal, not a guarantee).
+- Frontend: `pages/Guide.tsx` (hub; official bodies when nothing is live), `pages/GuideArticle.tsx`,
+  `components/Kb.tsx`, `components/GuideLinks.tsx` (vacancy → relevant articles, from stated facts only),
+  `lib/kb.ts`. Home shows live article cards or the official bodies — rules are not paraphrased in UI strings.
+
 ## SEO
 - `frontend/src/lib/seo.ts`: `useSeo({title, description, image?, type?, noindex?, jsonLd?})` sets
   title (auto-suffixed ` · DutchVacancy`), description, robots, canonical, og:* and twitter:* on every
@@ -77,7 +98,7 @@ All static UI copy is translated; job/company content stays as the employer ente
 - Social card asset: `frontend/public/og-cover.jpg` (also the index.html default og:image).
 - `backend/routers/seo.py` → `GET /api/seo/sitemap.xml` and `/api/seo/robots.txt`; the Vite proxy
   rewrites the crawler paths `/sitemap.xml` and `/robots.txt` onto them. The sitemap lists the 8
-  public static routes plus every published job (with lastmod); dashboards/auth/api are excluded and
+  public static routes, every live knowledge-base article and every open job (with lastmod); dashboards/auth/api are excluded and
   disallowed in robots.txt. The base URL comes from the request's forwarded host — never APP_URL,
   which can be a stale preview hostname.
 

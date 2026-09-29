@@ -35,6 +35,9 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: staging
+      # Staging shows knowledge-base drafts (marked, noindex) so they can be
+      # reviewed in place; production only serves articles that passed review.
+      KB_SHOW_DRAFTS: "1"
     depends_on:
       mongo:
         condition: service_healthy
