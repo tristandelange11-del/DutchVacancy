@@ -75,3 +75,13 @@ All static UI copy is translated; job/company content stays as the employer ente
   public static routes plus every published job (with lastmod); dashboards/auth/api are excluded and
   disallowed in robots.txt. The base URL comes from the request's forwarded host — never APP_URL,
   which can be a stale preview hostname.
+
+## Error monitoring
+`backend/server.py` initialises Sentry (`sentry-sdk[fastapi]`) right after `load_dotenv`, before the
+app itself, so its FastAPI integration auto-instruments. No-ops without `SENTRY_DSN` set — local dev
+and any environment that hasn't configured one is unaffected. `traces_sample_rate=0.0` and
+`send_default_pii=False` are explicit (error capture only, no tracing/profiling; no request
+bodies/headers or user IP sent). `SENTRY_ENVIRONMENT` tags events `staging` vs `production`
+(`compose.staging.yml`/`compose.production.yml`) — one shared Sentry project/DSN for both, not two.
+The `SENTRY_DSN` GitHub secret is injected into `.env.staging`/`.env.production` by the deploy
+workflows the same way `RESEND_API_KEY` already is.
