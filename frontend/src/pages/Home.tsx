@@ -147,7 +147,11 @@ export default function Home() {
             { value: stats.data ? `${stats.data.jobs}` : "—", label: t("home.statJobs"), testid: "stat-jobs" },
             { value: stats.data ? `${stats.data.employers}` : "—", label: t("home.statEmployers"), testid: "stat-employers" },
             { value: stats.data ? `${stats.data.english_only}` : "—", label: t("home.statEnglish"), testid: "stat-english" },
-            { value: stats.data ? `€ ${stats.data.avg_hourly.toFixed(2).replace(".", ",")}` : "—", label: t("home.statRate"), testid: "stat-rate" },
+            {
+              value: stats.data?.avg_hourly != null ? `€ ${stats.data.avg_hourly.toFixed(2).replace(".", ",")}` : "—",
+              label: t("home.statRate"),
+              testid: "stat-rate",
+            },
           ].map((s) => (
             <div key={s.testid} className="px-2 py-3 lg:px-8">
               <p className="font-heading text-3xl font-extrabold text-primary" data-testid={s.testid}>{s.value}</p>

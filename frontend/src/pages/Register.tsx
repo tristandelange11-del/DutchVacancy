@@ -10,12 +10,12 @@ import { ApiError, apiPost } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 import { beginSession } from "@/lib/session";
 import { CITIES, type Role, type User } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, safeNext } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   useSeo({
     title: "Create an account",
     description:
@@ -23,6 +23,7 @@ export default function Register() {
     noindex: true,
   });
   const [params] = useSearchParams();
+  const next = safeNext(params.get("next"));
   const [role, setRole] = useState<Role>(params.get("role") === "employer" ? "employer" : "student");
   const [form, setForm] = useState({
     name: "",
@@ -45,11 +46,12 @@ export default function Register() {
         role,
         company_name: role === "employer" ? form.company_name : null,
         company_city: role === "employer" ? form.company_city : null,
+        lang,
       }),
     onSuccess: async (user) => {
       await beginSession();
       toast.success(t("register.createdVerify"));
-      navigate(user.role === "employer" ? "/employer/dashboard" : "/student/dashboard");
+      navigate(next ?? (user.role === "employer" ? "/employer/dashboard" : "/student/dashboard"));
     },
     onError: (err) => {
       const body = err instanceof ApiError ? (err.body as { detail?: unknown }) : null;
@@ -147,7 +149,11 @@ export default function Register() {
 
           <p className="mt-6 text-sm text-muted-foreground">
             {t("register.already")}{" "}
-            <Link to="/login" className="font-semibold text-primary hover:underline" data-testid="register-login-link">
+            <Link
+              to={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
+              className="font-semibold text-primary hover:underline"
+              data-testid="register-login-link"
+            >
               {t("nav.login")}
             </Link>
           </p>

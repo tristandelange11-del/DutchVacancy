@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type { Company, JobWithMeta } from "@/lib/types";
 
 const SITE_NAME = "DutchVacancy";
 const DEFAULT_IMAGE = "/og-cover.jpg";
@@ -92,58 +93,73 @@ export function useSeo({
   }, [title, description, image, type, noindex, jsonLdKey]);
 }
 
-const EMPLOYMENT_TYPE: Record<string, string> = {
-  part_time: "PART_TIME",
-  internship: "INTERN",
-  working_student: "PART_TIME",
-  graduate: "FULL_TIME",
-};
-
-export interface JobPostingSeed {
-  id: string;
-  title: string;
-  description: string;
-  city: string;
-  job_type: string;
-  work_mode: string;
-  hourly_min: number;
-  hourly_max: number;
-  hours_per_week: number;
-  created_at: string;
-  company_name: string;
+function escapeHtml(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/** schema.org JobPosting so vacancies are eligible for Google Jobs results. */
-export function jobPostingJsonLd(job: JobPostingSeed): Record<string, unknown> {
-  return {
+/**
+ * Google's employmentType values. Derived only from what the employer stated:
+ * contract form first (freelance, agency, internship differ legally), then hours.
+ */
+function employmentTypes(job: JobWithMeta): string[] {
+  const out = new Set<string>();
+  if (job.contract_type === "freelance") out.add("CONTRACTOR");
+  if (job.contract_type === "agency") out.add("TEMPORARY");
+  if (job.contract_type === "internship" || job.job_type === "internship") out.add("INTERN");
+  if (job.hours_per_week != null) out.add(job.hours_per_week >= 32 ? "FULL_TIME" : "PART_TIME");
+  else if (job.job_type === "part_time" || job.job_type === "working_student") out.add("PART_TIME");
+  return [...out];
+}
+
+/**
+ * schema.org JobPosting for Google's job search, following its structured-data
+ * guidelines: only facts the employer stated, validThrough for expiry, no salary
+ * when none was given. Only emitted for open vacancies (see JobDetail).
+ */
+export function jobPostingJsonLd(job: JobWithMeta, company: Company | null): Record<string, unknown> {
+  const parts = [`<p>${escapeHtml(job.description)}</p>`];
+  if (job.requirements.length) {
+    parts.push(`<ul>${job.requirements.map((r) => `<li>${escapeHtml(r)}</li>`).join("")}</ul>`);
+  }
+  if (job.schedule) parts.push(`<p>${escapeHtml(job.schedule)}</p>`);
+
+  const ld: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
-    description: job.description,
+    description: parts.join(""),
+    identifier: { "@type": "PropertyValue", name: job.company_name, value: job.id },
     datePosted: job.created_at,
-    employmentType: EMPLOYMENT_TYPE[job.job_type] ?? "PART_TIME",
-    hiringOrganization: { "@type": "Organization", name: job.company_name },
-    jobLocationType: job.work_mode === "remote" ? "TELECOMMUTE" : undefined,
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.company_name,
+      ...(company?.website ? { sameAs: company.website } : {}),
+    },
     jobLocation: {
       "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: job.city,
-        addressCountry: "NL",
-      },
+      address: { "@type": "PostalAddress", addressLocality: job.city, addressCountry: "NL" },
     },
-    baseSalary: {
+  };
+  if (job.closes_at) ld.validThrough = job.closes_at;
+  const types = employmentTypes(job);
+  if (types.length) ld.employmentType = types.length === 1 ? types[0] : types;
+  if (job.work_mode === "remote") {
+    ld.jobLocationType = "TELECOMMUTE";
+    ld.applicantLocationRequirements = { "@type": "Country", name: "NL" };
+  }
+  if (job.hourly_min != null || job.hourly_max != null) {
+    const lo = job.hourly_min ?? job.hourly_max;
+    const hi = job.hourly_max ?? job.hourly_min;
+    ld.baseSalary = {
       "@type": "MonetaryAmount",
       currency: "EUR",
       value: {
         "@type": "QuantitativeValue",
-        minValue: job.hourly_min,
-        maxValue: job.hourly_max,
-        unitText: "HOUR",
+        ...(lo === hi ? { value: lo } : { minValue: lo, maxValue: hi }),
+        unitText: job.salary_period === "month" ? "MONTH" : "HOUR",
       },
-    },
-    workHours: `${job.hours_per_week} hours per week`,
-    inLanguage: "en",
-    directApply: true,
-  };
+    };
+  }
+  if (job.start_date) ld.jobStartDate = job.start_date;
+  return ld;
 }

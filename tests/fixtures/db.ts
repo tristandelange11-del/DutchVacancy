@@ -18,6 +18,22 @@ function target() {
  * vacancy, applying, scheduling an interview), which requires `email_verified: true`
  * and has no real mailbox to click a link in during CI.
  */
+/** Moves a vacancy's closing date into the past, to test the closed state without waiting. */
+export async function expireJobDirectly(jobId: string): Promise<void> {
+  const { url, dbName } = target();
+  const client = new MongoClient(url);
+  try {
+    await client.connect();
+    const result = await client
+      .db(dbName)
+      .collection("jobs")
+      .updateOne({ id: jobId }, { $set: { valid_through: new Date(Date.now() - 60_000) } });
+    if (result.matchedCount === 0) throw new Error(`expireJobDirectly: no job ${jobId}`);
+  } finally {
+    await client.close();
+  }
+}
+
 export async function verifyEmailDirectly(email: string): Promise<void> {
   const { url, dbName } = target();
   const client = new MongoClient(url);

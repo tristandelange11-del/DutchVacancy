@@ -107,6 +107,7 @@ async def register(request: Request, payload: RegisterRequest, response: Respons
         role=payload.role,
         company_id=company_id,
         company_name=company_name,
+        lang=payload.lang,
     )
     doc = user.model_dump()
     doc["password_hash"] = hash_password(payload.password)

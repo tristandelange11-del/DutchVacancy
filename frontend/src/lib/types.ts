@@ -6,6 +6,9 @@ export type JobType = "part_time" | "internship" | "working_student" | "graduate
 export type PermitSupport = "twv_provided" | "eu_eea" | "freelance_kvk" | "none";
 export type WorkMode = "on_site" | "hybrid" | "remote";
 export type AppStatus = "applied" | "under_review" | "interview" | "accepted" | "rejected";
+export type SalaryPeriod = "hour" | "month";
+export type ContractType = "employment" | "on_call" | "agency" | "internship" | "freelance";
+export type ScheduleTag = "evening" | "weekend" | "holiday";
 
 export interface StudentProfile {
   university: string;
@@ -33,6 +36,7 @@ export interface User {
   company_id: string | null;
   company_name: string | null;
   email_verified: boolean;
+  lang: "en" | "nl";
   profile: StudentProfile;
   created_at: string;
 }
@@ -55,9 +59,19 @@ export interface JobInput {
   english_level: EnglishLevel;
   permit_support: PermitSupport;
   work_mode: WorkMode;
-  hourly_min: number;
-  hourly_max: number;
-  hours_per_week: number;
+  /** Gross pay in `salary_period` units; null when the employer did not state it. */
+  hourly_min: number | null;
+  hourly_max: number | null;
+  salary_period: SalaryPeriod;
+  hours_per_week: number | null;
+  schedule: string;
+  schedule_tags: ScheduleTag[];
+  contract_type: ContractType | null;
+  /** YYYY-MM-DD */
+  start_date: string | null;
+  /** Closing date (ISO). Required to publish. */
+  valid_through: string | null;
+  cv_required: boolean;
   description: string;
   requirements: string[];
   perks: string[];
@@ -78,6 +92,8 @@ export interface JobWithMeta extends Job {
   applicant_count: number;
   homepage_feature: boolean;
   fresh_sponsored: boolean;
+  is_open: boolean;
+  closes_at: string | null;
 }
 
 export interface JobDetail {
@@ -130,7 +146,7 @@ export interface Stats {
   jobs: number;
   employers: number;
   english_only: number;
-  avg_hourly: number;
+  avg_hourly: number | null;
   city_counts: Record<string, number>;
 }
 
@@ -174,6 +190,8 @@ export const ENGLISH_LEVELS: EnglishLevel[] = ["english_only", "basic_dutch", "d
 export const JOB_TYPES: JobType[] = ["part_time", "internship", "working_student", "graduate"];
 export const PERMITS: PermitSupport[] = ["twv_provided", "eu_eea", "freelance_kvk", "none"];
 export const WORK_MODES: WorkMode[] = ["on_site", "hybrid", "remote"];
+export const CONTRACT_TYPES: ContractType[] = ["employment", "on_call", "agency", "internship", "freelance"];
+export const SCHEDULE_TAGS: ScheduleTag[] = ["evening", "weekend", "holiday"];
 export const STATUSES: AppStatus[] = [
   "applied",
   "under_review",

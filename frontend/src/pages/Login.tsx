@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
@@ -11,9 +11,12 @@ import { useLang } from "@/lib/i18n";
 import { beginSession } from "@/lib/session";
 import type { User } from "@/lib/types";
 import { useSeo } from "@/lib/seo";
+import { safeNext } from "@/lib/utils";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const next = safeNext(params.get("next"));
   const { t } = useLang();
   useSeo({
     title: "Log in",
@@ -29,7 +32,7 @@ export default function Login() {
     onSuccess: async (user) => {
       await beginSession();
       toast.success(`${t("login.welcome")}, ${user.name.split(" ")[0]}`);
-      navigate(user.role === "employer" ? "/employer/dashboard" : "/student/dashboard");
+      navigate(next ?? (user.role === "employer" ? "/employer/dashboard" : "/student/dashboard"));
     },
     onError: (err) => {
       const detail = err instanceof ApiError ? (err.body as { detail?: string })?.detail : null;
@@ -80,7 +83,11 @@ export default function Login() {
 
           <p className="mt-6 text-sm text-muted-foreground">
             {t("login.noAccount")}{" "}
-            <Link to="/register" className="font-semibold text-primary hover:underline" data-testid="login-register-link">
+            <Link
+              to={next ? `/register?next=${encodeURIComponent(next)}` : "/register"}
+              className="font-semibold text-primary hover:underline"
+              data-testid="login-register-link"
+            >
               {t("login.createFree")}
             </Link>
           </p>

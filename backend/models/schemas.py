@@ -1,16 +1,22 @@
 """Pydantic v2 models. Each has a hand-written TS mirror in frontend/src/lib/types.ts."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Literal, Optional
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 Role = Literal["student", "employer"]
+Lang = Literal["en", "nl"]
 EnglishLevel = Literal["english_only", "basic_dutch", "dutch_required"]
 JobType = Literal["part_time", "internship", "working_student", "graduate"]
 PermitSupport = Literal["twv_provided", "eu_eea", "freelance_kvk", "none"]
 WorkMode = Literal["on_site", "hybrid", "remote"]
+SalaryPeriod = Literal["hour", "month"]
+# Kept separate from job_type on purpose: loondienst, oproep, uitzend, stage and
+# zelfstandig werk carry different rights and obligations and must not be merged.
+ContractType = Literal["employment", "on_call", "agency", "internship", "freelance"]
+ScheduleTag = Literal["evening", "weekend", "holiday"]
 AppStatus = Literal["applied", "under_review", "interview", "accepted", "rejected"]
 InterviewMode = Literal["online", "on_location"]
 
@@ -56,6 +62,7 @@ class User(BaseModel):
     company_id: Optional[str] = None
     company_name: Optional[str] = None
     email_verified: bool = False
+    lang: Lang = "en"
     profile: StudentProfile = Field(default_factory=StudentProfile)
     created_at: datetime = Field(default_factory=utcnow)
 
@@ -67,6 +74,7 @@ class RegisterRequest(BaseModel):
     role: Role
     company_name: Optional[str] = None
     company_city: Optional[str] = None
+    lang: Lang = "en"
 
 
 class LoginRequest(BaseModel):
@@ -104,13 +112,33 @@ class JobBase(BaseModel):
     english_level: EnglishLevel
     permit_support: PermitSupport = "none"
     work_mode: WorkMode = "on_site"
-    hourly_min: float = 14.0
-    hourly_max: float = 18.0
-    hours_per_week: int = 16
+    # Pay and hours are only shown when the employer states them — never defaulted.
+    # The field names predate monthly pay: values are gross, in `salary_period` units.
+    hourly_min: Optional[float] = Field(default=None, gt=0)
+    hourly_max: Optional[float] = Field(default=None, gt=0)
+    salary_period: SalaryPeriod = "hour"
+    hours_per_week: Optional[int] = Field(default=None, ge=1, le=40)
+    schedule: str = Field(default="", max_length=300)
+    schedule_tags: list[ScheduleTag] = Field(default_factory=list)
+    contract_type: Optional[ContractType] = None
+    start_date: Optional[date] = None
+    valid_through: Optional[datetime] = None
+    cv_required: bool = False
     description: str = ""
     requirements: list[str] = Field(default_factory=list)
     perks: list[str] = Field(default_factory=list)
     published: bool = True
+
+    @model_validator(mode="after")
+    def _salary_range(self):
+        if self.hourly_min is not None and self.hourly_max is not None and self.hourly_min > self.hourly_max:
+            raise ValueError("The lowest salary must not exceed the highest salary")
+        return self
+
+    @field_validator("valid_through")
+    @classmethod
+    def _valid_through_utc(cls, value: Optional[datetime]) -> Optional[datetime]:
+        return as_utc(value) if value else value
 
 
 class JobCreate(JobBase):
@@ -131,6 +159,8 @@ class JobWithMeta(Job):
     applicant_count: int = 0
     homepage_feature: bool = False
     fresh_sponsored: bool = False
+    is_open: bool = True
+    closes_at: Optional[datetime] = None
 
 
 class JobDetail(BaseModel):
@@ -222,7 +252,8 @@ class Stats(BaseModel):
     jobs: int
     employers: int
     english_only: int
-    avg_hourly: float
+    # None when no open vacancy states an hourly wage — never a made-up average.
+    avg_hourly: Optional[float] = None
     city_counts: dict[str, int] = Field(default_factory=dict)
 
 

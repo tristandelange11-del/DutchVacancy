@@ -10,10 +10,13 @@ shadcn (base-nova). Auth = httpOnly session cookie (`dv_session`) + `sessions` c
 ## Data model (backend/models/schemas.py ↔ frontend/src/lib/types.ts)
 - `users`: id, email, password_hash, name, role (student|employer), company_id, company_name, profile{university, study, city, english_level, cv_url, bio, phone}
 - `companies`: id, name, city, industry, website, about, logo_initials
-- `jobs`: id, company_id, company_name, title, city, category, job_type (part_time|internship|working_student|graduate), english_level (english_only|basic_dutch|dutch_required), permit_support (twv_provided|eu_eea|freelance_kvk|none), work_mode (on_site|hybrid|remote), hourly_min/max, hours_per_week, description, requirements[], perks[], published
+- `jobs`: id, company_id, company_name, title, city, category, job_type (part_time|internship|working_student|graduate), english_level (english_only|basic_dutch|dutch_required), permit_support (twv_provided|eu_eea|freelance_kvk|none), work_mode (on_site|hybrid|remote), description, requirements[], perks[], published, created_at, fresh_until
+  - Only stated, never defaulted (null/empty = not stated, not shown): hourly_min/max (gross, in `salary_period` units — the names predate monthly pay), salary_period (hour|month), hours_per_week (1–40), schedule (free text ≤300), schedule_tags[] (evening|weekend|holiday), contract_type (employment|on_call|agency|internship|freelance — deliberately separate from job_type), start_date (date). cv_required (bool) makes a CV mandatory on apply.
+  - valid_through = closing date. Required (future, ≤180 days) to publish via POST/PUT /employer/jobs. A vacancy is open while published and before its closing date (`backend/lib/vacancies.py`); legacy docs without one close 60 days after created_at. Closed vacancies are excluded from /jobs, /stats, /jobs/fresh and the sitemap, refuse applications (409 job_closed) and Fresh checkout, and render a closed state with noindex and no JSON-LD. JobWithMeta adds is_open + closes_at.
 - `applications`: id, job_id/title, company_id/name, student_id/name/email/university, motivation, cv_url, status (applied|under_review|interview|accepted|rejected)
+  - `notification_status` (stored, not in the API model): {student, employer, ops} each sent|failed|skipped_test_address|no_recipient|not_configured — set after the application is stored (`backend/lib/applications.py`).
   - `interview` (optional, set by the employer): mode (online|on_location), location (meeting link or address), note, slots[] (UTC datetimes, 1–5, future, ≤ 90 days ahead), chosen_slot (null until the candidate picks), proposed_at. All datetimes are serialised as UTC with an offset.
-- `users` also carry `email_verified` (bool). Single-use hashed tokens for email verification and password reset live in `auth_tokens`.
+- `users` also carry `email_verified` (bool) and `lang` (en|nl, set at registration from the UI language; used for transactional mail). Single-use hashed tokens for email verification and password reset live in `auth_tokens`.
 - `saved_jobs`: student_id + job_id (unique)
 - `contact_messages`
 
@@ -21,9 +24,11 @@ shadcn (base-nova). Auth = httpOnly session cookie (`dv_session`) + `sessions` c
 Auth: POST /auth/register, /auth/login, /auth/logout; GET /auth/me, /auth/session (null when anon); PUT /auth/profile (student)
 Auth extras: POST /auth/verify-email, /auth/resend-verification, /auth/forgot-password, /auth/reset-password; DELETE /auth/account. Applying and publishing/promoting a vacancy require `email_verified`.
 Public: GET /jobs (q, city, job_type, english_level, permit_support, work_mode, min_rate, limit), GET /jobs/{id}, GET /stats, POST /contact
-Student: POST /jobs/{id}/apply, GET /student/applications, GET/POST/DELETE /student/saved-jobs[/{job_id}]
+Student: POST /jobs/{id}/apply (errors carry `detail: {code, message}` — email_not_verified 403, job_not_found 404, job_closed/already_applied 409, cv_required 422; on success emails the student a confirmation, the company's employer accounts a notification, and APPLICATION_OPS_EMAIL (fallback CONTACT_NOTIFICATION_EMAIL) a minimal follow-up record — never motivation or CV contents), GET /student/applications, GET/POST/DELETE /student/saved-jobs[/{job_id}]
 Employer: GET/PUT /employer/company, GET/POST /employer/jobs, PUT/DELETE /employer/jobs/{id}, GET /employer/applications, PATCH /employer/applications/{id}
 Interviews (backend/routers/interviews.py): PUT /employer/applications/{id}/interview (employer proposes 1–5 slots + mode/location/note; sets status `interview`, replaces any earlier proposal, emails the candidate a link to /student/applications/{id}/interview); POST /student/applications/{id}/interview/choose {slot} (candidate picks one offered, future slot once; both the candidate and the company's employer accounts are emailed a confirmation with a `.ics` calendar invite attached — one VEVENT, UTC, `lib/ics.py`, no external dependency). GET /student/applications/{id}/interview.ics and GET /employer/applications/{id}/interview.ics re-download that same file once a slot is chosen (409 before then). Errors: 404 not your application, 409 no proposal / already chosen / slot passed / no confirmed time yet, 422 slot not offered or invalid proposal.
+
+Mail safety: `send_email` never contacts Resend for RFC 2606/6761 reserved domains (example.com/.org/.net, *.example, *.test, *.invalid, *.localhost) — all test accounts use these.
 
 ## Routes
 / · /jobs · /jobs/:jobId · /login · /register · /how-it-works · /guide · /about · /contact · /privacy
