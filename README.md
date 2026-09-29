@@ -229,6 +229,17 @@ matching Chromium browsers live at `/pw-browsers`.
 The backend lane is pytest: this template's backend is Python, so `vitest` does
 not apply to it.
 
+`tests/e2e/auth.spec.ts` and `tests/e2e/hiring-flow.spec.ts` cover the golden path
+(register → post a vacancy → apply → propose an interview → candidate picks a
+time) against the real UI. Email verification is shortcut via a direct Mongo write
+(`tests/fixtures/db.ts`'s `verifyEmailDirectly`) since there's no mailbox to click
+a link in — the verification flow itself is covered by `backend/tests/`. In CI
+(`.github/workflows/test.yml`'s `e2e` job) these run against a disposable MongoDB
+service container, the real backend (`uvicorn`) and the real frontend dev server
+(`npm run dev`, so the Vite `/api` proxy applies) — not a preview build. Locally:
+start the backend and `npm run dev` in `frontend/`, then from `tests/`,
+`npm ci && npx playwright install --with-deps chromium && npx playwright test`.
+
 ## Pod conventions
 
 This template runs under supervisord in the Emergent agent pod — supersedes any

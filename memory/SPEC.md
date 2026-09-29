@@ -75,3 +75,20 @@ All static UI copy is translated; job/company content stays as the employer ente
   public static routes plus every published job (with lastmod); dashboards/auth/api are excluded and
   disallowed in robots.txt. The base URL comes from the request's forwarded host — never APP_URL,
   which can be a stale preview hostname.
+
+## Rate limiting
+`backend/lib/ratelimit.py` — one shared `slowapi.Limiter` (in-memory, IP-keyed; relies on
+`--workers 1` in `backend/Dockerfile`, a multi-worker deploy would need a shared backend like
+Redis). Applied to `/auth/register`, `/auth/forgot-password`, `/auth/resend-verification` and
+`/contact` at 5/minute, `/auth/login` at 10/minute. A 429 returns `{"detail": "..."}` like every
+other error. `DISABLE_RATE_LIMITS=1` (set in `backend/tests/conftest.py`) turns it off for tests
+generally; `backend/tests/test_rate_limiting.py` flips it back on for its own tests only.
+
+## End-to-end tests
+`tests/e2e/` (Playwright): `auth.spec.ts` (register/login/logout, wrong-password error) and
+`hiring-flow.spec.ts` (the golden path: post a vacancy → apply → propose an interview →
+candidate picks a time → both sides see it confirmed, `.ics` link included). Email verification
+is shortcut via a direct Mongo write (`tests/fixtures/db.ts`) since there's no real mailbox in CI.
+Runs as the `e2e` job in `.github/workflows/test.yml` against a disposable MongoDB service
+container, the real backend and `npm run dev` (not a preview build — the Vite `/api` proxy only
+applies to `vite dev`).
