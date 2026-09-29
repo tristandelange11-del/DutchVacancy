@@ -33,3 +33,28 @@ export function initAnalytics(): void {
   plausible.init = plausible.init || ((opts) => { plausible.o = opts || {}; });
   plausible.init();
 }
+
+/**
+ * The only custom events we send (see docs/launch/meetplan.md). Props are limited
+ * to non-personal identifiers — never names, email addresses, CV or form contents.
+ */
+export type AnalyticsEvent =
+  | "Article View"
+  | "Article Job Click"
+  | "Job View"
+  | "Apply Start"
+  | "Apply Complete"
+  | "Employer Request";
+
+type EventProps = { slug?: string; job_id?: string; source?: string };
+
+/**
+ * Send a custom event. A no-op everywhere except the production hostnames, so tests,
+ * staging and local development never count. Call "complete" events only after the
+ * server confirmed success — that is what keeps a failed submit from being counted.
+ */
+export function track(event: AnalyticsEvent, props?: EventProps): void {
+  if (typeof window === "undefined" || !PRODUCTION_HOSTNAMES.has(window.location.hostname)) return;
+  const w = window as unknown as { plausible?: PlausibleFn };
+  w.plausible?.(event, props ? { props } : undefined);
+}

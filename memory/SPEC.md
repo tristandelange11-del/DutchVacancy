@@ -18,12 +18,12 @@ shadcn (base-nova). Auth = httpOnly session cookie (`dv_session`) + `sessions` c
   - `interview` (optional, set by the employer): mode (online|on_location), location (meeting link or address), note, slots[] (UTC datetimes, 1–5, future, ≤ 90 days ahead), chosen_slot (null until the candidate picks), proposed_at. All datetimes are serialised as UTC with an offset.
 - `users` also carry `email_verified` (bool) and `lang` (en|nl, set at registration from the UI language; used for transactional mail). Single-use hashed tokens for email verification and password reset live in `auth_tokens`.
 - `saved_jobs`: student_id + job_id (unique)
-- `contact_messages`
+- `contact_messages`: kind (general|employer), name, email, company, subject, message, notification_status
 
 ## Endpoints (all on api_router, prefix /api)
 Auth: POST /auth/register, /auth/login, /auth/logout; GET /auth/me, /auth/session (null when anon); PUT /auth/profile (student)
 Auth extras: POST /auth/verify-email, /auth/resend-verification, /auth/forgot-password, /auth/reset-password; DELETE /auth/account. Applying and publishing/promoting a vacancy require `email_verified`.
-Public: GET /jobs (q, city, job_type, english_level, permit_support, work_mode, min_rate, limit), GET /jobs/{id}, GET /stats, POST /contact, GET /kb, GET /kb/{slug} (knowledge base, see below)
+Public: GET /jobs (q, city, job_type, english_level, permit_support, work_mode, min_rate, limit), GET /jobs/{id}, GET /stats, POST /contact (kind general|employer; employer requests require company and are mailed to CONTACT_NOTIFICATION_EMAIL as 'employer request: <company>'), GET /kb, GET /kb/{slug} (knowledge base, see below)
 Student: POST /jobs/{id}/apply (errors carry `detail: {code, message}` — email_not_verified 403, job_not_found 404, job_closed/already_applied 409, cv_required 422; on success emails the student a confirmation, the company's employer accounts a notification, and APPLICATION_OPS_EMAIL (fallback CONTACT_NOTIFICATION_EMAIL) a minimal follow-up record — never motivation or CV contents), GET /student/applications, GET/POST/DELETE /student/saved-jobs[/{job_id}]
 Employer: GET/PUT /employer/company, GET/POST /employer/jobs, PUT/DELETE /employer/jobs/{id}, GET /employer/applications, PATCH /employer/applications/{id}
 Interviews (backend/routers/interviews.py): PUT /employer/applications/{id}/interview (employer proposes 1–5 slots + mode/location/note; sets status `interview`, replaces any earlier proposal, emails the candidate a link to /student/applications/{id}/interview); POST /student/applications/{id}/interview/choose {slot} (candidate picks one offered, future slot once; both the candidate and the company's employer accounts are emailed a confirmation with a `.ics` calendar invite attached — one VEVENT, UTC, `lib/ics.py`, no external dependency). GET /student/applications/{id}/interview.ics and GET /employer/applications/{id}/interview.ics re-download that same file once a slot is chosen (409 before then). Errors: 404 not your application, 409 no proposal / already chosen / slot passed / no confirmed time yet, 422 slot not offered or invalid proposal.
@@ -31,7 +31,7 @@ Interviews (backend/routers/interviews.py): PUT /employer/applications/{id}/inte
 Mail safety: `send_email` never contacts Resend for RFC 2606/6761 reserved domains (example.com/.org/.net, *.example, *.test, *.invalid, *.localhost) — all test accounts use these.
 
 ## Routes
-/ · /jobs · /jobs/:jobId · /login · /register · /how-it-works · /guide (knowledge base hub) · /guide/:slug · /about · /contact · /privacy
+/ · /jobs · /jobs/:jobId · /login · /register · /how-it-works · /guide (knowledge base hub) · /guide/:slug · /employers (employer info + request form) · /about · /contact · /privacy
 · /terms · /student/dashboard · /employer/dashboard · /employer/vacancies/new ·
 /employer/vacancies/:jobId/edit · /student/applications/:appId/interview (candidate picks a time) · * (404)
 
@@ -123,8 +123,10 @@ applies to `vite dev`).
 `backend/server.py` initialises Sentry (`sentry-sdk[fastapi]`) right after `load_dotenv`, before the
 app itself, so its FastAPI integration auto-instruments. No-ops without `SENTRY_DSN` set — local dev
 and any environment that hasn't configured one is unaffected. `traces_sample_rate=0.0` and
-`send_default_pii=False` are explicit (error capture only, no tracing/profiling; no request
-bodies/headers or user IP sent). `SENTRY_ENVIRONMENT` tags events `staging` vs `production`
+`send_default_pii=False` are explicit (error capture only, no tracing/profiling; no user IP or cookies),
+and `max_request_body_size='never'` — without it the FastAPI integration attaches JSON request bodies
+(names, emails, motivations) to error events even with send_default_pii off
+(`backend/tests/test_error_monitoring_privacy.py`). `SENTRY_ENVIRONMENT` tags events `staging` vs `production`
 (`compose.staging.yml`/`compose.production.yml`) — one shared Sentry project/DSN for both, not two.
 The `SENTRY_DSN` GitHub secret is injected into `.env.staging`/`.env.production` by the deploy
 workflows the same way `RESEND_API_KEY` already is.
@@ -134,3 +136,9 @@ workflows the same way `RESEND_API_KEY` already is.
 script — cookie-free, no consent banner needed. Gated by a runtime hostname check
 (`dutchvacancy.nl`/`www.dutchvacancy.nl` only), not a build-time env var, so staging/preview/local
 traffic never reaches the real visitor numbers and there's nothing to configure per environment.
+
+### Custom events (Plausible, production hostnames only)
+`lib/analytics.ts: track()` — Article View, Article Job Click, Job View, Apply Start, Apply Complete (only in the
+apply mutation's onSuccess), Employer Request (only after the server accepted it). Props are limited to slug,
+job_id and source — never names, emails, CV or form contents. Plan and report template: docs/launch/meetplan.md.
+Response times shown on the site come from `frontend/src/config/operations.ts` (null = no promise).

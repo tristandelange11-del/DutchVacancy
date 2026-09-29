@@ -10,6 +10,7 @@ import InterviewPick from "@/pages/InterviewPick";
 import VacancyForm from "@/pages/VacancyForm";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Employers from "@/pages/Employers";
 import Guide from "@/pages/Guide";
 import GuideArticle from "@/pages/GuideArticle";
 import HowItWorks from "@/pages/HowItWorks";
@@ -35,6 +36,7 @@ export default function App() {
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/guide" element={<Guide />} />
       <Route path="/guide/:slug" element={<GuideArticle />} />
+      <Route path="/employers" element={<Employers />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy" element={<Privacy />} />

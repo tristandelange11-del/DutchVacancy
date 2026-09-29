@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -37,6 +37,7 @@ import { apiGet, apiPost } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { useToggleSave } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
+import { track } from "@/lib/analytics";
 import { apiErrorText, formatDate, formatPay } from "@/lib/jobFormat";
 import { useSession } from "@/lib/session";
 import { jobPostingJsonLd, useSeo } from "@/lib/seo";
@@ -67,6 +68,8 @@ export default function JobDetail() {
         cv_filename: cv.filename,
       }),
     onSuccess: () => {
+      // Only here: the server stored the application, so it counts exactly once.
+      track("Apply Complete", { job_id: jobId });
       toast.success(t("detail.sent"));
       setOpen(false);
       setMotivation("");
@@ -97,9 +100,15 @@ export default function JobDetail() {
           .slice(0, 300)
       : t("detail.seoFallbackDescription"),
     type: "article",
-    noindex: seoJob ? !seoJob.is_open : false,
+    // An unknown or closed vacancy is kept out of search (no soft 404s).
+    noindex: seoJob ? !seoJob.is_open : isError,
     jsonLd: seoJob && seoJob.is_open ? jobPostingJsonLd(seoJob, data?.company ?? null) : null,
   });
+
+  const viewedId = seoJob?.id;
+  useEffect(() => {
+    if (viewedId) track("Job View", { job_id: viewedId });
+  }, [viewedId]);
 
   if (isLoading) {
     return (
@@ -131,6 +140,7 @@ export default function JobDetail() {
   const closes = formatDate(job.closes_at, lang);
 
   function handleApplyClick() {
+    track("Apply Start", { job_id: job.id, source: user ? "account" : "signup" });
     if (!user) {
       // Straight into sign-up with a way back here, instead of a toast with no next step.
       navigate(`/register?next=${encodeURIComponent(`/jobs/${jobId}`)}`);

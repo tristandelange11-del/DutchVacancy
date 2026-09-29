@@ -23,18 +23,22 @@ load_dotenv(ROOT_DIR / '.env')
 # without a DSN, so local dev and any environment that hasn't set one is unaffected.
 import sentry_sdk  # noqa: E402
 
+SENTRY_OPTIONS = dict(
+    environment=os.environ.get('SENTRY_ENVIRONMENT', 'development'),
+    # Error monitoring only — tracing/profiling were deliberately left off at
+    # setup (this app's traffic doesn't need it yet, and it's extra volume/cost).
+    traces_sample_rate=0.0,
+    # No user IP or cookies. Stated explicitly even though it is the default.
+    send_default_pii=False,
+    # send_default_pii does NOT stop request bodies: the FastAPI integration attaches
+    # JSON bodies to error events by default. Never send them — they hold names,
+    # email addresses, motivations and messages.
+    max_request_body_size='never',
+)
+
 _sentry_dsn = os.environ.get('SENTRY_DSN', '').strip()
 if _sentry_dsn:
-    sentry_sdk.init(
-        dsn=_sentry_dsn,
-        environment=os.environ.get('SENTRY_ENVIRONMENT', 'development'),
-        # Error monitoring only — tracing/profiling were deliberately left off at
-        # setup (this app's traffic doesn't need it yet, and it's extra volume/cost).
-        traces_sample_rate=0.0,
-        # Default is already False; stated explicitly — request bodies/headers and
-        # user IP are not sent, matching this project's privacy posture.
-        send_default_pii=False,
-    )
+    sentry_sdk.init(dsn=_sentry_dsn, **SENTRY_OPTIONS)
 
 # MongoDB connection
 from lib.db import client, db, ensure_indexes

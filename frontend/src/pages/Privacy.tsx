@@ -17,7 +17,7 @@ export default function Privacy() {
       <PageHero eyebrow={t("privacy.eyebrow")} title={t("privacy.title")} intro={t("privacy.intro")} />
       <Prose testid="privacy-page">
         <BusinessDetails />
-        {[1, 2, 3, 4, 5].map((n) => (
+        {[1, 2, 3, 4, 5, 6].map((n) => (
           <TextSection key={n} titleKey={`privacy.s${n}t`} bodyKey={`privacy.s${n}b`} />
         ))}
       </Prose>

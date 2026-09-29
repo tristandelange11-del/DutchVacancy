@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { buttonVariants } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
+import { useSeo } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export function PageHero({ eyebrow, title, intro }: { eyebrow: string; title: string; intro: string }) {
@@ -47,6 +48,9 @@ export function TextSection({ titleKey, bodyKey }: { titleKey: string; bodyKey: 
 
 export function NotFound() {
   const { t } = useLang();
+  // The SPA answers every path with 200, so a missing page must say noindex itself
+  // (Google's guidance against soft 404s in client-rendered apps).
+  useSeo({ title: t("nf.title"), description: t("nf.body"), noindex: true });
   return (
     <Layout>
       <div className="mx-auto max-w-lg px-4 py-28 text-center" data-testid="not-found-page">

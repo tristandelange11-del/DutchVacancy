@@ -7,6 +7,20 @@ import httpx
 from models.schemas import utcnow
 
 
+def _subject(message: dict) -> str:
+    if message.get("kind") == "employer":
+        return f"DutchVacancy employer request: {message.get('company', '').strip()}"
+    return "DutchVacancy contact message"
+
+
+def _body(message: dict) -> str:
+    lines = [f"From: {message['name']} <{message['email']}>"]
+    if message.get("kind") == "employer":
+        lines.append(f"Company: {message.get('company', '')}")
+    lines.append(f"Subject: {message['subject']}")
+    return "\n".join(lines) + f"\n\n{message['message']}"
+
+
 async def notify_contact(db, message: dict) -> bool:
     recipient = os.getenv("CONTACT_NOTIFICATION_EMAIL", "").strip()
     key = os.getenv("RESEND_API_KEY", "").strip()
@@ -23,11 +37,9 @@ async def notify_contact(db, message: dict) -> bool:
                     "from": os.getenv("EMAIL_FROM", "DutchVacancy <noreply@dutchvacancy.nl>"),
                     "to": [recipient],
                     "reply_to": message["email"],
-                    "subject": "DutchVacancy contact message",
-                    "text": f"From: {message['name']} <{message['email']}>\nSubject: {message['subject']}\n\n{message['message']}",
-                    "html": "<pre>" + escape(
-                        f"From: {message['name']} <{message['email']}>\nSubject: {message['subject']}\n\n{message['message']}"
-                    ) + "</pre>",
+                    "subject": _subject(message),
+                    "text": _body(message),
+                    "html": "<pre>" + escape(_body(message)) + "</pre>",
                 },
             )
             delivered = response.is_success

@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, ExternalLink } from "lucide-react";
 import Layout from "@/components/Layout";
 import { DraftBadge, KbArticleCard } from "@/components/Kb";
 import { NotFound } from "@/components/Static";
 import { buttonVariants } from "@/components/ui/button";
+import { track } from "@/lib/analytics";
 import { ApiError } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
 import { formatDate } from "@/lib/jobFormat";
@@ -63,6 +65,11 @@ export default function GuideArticle() {
     noindex: !article || !article.live,
     jsonLd: article ? kbArticleJsonLd(article, lang) : null,
   });
+
+  const viewedSlug = article?.slug;
+  useEffect(() => {
+    if (viewedSlug) track("Article View", { slug: viewedSlug });
+  }, [viewedSlug]);
 
   if (query.error instanceof ApiError && query.error.status === 404) return <NotFound />;
 
@@ -152,7 +159,12 @@ export default function GuideArticle() {
             {(article.job_link || article.employer_link) && (
               <div className="flex flex-wrap gap-3">
                 {article.job_link && (
-                  <Link to={`/jobs?${article.job_link.query}`} className={buttonVariants()} data-testid="kb-article-jobs-link">
+                  <Link
+                    to={`/jobs?${article.job_link.query}`}
+                    className={buttonVariants()}
+                    data-testid="kb-article-jobs-link"
+                    onClick={() => track("Article Job Click", { slug: article.slug })}
+                  >
                     {loc(article.job_link.label, lang)}
                   </Link>
                 )}

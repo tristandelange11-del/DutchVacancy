@@ -44,3 +44,46 @@ def test_seed_refuses_without_database_configuration():
     result = subprocess.run([sys.executable, str(script)], env={}, capture_output=True, text=True)
     assert result.returncode != 0
     assert "No database was accessed" in result.stderr
+
+
+def _capture_mail(monkeypatch):
+    from lib import contact
+    monkeypatch.setenv("CONTACT_NOTIFICATION_EMAIL", "owner@example.com")
+    monkeypatch.setenv("RESEND_API_KEY", "test-only")
+    post = AsyncMock(return_value=httpx.Response(200))
+    transport = AsyncMock()
+    transport.__aenter__.return_value.post = post
+    monkeypatch.setattr(contact.httpx, "AsyncClient", lambda **kwargs: transport)
+    return post
+
+
+def test_employer_request_reaches_the_follow_up_mailbox_with_the_company(client, monkeypatch):
+    from routers.jobs import db
+    post = _capture_mail(monkeypatch)
+    payload = {"kind": "employer", "name": "Test Employer", "email": "hr@example.com",
+               "company": "Test Bakery BV", "subject": "Hiring students",
+               "message": "We would like to hire two weekend students in Leiden."}
+    assert client.post("/contact", json=payload).status_code == 200
+    stored = asyncio.run(db.contact_messages.find_one({}))
+    assert stored["kind"] == "employer" and stored["company"] == "Test Bakery BV"
+    mail = post.call_args.kwargs["json"]
+    assert mail["subject"] == "DutchVacancy employer request: Test Bakery BV"
+    assert "Company: Test Bakery BV" in mail["text"]
+
+
+def test_employer_request_without_company_is_rejected(client, monkeypatch):
+    post = _capture_mail(monkeypatch)
+    payload = {"kind": "employer", "name": "Test Employer", "email": "hr@example.com",
+               "company": " ", "subject": "Hiring", "message": "We would like to hire students."}
+    assert client.post("/contact", json=payload).status_code == 422
+    post.assert_not_called()
+
+
+def test_general_message_keeps_its_plain_subject(client, monkeypatch):
+    post = _capture_mail(monkeypatch)
+    payload = {"name": "Test Visitor", "email": "visitor@example.com", "subject": "Question",
+               "message": "Where can I find the privacy policy?"}
+    assert client.post("/contact", json=payload).status_code == 200
+    mail = post.call_args.kwargs["json"]
+    assert mail["subject"] == "DutchVacancy contact message"
+    assert "Company:" not in mail["text"]

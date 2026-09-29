@@ -6,6 +6,7 @@ export const DICT: Record<string, Entry> = {
   "nav.jobs": ["Browse Jobs", "Vacatures"],
   "nav.how": ["How It Works", "Hoe het werkt"],
   "nav.guide": ["Knowledge base", "Kennisbank"],
+  "nav.employers": ["For employers", "Werkgevers"],
   "nav.about": ["About", "Over ons"],
   "nav.contact": ["Contact", "Contact"],
   "nav.login": ["Log in", "Inloggen"],
@@ -24,6 +25,7 @@ export const DICT: Record<string, Entry> = {
   "footer.how": ["How it works", "Hoe het werkt"],
   "footer.createAccount": ["Create an account", "Account aanmaken"],
   "footer.about": ["About us", "Over ons"],
+  "footer.employers": ["For employers", "Voor werkgevers"],
   "footer.privacy": ["Privacy policy", "Privacybeleid"],
   "footer.terms": ["Terms of service", "Algemene voorwaarden"],
   "footer.legal": [
@@ -729,6 +731,61 @@ export const DICT: Record<string, Entry> = {
   "kb.back": ["All articles", "Alle artikelen"],
   "kb.loadFailed": ["Could not load this article.", "Dit artikel kon niet worden geladen."],
 
+  // ---------- employers (/employers) ----------
+  // Only what the platform actually does today — no customer numbers, logos or results.
+  "emp.eyebrow": ["For employers", "Voor werkgevers"],
+  "emp.title": [
+    "Hire international students who work in English",
+    "Neem internationale studenten aan die in het Engels werken",
+  ],
+  "emp.intro": [
+    "Publish a vacancy with a clear language requirement and handle applications, interviews and closing dates in one place.",
+    "Plaats een vacature met een duidelijke taaleis en regel sollicitaties, gesprekken en sluitingsdata op één plek.",
+  ],
+  "emp.howTitle": ["How it works", "Zo werkt het"],
+  "emp.steps": [
+    [
+      "Create a free employer account with your company name.",
+      "Publish a vacancy: title, city, language requirement and closing date, plus hours, pay and contract type if you want to state them. Drafts stay private.",
+      "Applications arrive in your dashboard with the candidate's profile, CV and motivation, and by email.",
+      "Invite a candidate by proposing up to five interview times, online or on location. The candidate picks one and you both get a calendar invite.",
+      "On the closing date the vacancy closes by itself and disappears from the listings. You can extend it before then.",
+    ],
+    [
+      "Maak een gratis werkgeversaccount aan met je bedrijfsnaam.",
+      "Plaats een vacature: titel, stad, taaleis en sluitingsdatum, plus uren, loon en contractvorm als je die wilt vermelden. Concepten blijven privé.",
+      "Sollicitaties komen binnen in je dashboard, met het profiel, het cv en de motivatie van de kandidaat, en per e-mail.",
+      "Nodig een kandidaat uit door maximaal vijf gesprekstijden voor te stellen, online of op locatie. De kandidaat kiest er één en jullie krijgen allebei een agenda-uitnodiging.",
+      "Op de sluitingsdatum sluit de vacature vanzelf en verdwijnt ze uit het overzicht. Je kunt haar daarvoor verlengen.",
+    ],
+  ],
+  "emp.studentsTitle": ["What students see", "Wat studenten zien"],
+  "emp.studentsBody": [
+    "Every vacancy shows its language requirement and closing date, and the hours, pay, contract type and start date you provided. Students filter on these, so being specific brings better-matched applications.",
+    "Elke vacature toont de taaleis en de sluitingsdatum, en de uren, het loon, de contractvorm en de startdatum die je opgaf. Studenten filteren hierop, dus concreet zijn levert beter passende sollicitaties op.",
+  ],
+  "emp.permitTitle": ["Hiring a student from outside the EU/EEA", "Een student van buiten de EU/EER aannemen"],
+  "emp.permitBody": [
+    "Check before the first working day whether a work permit (TWV) is needed and apply for it in time. Our knowledge base explains when it is needed; UWV handles the application.",
+    "Controleer vóór de eerste werkdag of een werkvergunning (TWV) nodig is en vraag die op tijd aan. Onze kennisbank legt uit wanneer die nodig is; UWV behandelt de aanvraag.",
+  ],
+  "emp.permitArticle": ["When is a TWV needed?", "Wanneer is een TWV nodig?"],
+  "emp.permitUwv": ["UWV: work permit for a working student", "UWV: werkvergunning werkstudent"],
+  "emp.startCta": ["Create an employer account", "Maak een werkgeversaccount"],
+  "emp.formTitle": ["Questions first? Send us your request", "Eerst vragen? Stuur ons je aanvraag"],
+  "emp.formIntro": [
+    "Tell us which roles you are hiring for. We use your details only to reply to this request.",
+    "Vertel ons voor welke functies je zoekt. We gebruiken je gegevens alleen om op deze aanvraag te reageren.",
+  ],
+  "emp.company": ["Company", "Bedrijf"],
+  "emp.message": ["Which roles, where and from when?", "Welke functies, waar en vanaf wanneer?"],
+  "emp.send": ["Send request", "Aanvraag versturen"],
+  "emp.subject": ["Employer request", "Werkgeversaanvraag"],
+  "emp.sent": [
+    "Thanks — your request has been received. We will reply by email.",
+    "Bedankt — je aanvraag is ontvangen. We reageren per e-mail.",
+  ],
+
   // ---------- contact ----------
   "contact.eyebrow": ["Contact", "Contact"],
   "contact.title": ["Talk to the DutchVacancy team", "Praat met het DutchVacancy-team"],
@@ -742,54 +799,53 @@ export const DICT: Record<string, Entry> = {
   "contact.message": ["Message", "Bericht"],
   "contact.send": ["Send message", "Bericht versturen"],
   "contact.sending": ["Sending…", "Versturen…"],
-  "contact.sent": [
-    "Thanks — we'll reply within two working days",
-    "Bedankt — we antwoorden binnen twee werkdagen",
-  ],
+  "contact.sent": ["Thanks — your message has been received.", "Bedankt — je bericht is ontvangen."],
   "contact.failed": ["Could not send your message", "Kon je bericht niet versturen"],
   "contact.emailLabel": ["Email", "E-mail"],
   "contact.office": ["Office", "Kantoor"],
-  "contact.answerNote": [
-    "We answer in English and Dutch, usually within two working days.",
-    "We antwoorden in het Engels en Nederlands, meestal binnen twee werkdagen.",
+  "contact.answerNote": ["We answer in English and Dutch.", "We antwoorden in het Engels en Nederlands."],
+  // {n} = RESPONSE_WORKING_DAYS in config/operations.ts, only once confirmed achievable.
+  "contact.answerNoteDays": [
+    "We answer in English and Dutch, within {n} working days.",
+    "We antwoorden in het Engels en Nederlands, binnen {n} werkdagen.",
   ],
 
   // ---------- privacy ----------
   "privacy.eyebrow": ["Privacy policy", "Privacybeleid"],
   "privacy.title": ["How DutchVacancy handles your data", "Hoe DutchVacancy met je gegevens omgaat"],
   "privacy.intro": [
-    "Last updated: 1 January 2026. We process personal data under the EU GDPR and Dutch implementation act (UAVG).",
-    "Laatst bijgewerkt: 1 januari 2026. Wij verwerken persoonsgegevens volgens de AVG en de Nederlandse Uitvoeringswet (UAVG).",
+    "Last updated: 29 September 2026. We process personal data under the EU GDPR and Dutch implementation act (UAVG).",
+    "Laatst bijgewerkt: 29 september 2026. Wij verwerken persoonsgegevens volgens de AVG en de Nederlandse Uitvoeringswet (UAVG).",
   ],
   "privacy.s1t": ["What we collect", "Wat wij verzamelen"],
   "privacy.s1b": [
     [
-      "Students: name, email address, password (hashed), university, study programme, city, English level, phone number, CV link, introduction text, saved jobs and applications.",
-      "Employers: name, email address, password (hashed), company name, city, industry, website and the vacancies you publish.",
-      "Everyone: a session cookie that keeps you logged in, and any message you send through the contact form.",
+      "Students: name, email address, password (hashed), university, study programme, city, English level, phone number, the CV file you upload, introduction text, saved jobs and applications.",
+      "Employers: name, email address, password (hashed), company name, city, industry, website, the vacancies you publish and the interview times you propose.",
+      "Everyone: a session cookie that keeps you logged in, and any message or employer request you send through our forms (name, email address, company, message).",
     ],
     [
-      "Studenten: naam, e-mailadres, wachtwoord (gehasht), universiteit, studie, stad, Engels niveau, telefoonnummer, cv-link, introductietekst, opgeslagen vacatures en sollicitaties.",
-      "Werkgevers: naam, e-mailadres, wachtwoord (gehasht), bedrijfsnaam, plaats, branche, website en de vacatures die je plaatst.",
-      "Iedereen: een sessiecookie waarmee je ingelogd blijft, en elk bericht dat je via het contactformulier verstuurt.",
+      "Studenten: naam, e-mailadres, wachtwoord (gehasht), universiteit, studie, stad, Engels niveau, telefoonnummer, het cv-bestand dat je uploadt, introductietekst, opgeslagen vacatures en sollicitaties.",
+      "Werkgevers: naam, e-mailadres, wachtwoord (gehasht), bedrijfsnaam, plaats, branche, website, de vacatures die je plaatst en de gesprekstijden die je voorstelt.",
+      "Iedereen: een sessiecookie waarmee je ingelogd blijft, en elk bericht of elke werkgeversaanvraag die je via onze formulieren verstuurt (naam, e-mailadres, bedrijf, bericht).",
     ],
   ],
   "privacy.s2t": ["Why we process it", "Waarom wij dit verwerken"],
   "privacy.s2b": [
     [
-      "To operate your account, show you relevant vacancies, deliver your applications to the employer you chose, and answer your support messages. When you apply to a vacancy, the employer receives your name, email, university, CV link and motivation text — that is the purpose of applying.",
+      "To operate your account, show you relevant vacancies, deliver your applications to the employer you chose, and answer your support messages. When you apply to a vacancy, the employer receives your name, email, university, CV and motivation text — that is the purpose of applying.",
     ],
     [
-      "Om je account te laten werken, relevante vacatures te tonen, je sollicitaties te bezorgen bij de werkgever die jij koos en je vragen te beantwoorden. Als je op een vacature solliciteert, ontvangt de werkgever je naam, e-mailadres, universiteit, cv-link en motivatie — dat is het doel van solliciteren.",
+      "Om je account te laten werken, relevante vacatures te tonen, je sollicitaties te bezorgen bij de werkgever die jij koos en je vragen te beantwoorden. Als je op een vacature solliciteert, ontvangt de werkgever je naam, e-mailadres, universiteit, cv en motivatie — dat is het doel van solliciteren.",
     ],
   ],
   "privacy.s3t": ["Cookies", "Cookies"],
   "privacy.s3b": [
     [
-      "We set one strictly necessary, httpOnly session cookie. We do not use advertising or cross-site tracking cookies.",
+      "We set one strictly necessary, httpOnly session cookie. Your language choice is stored in your own browser (local storage), not sent to us. We do not use advertising or cross-site tracking cookies, and our visitor statistics use no cookies at all.",
     ],
     [
-      "Wij plaatsen één strikt noodzakelijke httpOnly-sessiecookie. Wij gebruiken geen advertentie- of trackingcookies.",
+      "Wij plaatsen één strikt noodzakelijke httpOnly-sessiecookie. Je taalkeuze wordt in je eigen browser bewaard (local storage) en niet naar ons gestuurd. Wij gebruiken geen advertentie- of trackingcookies, en onze bezoekersstatistieken gebruiken helemaal geen cookies.",
     ],
   ],
   "privacy.s4t": ["Retention", "Bewaartermijn"],
@@ -808,6 +864,24 @@ export const DICT: Record<string, Entry> = {
     ],
     [
       "Je hebt het recht je gegevens in te zien, te corrigeren, te exporteren, te beperken of te laten verwijderen, en om bezwaar te maken tegen de verwerking. Neem contact op via het contactformulier en wij reageren binnen een maand. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.",
+    ],
+  ],
+
+  "privacy.s6t": ["Services we use", "Diensten die wij gebruiken"],
+  "privacy.s6b": [
+    [
+      "Hosting: the site and its database run on a server we rent from TransIP.",
+      "Email: account, application and interview emails are sent through Resend. When a student applies, we also send ourselves a short follow-up record (application number, vacancy, company and whether the notifications went out) — never the candidate's details, motivation or CV.",
+      "Error monitoring: when something breaks, a technical error report goes to Sentry. We configured it not to send request contents, form data or IP addresses.",
+      "Visitor statistics: on dutchvacancy.nl we count visits and a few actions (for example 'application sent') with Plausible Analytics, without cookies and without personal data. We never send names, email addresses, CV or form contents to it.",
+      "Payments: if an employer buys a paid option, the payment is handled by Stripe.",
+    ],
+    [
+      "Hosting: de site en de database draaien op een server die wij huren bij TransIP.",
+      "E-mail: e-mails over je account, sollicitaties en gesprekken versturen wij via Resend. Als een student solliciteert, sturen wij onszelf ook een kort opvolgbericht (sollicitatienummer, vacature, bedrijf en of de meldingen zijn verstuurd) — nooit de gegevens van de kandidaat, de motivatie of het cv.",
+      "Foutmeldingen: als er iets misgaat, gaat een technisch foutrapport naar Sentry. Wij hebben dit zo ingesteld dat er geen verzoekinhoud, formuliergegevens of IP-adressen worden meegestuurd.",
+      "Bezoekersstatistieken: op dutchvacancy.nl tellen wij bezoeken en enkele handelingen (bijvoorbeeld 'sollicitatie verstuurd') met Plausible Analytics, zonder cookies en zonder persoonsgegevens. Namen, e-mailadressen, cv's of formulierinhoud sturen wij daar nooit naartoe.",
+      "Betalingen: als een werkgever een betaalde optie koopt, wordt de betaling afgehandeld door Stripe.",
     ],
   ],
 
