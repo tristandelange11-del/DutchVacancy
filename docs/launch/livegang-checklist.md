@@ -7,7 +7,7 @@ de livegang moet kloppen. "Wie" staat voor wie het doet: **jij** (Tristan), of *
 
 | # | Wat | Wie | Hoe controleer je het |
 |---|---|---|---|
-| A1 | PR's #12, #13 en de volgende launch-PR gemerged en op staging gezet | jij (merge), Claude (deploy) | staging toont de kennisbank en de werkgeverspagina |
+| A1 | PR's #12, #13 en #14 gemerged en op staging gezet | jij (merge), Claude (deploy) | staging toont de kennisbank en de werkgeverspagina |
 | A2 | `frontend/src/config/business.json`: juridische naam, correspondentieadres, KvK-nummer, contactadres | jij → Claude | `scripts/check-production-readiness.mjs` slaagt; de privacy- en voorwaardenpagina tonen geen conceptmelding meer |
 | A3 | Opvolgmailbox bestaat en wordt gelezen; GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` gezet | jij | zie `opvolging.md`, stap 1–4 |
 | A4 | Haalbare reactietijd vastgelegd (of bewust geen) | jij → Claude | `config/operations.ts` |

@@ -24,7 +24,7 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
 |---|---|---|
 | [#12](https://github.com/tristandelange11-del/DutchVacancy/pull/12) | Complete vacatures, sluitingsdata, sollicitatieroute, meldingen | groen |
 | [#13](https://github.com/tristandelange11-del/DutchVacancy/pull/13) | Kennisbank met bronnen en publicatiepoort | groen |
-| volgende PR (`claude/employers-trust`) | Werkgeverspagina en formulier, contact/over ons/privacy, metingen, SEO-correcties, tweetalige mails | loopt na openen |
+| [#14](https://github.com/tristandelange11-del/DutchVacancy/pull/14) | Werkgeverspagina en formulier, contact/over ons/privacy, metingen, SEO-correcties, tweetalige mails | loopt na openen |
 
 De PR's bouwen op elkaar voort: merge ze op volgorde. Daarna zet Claude staging bij (de preview, achter
 wachtwoord en niet vindbaar).
