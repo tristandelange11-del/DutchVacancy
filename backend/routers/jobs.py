@@ -2,11 +2,12 @@ from typing import Any, Optional
 import os
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from lib.auth import current_student, optional_user
 from lib.db import db
 from lib.contact import notify_contact
+from lib.ratelimit import limiter
 from models.schemas import (
     Application,
     ApplicationCreate,
@@ -223,7 +224,8 @@ async def unsave_job(job_id: str, user: dict[str, Any] = Depends(current_student
 
 
 @router.post("/contact", response_model=OkResponse)
-async def contact(payload: ContactCreate):
+@limiter.limit("5/minute")
+async def contact(request: Request, payload: ContactCreate):
     if not os.getenv("CONTACT_NOTIFICATION_EMAIL", "").strip() or not os.getenv("RESEND_API_KEY", "").strip():
         raise HTTPException(status_code=503, detail="Contact delivery is temporarily unavailable. Please try again later.")
     msg = ContactMessage(**payload.model_dump())

@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 import os
@@ -11,12 +12,15 @@ from typing import List
 import uuid
 from datetime import datetime
 
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
 from lib.db import client, db, ensure_indexes
+from lib.ratelimit import limiter
 
 
 # Startup runs before the yield, shutdown after it. Add your own setup/teardown here.
@@ -29,6 +33,16 @@ async def lifespan(app: FastAPI):
 
 # Create the main app without a prefix
 app = FastAPI(lifespan=lifespan)
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def _rate_limited(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Too many attempts. Please wait a moment and try again."},
+    )
+
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -90,6 +104,8 @@ api_router.include_router(uploads_router)
 
 # Include the router in the main app
 app.include_router(api_router)
+
+app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
