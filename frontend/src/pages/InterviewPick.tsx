@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "@/lib/router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarCheck } from "lucide-react";
 import { toast } from "sonner";

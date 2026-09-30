@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { useLang } from "@/lib/i18n";
 import { loc, relevantArticles, useKbArticles } from "@/lib/kb";
 import type { JobWithMeta } from "@/lib/types";

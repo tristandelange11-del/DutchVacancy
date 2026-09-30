@@ -52,7 +52,7 @@ export function kbArticleJsonLd(article: KbArticle, lang: Lang): Record<string, 
     author: { "@type": "Person", name: article.author },
     dateModified: article.reviewed_on,
     publisher: { "@type": "Organization", name: "DutchVacancy" },
-    mainEntityOfPage: `${window.location.origin}/guide/${article.slug}`,
+    mainEntityOfPage: window.location.origin + window.location.pathname,
   };
 }
 

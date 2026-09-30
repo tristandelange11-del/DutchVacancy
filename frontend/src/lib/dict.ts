@@ -14,6 +14,10 @@ export const DICT: Record<string, Entry> = {
   "nav.logout": ["Log out", "Uitloggen"],
   "nav.dashboard": ["Dashboard", "Dashboard"],
   "nav.langLabel": ["Language", "Taal"],
+  // Shown in the language being offered (components/LanguageHint.tsx).
+  "langHint.text": ["This page is also available in English.", "Deze pagina is ook in het Nederlands beschikbaar."],
+  "langHint.switch": ["Switch to English", "Naar het Nederlands"],
+  "langHint.stay": ["Stay in Dutch", "Blijf in het Engels"],
   "footer.tagline": [
     "The job board for international students in the Netherlands. Every vacancy states its English requirement and work-permit support up front — no guessing, no dead ends.",
     "De vacaturebank voor internationale studenten in Nederland. Bij elke vacature staat vooraf welke Engelse taalvaardigheid nodig is en of er hulp is met een werkvergunning — geen gokwerk, geen doodlopende wegen.",

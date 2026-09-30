@@ -20,7 +20,7 @@ const PASSWORD = "Correct-Horse-1!";
 const JOB_TITLE = `E2E Test Vacancy ${RUN_ID}`;
 
 async function registerEmployer(page: Page) {
-  await page.goto("/register?role=employer");
+  await page.goto("/en/register?role=employer");
   await waitForAppReady(page);
   await dismissToasts(page);
   await page.getByTestId("register-role-employer").click();
@@ -33,7 +33,7 @@ async function registerEmployer(page: Page) {
 }
 
 async function registerStudent(page: Page) {
-  await page.goto("/register");
+  await page.goto("/en/register");
   await waitForAppReady(page);
   await dismissToasts(page);
   await page.getByTestId("register-role-student").click();
@@ -45,7 +45,7 @@ async function registerStudent(page: Page) {
 }
 
 async function login(page: Page, email: string) {
-  await page.goto("/login");
+  await page.goto("/en/login");
   await page.getByTestId("login-email-input").fill(email);
   await page.getByTestId("login-password-input").fill(PASSWORD);
   await page.getByTestId("login-submit-button").click();
@@ -53,7 +53,7 @@ async function login(page: Page, email: string) {
 
 async function logout(page: Page) {
   await page.getByTestId("nav-logout-button").click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/en$/);
 }
 
 test.describe.serial("hiring flow: post a vacancy, apply, schedule and confirm an interview", () => {
@@ -65,7 +65,7 @@ test.describe.serial("hiring flow: post a vacancy, apply, schedule and confirm a
     await verifyEmailDirectly(EMPLOYER_EMAIL);
     await page.reload(); // pick up the session's now-current email_verified flag
 
-    await page.goto("/employer/vacancies/new");
+    await page.goto("/en/employer/vacancies/new");
     await page.getByTestId("vacancy-title-input").fill(JOB_TITLE);
     await page.getByTestId("vacancy-description-input").fill("A vacancy created by the e2e suite.");
 
@@ -86,7 +86,7 @@ test.describe.serial("hiring flow: post a vacancy, apply, schedule and confirm a
     await verifyEmailDirectly(STUDENT_EMAIL);
     await page.reload();
 
-    await page.goto(`/jobs/${jobId}`);
+    await page.goto(`/en/jobs/${jobId}`);
     await expect(page.getByTestId("job-detail-title")).toHaveText(JOB_TITLE);
     await page.getByTestId("job-apply-button").click();
     await page.getByTestId("apply-motivation-input").fill("I would love to work on this vacancy for the e2e suite.");

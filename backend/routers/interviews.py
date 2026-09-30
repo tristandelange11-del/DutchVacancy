@@ -10,6 +10,7 @@ from lib.auth import current_employer, current_student, now_utc
 from lib.db import db
 from lib.email import app_url, send_email
 from lib.mail_text import format_slot, lang_of, text
+from lib.site import localized_path
 from lib.ics import build_ics
 from models.schemas import Application, Interview, InterviewProposal, SlotChoice, as_utc
 
@@ -97,7 +98,7 @@ async def propose_interview(
         text("invite_title", lang),
         text("invite_body", lang, **kw),
         text("invite_action", lang),
-        f"{app_url()}/student/applications/{app_id}/interview",
+        f"{app_url()}{localized_path(f'/student/applications/{app_id}/interview', lang)}",
         lang=lang,
     )
     return Application(**_clean(updated))
@@ -140,7 +141,7 @@ async def choose_slot(
         text("confirmed_title", lang),
         text("confirmed_body", lang, when=when, **kw),
         text("dashboard_action", lang),
-        f"{app_url()}/student/dashboard",
+        f"{app_url()}{localized_path('/student/dashboard', lang)}",
         attachments=[_ics_attachment(doc, interview, for_employer=False, lang=lang)],
         lang=lang,
     )
@@ -155,7 +156,7 @@ async def choose_slot(
             text("employer_confirmed_title", lang),
             text("employer_confirmed_body", lang, when=when, **kw),
             text("dashboard_action", lang),
-            f"{app_url()}/employer/dashboard",
+            f"{app_url()}{localized_path('/employer/dashboard', lang)}",
             attachments=[_ics_attachment(doc, interview, for_employer=True, lang=lang)],
             lang=lang,
         )

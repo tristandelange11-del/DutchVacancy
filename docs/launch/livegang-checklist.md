@@ -7,7 +7,7 @@ de livegang moet kloppen. "Wie" staat voor wie het doet: **jij** (Tristan), of *
 
 | # | Wat | Wie | Hoe controleer je het |
 |---|---|---|---|
-| A1 | PR's #12, #13 en #14 gemerged en op staging gezet | jij (merge), Claude (deploy) | staging toont de kennisbank en de werkgeverspagina |
+| A1 | PR's #12 t/m #15 gemerged en op staging gezet | jij (merge), Claude (deploy) | staging toont de kennisbank en de werkgeverspagina |
 | A2 | `frontend/src/config/business.json`: juridische naam, correspondentieadres, KvK-nummer, contactadres | jij → Claude | `scripts/check-production-readiness.mjs` slaagt; de privacy- en voorwaardenpagina tonen geen conceptmelding meer |
 | A3 | Opvolgmailbox bestaat en wordt gelezen; GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` gezet | jij | zie `opvolging.md`, stap 1–4 |
 | A4 | Haalbare reactietijd vastgelegd (of bewust geen) | jij → Claude | `config/operations.ts` |
@@ -15,7 +15,7 @@ de livegang moet kloppen. "Wie" staat voor wie het doet: **jij** (Tristan), of *
 | A6 | Privacyverklaring en voorwaarden juridisch laten nakijken; verwerkersovereenkomsten met TransIP, Resend, Sentry, Plausible (en Stripe als je betalingen aanzet); nagaan waar elke dienst gegevens verwerkt, en buiten de EU zo nodig vermelden | jij (of een jurist) | schriftelijk akkoord |
 | A7 | Inhoudelijk eigenaar aangewezen en de kennisbankartikelen beoordeeld (anders tonen ze op productie gewoon niet) | jij | `docs/launch/kennisbank-verificatie.md` → "Live op productie: ja" |
 | A8 | Echte vacatures geplaatst door echte werkgevers, elk met taaleis en sluitingsdatum | jij | homepage-teller "Actuele studentenvacatures" > 0 op productie |
-| A9 | Keuze over de taal-URL's (NL op `/`, EN op `/en/`) gemaakt en gebouwd; zonder dit is de Nederlandse versie vrijwel zeker niet vindbaar | jij (keuze), Claude (bouw) | `hreflang` in de broncode van elke pagina |
+| A9 | Taalstructuur akkoord: Nederlands op `/`, Engels op `/en/` (gebouwd in #15) | jij | de broncode van elke pagina bevat `hreflang`-links; de sitemap noemt beide versies |
 | A10 | Stripe alleen met live-sleutels ná verificatie. Tot die tijd blijft betalen uit (`/api/config` → `payments_enabled: false`) | jij | `/api/config` |
 | A11 | Back-ups: een externe kopie plus een proefterugzetting (de nachtelijke back-up staat nu alleen op de VPS) | jij + Claude | `verify-private-backup.yml` geslaagd |
 | A12 | Productieproxy: een Caddy-site voor `dutchvacancy.nl` en `www.dutchvacancy.nl` naar `127.0.0.1:8180`, **zonder** wachtwoord en **zonder** `X-Robots-Tag: noindex` (alleen staging houdt die) | Claude | `curl -I https://dutchvacancy.nl` heeft geen `x-robots-tag` |
@@ -28,7 +28,7 @@ de livegang moet kloppen. "Wie" staat voor wie het doet: **jij** (Tristan), of *
 1. `https://dutchvacancy.nl` laadt. `http://` en `www` sturen door naar dezelfde site.
 2. `https://dutchvacancy.nl/robots.txt` staat indexeren toe en noemt de sitemap.
    `https://dutchvacancy.nl/sitemap.xml` bevat alleen open vacatures, vaste pagina's en beoordeelde artikelen.
-3. `curl -I https://dutchvacancy.nl/` heeft geen `x-robots-tag`. De broncode van `/jobs` bevat
+3. `curl -I https://dutchvacancy.nl/` en `curl -I https://dutchvacancy.nl/en` hebben geen `x-robots-tag`. De broncode van `/jobs` bevat
    `<meta name="robots" content="index, follow">`.
 4. Search Console: domein bevestigen, sitemap indienen, een vacature-URL inspecteren met "Live URL testen".
 5. [Rich Results Test](https://search.google.com/test/rich-results) op een open vacature: JobPosting geldig,

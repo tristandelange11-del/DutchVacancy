@@ -10,27 +10,27 @@ import { test, expect } from "@playwright/test";
 type Summary = { slug: string; live: boolean };
 
 test("the knowledge base is reachable from the navigation and the footer", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/en");
   await page.getByTestId("nav-link-guide").click();
   await expect(page).toHaveURL(/\/guide$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Working in the Netherlands as an international student",
   );
-  await page.goto("/jobs");
+  await page.goto("/en/jobs");
   await page.getByTestId("footer-guide-link").click();
   await expect(page).toHaveURL(/\/guide$/);
 });
 
 test("the hub shows only what this environment may serve", async ({ page }) => {
   const articles: Summary[] = await (await page.request.get("/api/kb")).json();
-  await page.goto("/guide");
+  await page.goto("/en/guide");
   await expect(page.getByTestId("kb-official-bodies")).toBeVisible();
-  await expect(page.getByTestId("kb-jobs-link")).toHaveAttribute("href", "/jobs?english_level=english_only");
+  await expect(page.getByTestId("kb-jobs-link")).toHaveAttribute("href", "/en/jobs?english_level=english_only");
 
   if (articles.length === 0) {
     // Nothing reviewed yet: no article cards, and article URLs are a plain 404.
     await expect(page.getByTestId("kb-none")).toBeVisible();
-    await page.goto("/guide/twv-work-permit");
+    await page.goto("/en/guide/twv-work-permit");
     await expect(page.getByTestId("not-found-page")).toBeVisible();
     return;
   }
@@ -47,7 +47,7 @@ test("an article follows the fixed structure and drafts stay out of search", asy
   test.skip(articles.length === 0, "no article is served in this environment (none reviewed yet)");
   const article = articles.find((a) => a.slug === "twv-work-permit") ?? articles[0];
 
-  await page.goto(`/guide/${article.slug}`);
+  await page.goto(`/en/guide/${article.slug}`);
   for (const part of ["kb-answer", "kb-applies-to", "kb-next-steps", "kb-contacts", "kb-sources", "kb-byline"]) {
     await expect(page.getByTestId(part)).toBeVisible();
   }
@@ -60,12 +60,12 @@ test("an article follows the fixed structure and drafts stay out of search", asy
   }
 });
 
-test("unverified rules are no longer stated on the home page or the guide", async ({ page }) => {
-  for (const path of ["/", "/guide", "/register"]) {
+test("unverified rules are no longer stated on the home page or the guide, in either language", async ({ page }) => {
+  for (const path of ["/", "/guide", "/register", "/en", "/en/guide", "/en/register"]) {
     await page.goto(path);
     const text = await page.locator("body").innerText();
     expect(text).not.toMatch(/14\s*[–-]\s*24/);
-    expect(text).not.toMatch(/not both in the same year/i);
-    expect(text).not.toMatch(/costs you nothing|never pay for one yourself/i);
+    expect(text).not.toMatch(/not both in the same year|niet beide in hetzelfde jaar/i);
+    expect(text).not.toMatch(/costs you nothing|never pay for one yourself|kost jou niets|betaal er nooit zelf voor/i);
   }
 });

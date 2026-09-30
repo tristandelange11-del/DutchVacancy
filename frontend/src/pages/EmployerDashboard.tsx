@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { BriefcaseBusiness, Pencil, Plus, Sparkles, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
