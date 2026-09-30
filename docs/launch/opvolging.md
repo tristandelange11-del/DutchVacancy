@@ -29,13 +29,17 @@ staat op `null`).
   dus niets van testsollicitaties. Het opvolgbericht aan de eigen opvolgmailbox gaat wel, zodat je de
   opvolging kunt testen.
 
-## Wat nu is ingesteld (gecontroleerd op 29-09-2026)
+## Wat nu is ingesteld
 
 - De GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` is **niet** gezet. Staging en productie gebruiken daardoor
   de standaardwaarde **`info@dutchvacancy.nl`** (zie `deploy-staging.yml` en `deploy-production.yml`).
-- `dutchvacancy.nl` ontvangt mail via TransIP (MX: `mx.transip.email`). **Niet bevestigd:** of de mailbox
-  `info@dutchvacancy.nl` bestaat, doorstuurt en door iemand wordt gelezen. **Dit blokkeert de livegang.**
-  Zonder werkende mailbox komen werkgeversaanvragen nergens aan.
+- **Bevestigd op 30-09-2026:** een testaanvraag via het werkgeversformulier op staging kwam binnen in de
+  mailbox `info@dutchvacancy.nl` (TransIP-webmail, in de inbox, niet in spam). Het onderwerp was
+  "DutchVacancy employer request: Test bedrijf", en afzender, bedrijf en bericht stonden erin.
+  De mailbox werkt en de eigenaar leest hem.
+- Nog open: **wie** opvolgt, met vervanger, en welke reactietijd haalbaar is. Zie de tabel bovenaan.
+  Aanrader: zet `CONTACT_NOTIFICATION_EMAIL` toch expliciet in GitHub, zodat het adres niet van een
+  standaardwaarde afhangt.
 
 ## Zo leg je het vast
 

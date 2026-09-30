@@ -8,7 +8,8 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
 ## Oordeel
 
 - **Livegang: nog niet.** Er zijn vijf blokkades, allemaal informatie of handelingen van jou: bedrijfsgegevens
-  (KvK, adres), een werkende opvolgmailbox met eigenaar, juridische controle van privacy en voorwaarden met
+  (KvK, adres), een vastgelegde opvolger met haalbare reactietijd (de mailbox werkt, bevestigd op 30-09-2026),
+  juridische controle van privacy en voorwaarden met
   verwerkersovereenkomsten, het vervangen van de in de chat gedeelde sleutels, en de productieproxy + DNS
   na jouw akkoord.
 - **Eerste campagne: niet klaar.** Naast de blokkades hierboven: er staan **nog geen echte vacatures**, de
@@ -61,8 +62,8 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 |---|---|---|
 | Vacature vinden → registreren → terug naar de vacature → e-mail bevestigen → solliciteren → bevestiging | Gereed en getest | e2e desktop en 390 px mobiel; testadressen krijgen nooit mail |
 | Interne toewijzing: opvolgbericht naar de opvolgmailbox | Gereed en getest | zonder kandidaatgegevens, motivatie of cv |
-| **Wie volgt op en welke reactietijd is haalbaar** | Blokkeert livegang | `opvolging.md`; de mailbox `info@dutchvacancy.nl` is niet bevestigd |
-| Echte bezorging van e-mails op staging voor de nieuwe onderdelen | Wacht op informatie | na merge en deploy, met jouw akkoord (er gaat een mail naar de opvolgmailbox) |
+| **Wie volgt op en welke reactietijd is haalbaar** | Blokkeert livegang | `opvolging.md`; de mailbox `info@dutchvacancy.nl` werkt wel (bevestigd 30-09-2026) |
+| Echte bezorging van de werkgeversaanvraag op staging | Gereed en getest | 30-09-2026: testaanvraag kwam binnen in `info@dutchvacancy.nl`. Sollicitatie- en gespreksmails op staging zijn nog niet opnieuw echt verstuurd |
 
 ### 7. Overzichtspagina's
 | Onderdeel | Status | Toelichting |
