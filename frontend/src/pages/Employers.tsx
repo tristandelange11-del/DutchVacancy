@@ -3,6 +3,7 @@ import { Link } from "@/lib/router";
 import { useMutation } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink } from "lucide-react";
 import Layout from "@/components/Layout";
+import { RESPONSE_WORKING_DAYS } from "@/config/operations";
 import { PageHero } from "@/components/Static";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,7 +100,9 @@ export default function Employers() {
           {sent ? (
             <p className="mt-5 flex gap-2 rounded-xl bg-green-50 p-4 text-sm text-green-900" role="status" data-testid="employer-request-sent">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-              {t("emp.sent")}
+              {RESPONSE_WORKING_DAYS
+                ? t("emp.sentDays").replace("{n}", String(RESPONSE_WORKING_DAYS))
+                : t("emp.sent")}
             </p>
           ) : (
             <form

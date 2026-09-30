@@ -19,8 +19,8 @@ ARTICLE = Article(
     ),
     answer=(
         Text(
-            nl="Werk je in loondienst, dan heb je een arbeidsovereenkomst, ook als die alleen mondeling is afgesproken. Je werkgever moet je binnen 1 week na je start schriftelijk laten weten waar je werkt, wat je functie is, hoeveel uur je werkt en wat je verdient. Binnen 1 maand volgen onder meer je vakantiegeld, vakantiedagen en opzegtermijn.",
-            en="If you work as an employee, you have an employment contract, even if it was only agreed verbally. Within 1 week of your start, your employer must tell you in writing where you work, what your role is, how many hours you work and what you earn. Within 1 month follow, among other things, your holiday pay, holiday days and notice period.",
+            nl="Werk je in loondienst, dan heb je een arbeidsovereenkomst, ook als die alleen mondeling is afgesproken. Je werkgever moet je binnen 1 week na je start onder meer schriftelijk laten weten waar je werkt, wat je functie is, hoeveel uur je werkt en wat je verdient. Binnen 1 maand volgen onder meer je vakantiegeld, vakantiedagen en opzegtermijn.",
+            en="If you work as an employee, you have an employment contract, even if it was only agreed verbally. Within 1 week of your start, your employer must tell you in writing, among other things, where you work, what your role is, how many hours you work and what you earn. Within 1 month follow, among other things, your holiday pay, holiday days and notice period.",
         ),
         Text(
             nl="Vanaf 21 jaar heb je recht op minimaal het wettelijk minimumloon; ben je jonger, dan geldt het minimumjeugdloon. Je vakantiegeld is minimaal 8% van je brutoloon.",
@@ -80,8 +80,8 @@ ARTICLE = Article(
             title=Text(nl="Wat er gaat veranderen", en="What is going to change"),
             paragraphs=(
                 Text(
-                    nl="De wet 'meer zekerheid flexwerkers' is op 7 juli 2026 aangenomen. Per 1 januari 2028 worden nulurencontracten vervangen door contracten met een minimum- en maximumaantal uren. Voor bijbanen van mensen met een andere hoofdactiviteit, zoals studenten, komt een uitzondering. Voor uitzendkrachten gelden vanaf 31 december 2026 minimaal gelijkwaardige arbeidsvoorwaarden. We werken dit artikel bij als de nieuwe regels ingaan.",
-                    en="The 'more certainty for flex workers' act was passed on 7 July 2026. From 1 January 2028, zero-hours contracts will be replaced by contracts with a minimum and maximum number of hours. Side jobs of people with another main activity, such as students, get an exception. Agency workers get at least equivalent terms of employment from 31 December 2026. We will update this article when the new rules take effect.",
+                    nl="De wet 'meer zekerheid flexwerkers' is op 7 juli 2026 aangenomen. Per 1 januari 2028 worden nulurencontracten vervangen door contracten met een minimum- en maximumaantal uren. Voor bijbanen van mensen met een andere hoofdactiviteit, zoals studenten, komt een uitzondering. Uitzendkrachten krijgen vanaf 31 december 2026 minimaal gelijkwaardige arbeidsvoorwaarden als werknemers die gewoon in dienst zijn. We werken dit artikel bij als de nieuwe regels ingaan.",
+                    en="The 'more certainty for flex workers' act was passed on 7 July 2026. From 1 January 2028, zero-hours contracts will be replaced by contracts with a minimum and maximum number of hours. Side jobs of people with another main activity, such as students, get an exception. From 31 December 2026, agency workers get terms of employment at least equivalent to those of regular employees. We will update this article when the new rules take effect.",
                 ),
             ),
         ),
@@ -110,7 +110,7 @@ ARTICLE = Article(
             en="Compare your payslip with the minimum wage for your age.",
         ),
         Text(
-            nl="Werk je tegelijk bij meer werkgevers? Laat maar 1 werkgever de loonheffingskorting toepassen. Had je in een jaar meerdere banen, doe dan aangifte: misschien krijg je belasting terug.",
+            nl="Werk je tegelijk bij meer werkgevers? Laat slechts 1 werkgever de loonheffingskorting toepassen. Had je in een jaar meerdere banen, doe dan aangifte: misschien krijg je belasting terug.",
             en="Working for several employers at the same time? Let only 1 of them apply the payroll tax credit. Had several jobs in a year? File a tax return: you may get tax back.",
         ),
         Text(

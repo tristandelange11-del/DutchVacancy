@@ -46,8 +46,8 @@ ARTICLE = Article(
     ),
     exceptions=(
         Text(
-            nl="Bij 'Basis Nederlands welkom' of 'Nederlands vereist' verwacht de werkgever Nederlands. Twijfel je over het niveau, vraag het dan aan de werkgever.",
-            en="With 'Basic Dutch welcome' or 'Dutch required' the employer expects Dutch. Unsure about the level? Ask the employer.",
+            nl="Bij 'Basis Nederlands welkom' is een beetje Nederlands welkom; bij 'Nederlands vereist' heb je Nederlands nodig. Twijfel je over het niveau, vraag het dan aan de werkgever.",
+            en="'Basic Dutch welcome' means some Dutch is welcome; 'Dutch required' means you need Dutch. Unsure about the level? Ask the employer.",
         ),
         Text(
             nl="Kom je van buiten de EU/EER en Zwitserland en heb je een verblijfsvergunning studie? Dan heeft je werkgever ook voor een Engelstalige bijbaan een TWV nodig.",

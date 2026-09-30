@@ -28,7 +28,7 @@ test("an employer request is sent as such and confirmed only after the server ac
   await page.getByTestId("employer-message-input").fill("Two weekend roles in Leiden from November.");
   await page.getByTestId("employer-submit-button").click();
 
-  await expect(page.getByTestId("employer-request-sent")).toBeVisible();
+  await expect(page.getByTestId("employer-request-sent")).toContainText("within 3 working days");
   expect(sent).toMatchObject({
     kind: "employer",
     company: "E2E Test Company",
@@ -55,10 +55,12 @@ test("a failed employer request says so instead of pretending it worked", async 
   await expect(page.getByTestId("employer-request-sent")).toHaveCount(0);
 });
 
-test("the contact page makes no unconfirmed promises", async ({ page }) => {
+test("the contact page promises only the confirmed response time", async ({ page }) => {
+  // 3 working days = RESPONSE_WORKING_DAYS in frontend/src/config/operations.ts, confirmed by the owner.
   await page.goto("/en/contact");
+  await expect(page.getByTestId("contact-answer-note")).toHaveText("We answer in English and Dutch, within 3 working days.");
   const text = await page.locator("body").innerText();
-  expect(text).not.toMatch(/working days|werkdagen/i);
+  expect(text).not.toMatch(/two working days/i);
   expect(text).not.toMatch(/Online, the Netherlands/);
 });
 

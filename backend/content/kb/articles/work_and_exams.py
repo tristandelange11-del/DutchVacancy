@@ -12,8 +12,8 @@ ARTICLE = Article(
         en="Combining work with lectures and exams",
     ),
     summary=Text(
-        nl="Plan je uren rond je rooster, weet wat een oproep je mag vragen, en houd je studievoortgang in de gaten.",
-        en="Plan your hours around your timetable, know what a call-in may ask of you, and keep an eye on your study progress.",
+        nl="Plan je uren rond je rooster, weet hoe ver van tevoren je werkgever je moet oproepen, en houd je studievoortgang in de gaten.",
+        en="Plan your hours around your timetable, know how much notice a call-in needs, and keep an eye on your study progress.",
     ),
     answer=(
         Text(
