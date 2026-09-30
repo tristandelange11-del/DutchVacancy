@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "@/lib/router";
 import { AlertTriangle, ArrowLeft, ExternalLink } from "lucide-react";
 import Layout from "@/components/Layout";
 import { DraftBadge, KbArticleCard } from "@/components/Kb";

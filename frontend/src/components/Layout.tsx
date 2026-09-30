@@ -1,8 +1,9 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "@/lib/router";
 import { Briefcase, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import LanguageHint from "@/components/LanguageHint";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
@@ -187,6 +188,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </header>
+
+      <LanguageHint />
 
       {user && !user.email_verified && (
         <div className="border-b border-orange-200 bg-orange-50 px-4 py-3 text-orange-950">

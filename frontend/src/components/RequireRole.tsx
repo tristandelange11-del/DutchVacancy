@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate } from "@/lib/router";
 import { useSession } from "@/lib/session";
 import type { Role } from "@/lib/types";
 

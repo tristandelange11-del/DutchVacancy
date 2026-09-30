@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { Company, JobWithMeta } from "@/lib/types";
+import { ROOT_LANG, langFromPath, localizePath, normalizePathname, stripLangPrefix } from "@/lib/paths";
 
 const SITE_NAME = "DutchVacancy";
 const DEFAULT_IMAGE = "/og-cover.jpg";
@@ -55,7 +56,8 @@ export function useSeo({
 
   useEffect(() => {
     const origin = window.location.origin;
-    const url = origin + window.location.pathname;
+    const path = normalizePathname(window.location.pathname);
+    const url = origin + path;
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} · ${SITE_NAME}`;
     const absImage = image.startsWith("http") ? image : origin + image;
 
@@ -63,6 +65,19 @@ export function useSeo({
     upsertMeta("name", "description", description);
     upsertMeta("name", "robots", noindex ? "noindex, nofollow" : "index, follow");
     upsertLink("canonical", url);
+
+    // Each language version names the other (and the default) so search engines
+    // show the right one per searcher and never treat them as duplicates.
+    document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((el) => el.remove());
+    const base = stripLangPrefix(path);
+    for (const [hreflang, version] of [["nl", "nl"], ["en", "en"], ["x-default", ROOT_LANG]] as const) {
+      const link = document.createElement("link");
+      link.rel = "alternate";
+      link.hreflang = hreflang;
+      link.href = origin + localizePath(base, version);
+      document.head.appendChild(link);
+    }
+    upsertMeta("property", "og:locale", langFromPath(path) === "nl" ? "nl_NL" : "en_GB");
 
     upsertMeta("property", "og:site_name", SITE_NAME);
     upsertMeta("property", "og:type", type);

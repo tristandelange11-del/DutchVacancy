@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "@/lib/router";
 import { useMutation } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { apiPost } from "@/lib/api";

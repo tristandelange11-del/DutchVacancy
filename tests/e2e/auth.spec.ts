@@ -10,7 +10,7 @@ test.describe("student registration and login", () => {
     const email = uniqueEmail("student");
     const password = "Correct-Horse-1!";
 
-    await page.goto("/register");
+    await page.goto("/en/register");
     await waitForAppReady(page);
     await dismissToasts(page);
 
@@ -24,9 +24,9 @@ test.describe("student registration and login", () => {
     await expect(page.getByTestId("nav-logout-button")).toBeVisible();
 
     await page.getByTestId("nav-logout-button").click();
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(/\/en$/);
 
-    await page.goto("/login");
+    await page.goto("/en/login");
     await page.getByTestId("login-email-input").fill(email);
     await page.getByTestId("login-password-input").fill(password);
     await page.getByTestId("login-submit-button").click();
@@ -35,7 +35,7 @@ test.describe("student registration and login", () => {
 
   test("a wrong password is rejected with a visible error, no navigation", async ({ page }) => {
     const email = uniqueEmail("wrongpw");
-    await page.goto("/register");
+    await page.goto("/en/register");
     await page.getByTestId("register-role-student").click();
     await page.getByTestId("register-name-input").fill("E2E Wrong Password");
     await page.getByTestId("register-email-input").fill(email);
@@ -44,7 +44,7 @@ test.describe("student registration and login", () => {
     await expect(page).toHaveURL(/\/student\/dashboard$/);
     await page.getByTestId("nav-logout-button").click();
 
-    await page.goto("/login");
+    await page.goto("/en/login");
     await page.getByTestId("login-email-input").fill(email);
     await page.getByTestId("login-password-input").fill("definitely-wrong");
     await page.getByTestId("login-submit-button").click();

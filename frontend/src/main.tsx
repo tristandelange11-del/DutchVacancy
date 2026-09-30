@@ -13,11 +13,11 @@ initAnalytics()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <LanguageProvider>
           <App />
-        </BrowserRouter>
-      </LanguageProvider>
+        </LanguageProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,
 )

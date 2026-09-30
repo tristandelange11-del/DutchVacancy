@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import Layout from "@/components/Layout";
 import { buttonVariants } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";

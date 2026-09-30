@@ -34,6 +34,7 @@ Mail safety: `send_email` never contacts Resend for RFC 2606/6761 reserved domai
 / · /jobs · /jobs/:jobId · /login · /register · /how-it-works · /guide (knowledge base hub) · /guide/:slug · /employers (employer info + request form) · /about · /contact · /privacy
 · /terms · /student/dashboard · /employer/dashboard · /employer/vacancies/new ·
 /employer/vacancies/:jobId/edit · /student/applications/:appId/interview (candidate picks a time) · * (404)
+Every route exists twice: Dutch at the root (`/jobs`) and English under `/en` (`/en/jobs`) — see i18n.
 
 ## Seed facts (historical demo data — NEVER run `backend/seed.py` against staging or production: it wipes the database)
 2 companies (Picnic Technologies, Canalside Hospitality Group), 14 published vacancies across
@@ -59,12 +60,17 @@ Employers skim a PDF inline via `components/CvPreview.tsx` (collapsible same-ori
 ## Known deviations
 - Students upload a CV file (PDF/DOC/DOCX); the old paste-a-link field is gone.
 ## i18n (EN + NL)
-`frontend/src/lib/i18n.tsx` (LanguageProvider mounted in main.tsx, `useLang() -> {lang, setLang, t, tl}`)
-+ `frontend/src/lib/dict.ts` (flat key → [en, nl]; `tl()` returns paragraph/step lists). Choice persists
-in localStorage `dv_lang` and sets `<html lang>`. With no stored choice the initial language comes from
-the browser (`navigator.languages` containing an `nl*` tag → Dutch, otherwise English); an explicit
-switch always wins and is remembered. Switcher: `components/LanguageSwitch.tsx`
-(testids `language-switch`, `lang-switch-en`, `lang-switch-nl`) in desktop and mobile header.
+The language is part of the URL: `ROOT_LANG` (`frontend/src/lib/paths.ts`, currently `nl`) is served at `/`,
+the other language under its prefix (`/en/...`). `backend/lib/site.py` (`SITE_ROOT_LANG`) mirrors it for
+email links and the sitemap — change both together. `App.tsx` mounts the same routes under `/en/*` and `/*`.
+Import routing from `@/lib/router`, never from react-router-dom: its `Link`, `NavLink`, `Navigate` and
+`useNavigate` send every internal absolute path to the current language ("/jobs" → "/en/jobs").
+`LanguageProvider` (inside the router) reads the language from the URL and sets `<html lang>`; the switch
+(`components/LanguageSwitch.tsx`, testids `language-switch`, `lang-switch-en`, `lang-switch-nl`) navigates to
+the same page in the other language and remembers the choice in localStorage `dv_lang`. There is no redirect by
+language: `components/LanguageHint.tsx` only *offers* the visitor's language (their last choice, else the
+browser's) when a page is in the other one; "stay" records the current language.
+`frontend/src/lib/dict.ts` holds the copy (flat key → [en, nl]; `tl()` returns paragraph/step lists).
 All static UI copy is translated; job/company content stays as the employer entered it.
 
 ## Knowledge base ("Werken als internationale student in Nederland")
@@ -90,7 +96,8 @@ All static UI copy is translated; job/company content stays as the employer ente
 
 ## SEO
 - `frontend/src/lib/seo.ts`: `useSeo({title, description, image?, type?, noindex?, jsonLd?})` sets
-  title (auto-suffixed ` · DutchVacancy`), description, robots, canonical, og:* and twitter:* on every
+  title (auto-suffixed ` · DutchVacancy`), description, robots, canonical (per language, no query string, no
+  trailing slash), hreflang alternates (nl, en, x-default → root language), og:locale, og:* and twitter:* on every
   route change, and injects/removes a `#dv-json-ld` script. `jobPostingJsonLd(job)` builds a
   schema.org JobPosting (employmentType, place/NL, EUR hourly baseSalary, TELECOMMUTE when remote)
   used on `/jobs/:jobId` so vacancies are eligible for Google Jobs.
@@ -98,7 +105,8 @@ All static UI copy is translated; job/company content stays as the employer ente
 - Social card asset: `frontend/public/og-cover.jpg` (also the index.html default og:image).
 - `backend/routers/seo.py` → `GET /api/seo/sitemap.xml` and `/api/seo/robots.txt`; the Vite proxy
   rewrites the crawler paths `/sitemap.xml` and `/robots.txt` onto them. The sitemap lists the 8
-  public static routes, every live knowledge-base article and every open job (with lastmod); dashboards/auth/api are excluded and
+  public static routes, every live knowledge-base article and every open job (with lastmod), each in both
+  languages with `xhtml:link` hreflang alternates; robots.txt disallows the private paths in both languages; dashboards/auth/api are excluded and
   disallowed in robots.txt. The base URL comes from the request's forwarded host — never APP_URL,
   which can be a stale preview hostname.
 

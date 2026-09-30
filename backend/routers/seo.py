@@ -13,6 +13,7 @@ from fastapi import APIRouter, Request, Response
 
 from content.kb import ARTICLES, is_live
 from lib.db import db
+from lib.site import SITE_LANGS, SITE_ROOT_LANG, localized_path
 from lib.vacancies import open_query
 
 router = APIRouter(tags=["seo"])
@@ -53,10 +54,11 @@ async def robots_txt(request: Request) -> Response:
         [
             "User-agent: *",
             "Allow: /",
-            "Disallow: /login",
-            "Disallow: /register",
-            "Disallow: /student/",
-            "Disallow: /employer/",
+            *[
+                f"Disallow: {localized_path(p, lang)}"
+                for lang in SITE_LANGS
+                for p in ("/login", "/register", "/student/", "/employer/")
+            ],
             "Disallow: /api/",
             "",
             f"Sitemap: {base_url(request)}/sitemap.xml",
@@ -76,36 +78,34 @@ async def sitemap_xml(request: Request) -> Response:
         .to_list(1000)
     )
 
-    urls: list[str] = []
-    for path, priority, freq in STATIC_PATHS:
-        urls.append(
-            f"<url><loc>{escape(root + path)}</loc>"
-            f"<changefreq>{freq}</changefreq><priority>{priority}</priority></url>"
-        )
+    # (path, lastmod, changefreq, priority) — each listed once per language below.
+    pages: list[tuple[str, str, str, str]] = [(path, "", freq, prio) for path, prio, freq in STATIC_PATHS]
     # Only reviewed, live articles — never drafts, not even where drafts are shown.
     for article in ARTICLES:
-        if not is_live(article):
-            continue
-        urls.append(
-            f"<url><loc>{escape(root + '/guide/' + article.slug)}</loc>"
-            f"<lastmod>{article.reviewed_on.isoformat()}</lastmod>"
-            "<changefreq>monthly</changefreq><priority>0.7</priority></url>"
-        )
+        if is_live(article):
+            pages.append((f"/guide/{article.slug}", article.reviewed_on.isoformat(), "monthly", "0.7"))
     for job in jobs:
         created = job.get("created_at")
-        lastmod = (
-            f"<lastmod>{created.date().isoformat()}</lastmod>"
-            if hasattr(created, "date")
-            else ""
+        lastmod = created.date().isoformat() if hasattr(created, "date") else ""
+        pages.append((f"/jobs/{job['id']}", lastmod, "weekly", "0.8"))
+
+    urls: list[str] = []
+    for path, lastmod, freq, priority in pages:
+        # Every language version names all versions, itself included (Google's hreflang rules).
+        alternates = "".join(
+            f'<xhtml:link rel="alternate" hreflang="{hreflang}" href="{escape(root + localized_path(path, lang))}"/>'
+            for hreflang, lang in [*((l, l) for l in SITE_LANGS), ("x-default", SITE_ROOT_LANG)]
         )
-        urls.append(
-            f"<url><loc>{escape(root + '/jobs/' + job['id'])}</loc>{lastmod}"
-            "<changefreq>weekly</changefreq><priority>0.8</priority></url>"
-        )
+        for lang in SITE_LANGS:
+            urls.append(
+                f"<url><loc>{escape(root + localized_path(path, lang))}</loc>"
+                + (f"<lastmod>{lastmod}</lastmod>" if lastmod else "")
+                + f"<changefreq>{freq}</changefreq><priority>{priority}</priority>{alternates}</url>"
+            )
 
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
         + "".join(urls)
         + "</urlset>"
     )

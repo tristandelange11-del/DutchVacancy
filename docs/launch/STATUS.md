@@ -24,7 +24,8 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
 |---|---|---|
 | [#12](https://github.com/tristandelange11-del/DutchVacancy/pull/12) | Complete vacatures, sluitingsdata, sollicitatieroute, meldingen | groen |
 | [#13](https://github.com/tristandelange11-del/DutchVacancy/pull/13) | Kennisbank met bronnen en publicatiepoort | groen |
-| [#14](https://github.com/tristandelange11-del/DutchVacancy/pull/14) | Werkgeverspagina en formulier, contact/over ons/privacy, metingen, SEO-correcties, tweetalige mails | loopt na openen |
+| [#14](https://github.com/tristandelange11-del/DutchVacancy/pull/14) | Werkgeverspagina en formulier, contact/over ons/privacy, metingen, SEO-correcties, tweetalige mails | groen |
+| volgende PR (`claude/language-urls`) | Taal in de URL: Nederlands op `/`, Engels op `/en/`, met hreflang en een tweetalige sitemap | loopt na openen |
 
 De PR's bouwen op elkaar voort: merge ze op volgorde. **PR #7** (privacy/voorwaarden) is in #14 opgenomen en gecorrigeerd: Fresh Vacancy staat op de homepage en niet bovenaan de zoekresultaten, en de verwerkersovereenkomsten zijn niet als feit vermeld. #7 kan dus dicht zonder merge. Daarna zet Claude staging bij (de preview, achter
 wachtwoord en niet vindbaar).
@@ -77,7 +78,7 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 | JobPosting volgens Google: verplichte velden, geen verzonnen salaris; bij sluiten wordt de JobPosting-data verwijderd | Gereed en getest | e2e; Googles richtlijn is gelezen |
 | Preview (staging) niet vindbaar | Gereed | wachtwoord plus `X-Robots-Tag: noindex` (Caddyfile) |
 | Indexing API | Wacht op informatie | onderzocht, advies in `livegang-checklist.md`: later inzetten |
-| **Taal-URL's en hreflang** | Wacht op informatie | nu één URL per pagina met taalknop. De taal volgt de browser, en Google crawlt met een Engelstalige browser, dus de Nederlandse versie is vrijwel zeker niet vindbaar. Wacht op jouw akkoord voor NL op `/` en EN op `/en/` |
+| Taal-URL's en hreflang | Gereed en getest (voorstel) | Nederlands op `/` en Engels op `/en/`: elke taal een eigen URL, canonical en `hreflang` (nl, en, x-default) en beide versies in de sitemap. Geen automatische doorverwijzing op taal: een Engelstalige bezoeker krijgt de Engelse versie aangeboden. Omdraaien kost één instelling (`frontend/src/lib/paths.ts` + `backend/lib/site.py`). Wacht op jouw akkoord bij het mergen |
 | Snelheid | Wacht op informatie | **niet gemeten.** De JavaScript-bundel is groot (build-waarschuwing > 500 kB). Meten met PageSpeed Insights op de productie-URL |
 | Toegankelijkheid | Wacht op informatie | **geen volledige audit.** Wel: taal van de pagina gezet, formulierlabels, koppenstructuur, geen horizontaal scrollen op 375 px, knoppen bereikbaar op mobiel |
 | Titels en voorbeelden bij delen op sociale media per vacature/artikel | Wacht op informatie | deeldiensten voeren geen JavaScript uit en tonen de standaardkaart. Staat bij de latere uitbreidingen |
@@ -87,7 +88,7 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 |---|---|---|
 | Essentiële route in EN en NL (interface, kennisbank uit dezelfde feiten, `<html lang>`) | Gereed en getest | e2e draait in het Engels; NL handmatig bekeken |
 | Alle e-mails in de taal van de ontvanger (verificatie, wachtwoord, sollicitatie, gesprek, agenda-bestand) | Gereed en getest | backend-tests plus sabotagecheck |
-| Taalstructuur in URL's | Wacht op informatie | zie punt 8 |
+| Taalstructuur in URL's | Gereed en getest (voorstel) | zie punt 8; ook links in e-mails openen in de taal van de ontvanger |
 
 ### 10. Vertrouwen en werkgevers
 | Onderdeel | Status | Toelichting |
@@ -130,12 +131,13 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 
 ## Testresultaten (echt uitgevoerd)
 
-- Backend: 85 van 85 geslaagd. Sabotagechecks: publicatiepoort, conceptfilter, sitemap, claimregister,
-  Sentry-verzoekinhoud en e-mailtaal. Elke opzettelijke fout werd gevangen.
-- End-to-end (Playwright, desktop plus mobiel scenario): 19 tests. Lokaal 18 geslaagd en 1 overgeslagen:
+- Backend: 89 van 89 geslaagd. Sabotagechecks: publicatiepoort, conceptfilter, sitemap, claimregister,
+  Sentry-verzoekinhoud, e-mailtaal en taalbewuste links. Elke opzettelijke fout werd gevangen.
+- End-to-end (Playwright, desktop plus mobiel scenario): 23 tests. Lokaal 22 geslaagd en 1 overgeslagen:
   de artikeltest vereist zichtbare artikelen, en in productiemodus zijn die er terecht niet. Die test is
-  apart gedraaid met concepten zichtbaar en slaagde. CI van #12 en #13: groen.
-- Frontend: typecheck en build schoon; lint zonder nieuwe waarschuwingen.
+  apart gedraaid met concepten zichtbaar en slaagde. CI van #12, #13 en #14: groen.
+- Frontend: typecheck, lint en build schoon. De linter weigert voortaan links die de taal kunnen verliezen,
+  en draait nu ook in CI.
 - Handmatig in de browser: 1280 px, 1024 px en 375 px, Nederlands en Engels.
 - **Niet getest:** echte e-mailbezorging van de nieuwe onderdelen, productie (bestaat nog niet), snelheid,
   een volledige toegankelijkheidsaudit, en Plausible-gebeurtenissen in productie.
@@ -145,13 +147,12 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 1. Inhoudelijk eigenaar van de kennisbank (naam en rol).
 2. Wie opvolgt, via welke mailbox, en een haalbare reactietijd (`opvolging.md`).
 3. KvK-nummer, correspondentieadres en juridische naam.
-4. Akkoord op NL op `/` en EN op `/en/`.
+4. Akkoord op de taalstructuur zoals gebouwd: Nederlands op `/`, Engels op `/en/`. Liever Engels op `/`? Dat is één instelling.
 5. Of er echte werkgevers en vacatures klaarstaan.
 6. Welke advertentiekanalen je overweegt (voor de controle van advertentie en landingspagina).
 
 ## Latere uitbreidingen (niet nodig voor de eerste livegang)
 
-- Taal-URL's met hreflang, als je daar nu nog niet voor kiest.
 - Overzichtspagina's per stad of groep zodra daar echt aanbod is.
 - Vacaturealerts, met meting.
 - Indexing API voor vacatures.

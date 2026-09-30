@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import Layout from "@/components/Layout";
 import { KbArticleCard, OfficialBodies } from "@/components/Kb";
 import { PageHero } from "@/components/Static";

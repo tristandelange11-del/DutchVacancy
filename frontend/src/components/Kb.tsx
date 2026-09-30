@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLang } from "@/lib/i18n";

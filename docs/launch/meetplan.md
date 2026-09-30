@@ -67,6 +67,9 @@ Gebruik altijd kleine letters, streepjes in plaats van spaties en deze vaste waa
 Voorbeeld van een complete link:
 `https://dutchvacancy.nl/jobs?english_level=english_only&utm_source=meta&utm_medium=paid-social&utm_campaign=2026-11-bijbaan-studenten&utm_content=video-a`
 
+Taal: een Engelstalige advertentie linkt naar de Engelse versie (`https://dutchvacancy.nl/en/jobs?...`),
+een Nederlandstalige naar de pagina zonder `/en`. Plausible toont ze als aparte pagina's.
+
 Regels: stuur een advertentie naar de pagina waar de advertentie over gaat (zie de landingspagina-check
 in `livegang-checklist.md`). Zet nooit UTM-tags op interne links binnen de site.
 

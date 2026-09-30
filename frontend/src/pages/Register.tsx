@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "@/lib/router";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
