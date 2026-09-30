@@ -1,0 +1,36 @@
+name: Knowledge base source check
+# Weekly: re-fetch every official source page the knowledge base relies on and
+# compare it with the version recorded at the last human check. A red run means
+# a person should re-read a page or re-review an article — it is a signal, not
+# proof that a rule changed. Read-only: it never edits content or opens issues.
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compare official sources with the recorded version
+        run: |
+          set -o pipefail
+          python backend/scripts/kb_report.py --check-sources | tee report.txt
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo '## Knowledge base source check'
+            echo
+            echo 'CHANGED / UNREADABLE / REVIEW lines need a person. After re-reading a page and updating'
+            echo 'the article if needed, run `python backend/scripts/kb_report.py --record` and commit.'
+            echo
+            echo '```'
+            cat report.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

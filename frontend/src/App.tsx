@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "@/lib/router";
+import { PREFIXED_LANG } from "@/lib/paths";
 import Home from "@/pages/Home";
 import Jobs from "@/pages/Jobs";
 import JobDetail from "@/pages/JobDetail";
@@ -10,7 +11,9 @@ import InterviewPick from "@/pages/InterviewPick";
 import VacancyForm from "@/pages/VacancyForm";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Employers from "@/pages/Employers";
 import Guide from "@/pages/Guide";
+import GuideArticle from "@/pages/GuideArticle";
 import HowItWorks from "@/pages/HowItWorks";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
@@ -20,25 +23,28 @@ import VerifyEmail from "@/pages/VerifyEmail";
 import RequireRole from "@/components/RequireRole";
 import { NotFound } from "@/components/Static";
 
-export default function App() {
+/** Every page, relative to the language prefix ("" or "/en"). */
+function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/jobs" element={<Jobs />} />
-      <Route path="/jobs/:jobId" element={<JobDetail />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/how-it-works" element={<HowItWorks />} />
-      <Route path="/guide" element={<Guide />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/terms" element={<Terms />} />
+      <Route index element={<Home />} />
+      <Route path="jobs" element={<Jobs />} />
+      <Route path="jobs/:jobId" element={<JobDetail />} />
+      <Route path="login" element={<Login />} />
+      <Route path="register" element={<Register />} />
+      <Route path="forgot-password" element={<ForgotPassword />} />
+      <Route path="reset-password" element={<ResetPassword />} />
+      <Route path="verify-email" element={<VerifyEmail />} />
+      <Route path="how-it-works" element={<HowItWorks />} />
+      <Route path="guide" element={<Guide />} />
+      <Route path="guide/:slug" element={<GuideArticle />} />
+      <Route path="employers" element={<Employers />} />
+      <Route path="about" element={<About />} />
+      <Route path="contact" element={<Contact />} />
+      <Route path="privacy" element={<Privacy />} />
+      <Route path="terms" element={<Terms />} />
       <Route
-        path="/student/dashboard"
+        path="student/dashboard"
         element={
           <RequireRole role="student">
             <StudentDashboard />
@@ -46,7 +52,7 @@ export default function App() {
         }
       />
       <Route
-        path="/student/applications/:appId/interview"
+        path="student/applications/:appId/interview"
         element={
           <RequireRole role="student">
             <InterviewPick />
@@ -54,7 +60,7 @@ export default function App() {
         }
       />
       <Route
-        path="/employer/dashboard"
+        path="employer/dashboard"
         element={
           <RequireRole role="employer">
             <EmployerDashboard />
@@ -62,7 +68,7 @@ export default function App() {
         }
       />
       <Route
-        path="/employer/vacancies/new"
+        path="employer/vacancies/new"
         element={
           <RequireRole role="employer">
             <VacancyForm />
@@ -70,7 +76,7 @@ export default function App() {
         }
       />
       <Route
-        path="/employer/vacancies/:jobId/edit"
+        path="employer/vacancies/:jobId/edit"
         element={
           <RequireRole role="employer">
             <VacancyForm />
@@ -78,6 +84,15 @@ export default function App() {
         }
       />
       <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path={`/${PREFIXED_LANG}/*`} element={<AppRoutes />} />
+      <Route path="/*" element={<AppRoutes />} />
     </Routes>
   );
 }

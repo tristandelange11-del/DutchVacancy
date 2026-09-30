@@ -27,14 +27,14 @@ let jobId = "";
 
 test.describe.serial("application route", () => {
   test("employer posts a vacancy without pay or hours — nothing is invented", async ({ page }) => {
-    await page.goto("/register?role=employer");
+    await page.goto("/en/register?role=employer");
     await dismissToasts(page);
     const email = `e2e-route-employer-${RUN}@example.com`;
     await register(page, "employer", email);
     await expect(page).toHaveURL(/\/employer\/dashboard$/);
     await verifyEmailDirectly(email);
 
-    await page.goto("/employer/vacancies/new");
+    await page.goto("/en/employer/vacancies/new");
     await page.getByTestId("vacancy-title-input").fill(JOB_TITLE);
     await page.getByTestId("vacancy-description-input").fill("Route test vacancy.");
     await expect(page.getByTestId("vacancy-hourlymin-input")).toHaveValue("");
@@ -54,12 +54,20 @@ test.describe.serial("application route", () => {
   });
 
   test("logged-out visitor is taken through sign-up and back to the vacancy", async ({ page }) => {
-    await page.goto(`/jobs/${jobId}`);
+    await page.goto(`/en/jobs/${jobId}`);
     await dismissToasts(page);
     await expect(page.getByTestId("job-detail-title")).toHaveText(JOB_TITLE);
     await expect(page.getByTestId("job-detail-rate")).toHaveText(/pay not stated/i);
     await expect(page.getByTestId("job-detail-posted")).toBeVisible();
     await expect(page.getByTestId("job-detail-closes")).toBeVisible();
+
+    // Google's required JobPosting properties are present, and nothing is invented:
+    // no pay was stated, so there is no baseSalary.
+    const ld = JSON.parse((await page.locator("#dv-json-ld").textContent()) ?? "{}");
+    for (const key of ["title", "description", "datePosted", "hiringOrganization", "jobLocation", "validThrough"]) {
+      expect(ld).toHaveProperty(key);
+    }
+    expect(ld).not.toHaveProperty("baseSalary");
 
     await page.getByTestId("job-apply-button").click();
     await expect(page).toHaveURL(new RegExp(`/register\\?next=${encodeURIComponent(`/jobs/${jobId}`)}`));
@@ -94,7 +102,7 @@ test.describe.serial("application route", () => {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const page = await context.newPage();
     try {
-      await page.goto(`/jobs/${jobId}`);
+      await page.goto(`/en/jobs/${jobId}`);
       await dismissToasts(page);
       // On a phone the apply action is pinned to the bottom of the screen.
       const bar = page.getByTestId("job-apply-bar-button");
@@ -124,14 +132,14 @@ test.describe.serial("application route", () => {
 
   test("a closed vacancy says so, cannot be applied to and leaves the listings", async ({ page }) => {
     await expireJobDirectly(jobId);
-    await page.goto(`/jobs/${jobId}`);
+    await page.goto(`/en/jobs/${jobId}`);
     await expect(page.getByTestId("job-closed-banner")).toBeVisible();
     await expect(page.getByTestId("job-apply-button")).toHaveCount(0);
     await expect(page.getByTestId("job-closed-browse")).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     await expect(page.locator("#dv-json-ld")).toHaveCount(0);
 
-    await page.goto(`/jobs?q=${encodeURIComponent(JOB_TITLE)}`);
+    await page.goto(`/en/jobs?q=${encodeURIComponent(JOB_TITLE)}`);
     await expect(page.getByTestId(`job-card-${jobId}`)).toHaveCount(0);
   });
 });

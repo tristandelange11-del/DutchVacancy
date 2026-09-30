@@ -3,37 +3,31 @@
 import base64
 from datetime import timedelta
 from typing import Any
-from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from lib.auth import current_employer, current_student, now_utc
 from lib.db import db
 from lib.email import app_url, send_email
+from lib.mail_text import format_slot, lang_of, text
+from lib.site import localized_path
 from lib.ics import build_ics
 from models.schemas import Application, Interview, InterviewProposal, SlotChoice, as_utc
 
 router = APIRouter(tags=["interviews"])
 
 MAX_DAYS_AHEAD = 90
-AMSTERDAM = ZoneInfo("Europe/Amsterdam")
 
 
 def _clean(doc: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in doc.items() if k != "_id"}
 
 
-def _fmt(slot) -> str:
-    return as_utc(slot).astimezone(AMSTERDAM).strftime("%A %d %B %Y, %H:%M") + " (Amsterdam time)"
-
-
-def _ics_bytes(doc: dict[str, Any], interview: dict[str, Any], *, for_employer: bool) -> bytes:
-    if for_employer:
-        summary = f"Interview: {doc['student_name']} — {doc['job_title']}"
-        description = f"Interview with {doc['student_name']} for {doc['job_title']}."
-    else:
-        summary = f"Interview: {doc['job_title']} at {doc['company_name']}"
-        description = f"Interview for {doc['job_title']} at {doc['company_name']}."
+def _ics_bytes(doc: dict[str, Any], interview: dict[str, Any], *, for_employer: bool, lang: str = "en") -> bytes:
+    kw = {"student": doc["student_name"], "job": doc["job_title"], "company": doc["company_name"]}
+    side = "employer" if for_employer else "student"
+    summary = text(f"ics_{side}_summary", lang, **kw)
+    description = text(f"ics_{side}_description", lang, **kw)
     if interview.get("note"):
         description += f" {interview['note']}"
     return build_ics(
@@ -45,18 +39,20 @@ def _ics_bytes(doc: dict[str, Any], interview: dict[str, Any], *, for_employer: 
     )
 
 
-def _ics_attachment(doc: dict[str, Any], interview: dict[str, Any], *, for_employer: bool) -> dict[str, str]:
-    content = _ics_bytes(doc, interview, for_employer=for_employer)
+def _ics_attachment(
+    doc: dict[str, Any], interview: dict[str, Any], *, for_employer: bool, lang: str = "en"
+) -> dict[str, str]:
+    content = _ics_bytes(doc, interview, for_employer=for_employer, lang=lang)
     return {"filename": "interview.ics", "content": base64.b64encode(content).decode("ascii")}
 
 
-def _ics_response(doc: dict[str, Any], *, for_employer: bool) -> Response:
+def _ics_response(doc: dict[str, Any], *, for_employer: bool, lang: str = "en") -> Response:
     if not doc:
         raise HTTPException(status_code=404, detail="Application not found")
     interview = doc.get("interview")
     if not interview or not interview.get("chosen_slot"):
         raise HTTPException(status_code=409, detail="No confirmed interview time yet")
-    content = _ics_bytes(doc, interview, for_employer=for_employer)
+    content = _ics_bytes(doc, interview, for_employer=for_employer, lang=lang)
     return Response(
         content=content,
         media_type="text/calendar; charset=utf-8",
@@ -94,14 +90,16 @@ async def propose_interview(
     updated = await db.applications.find_one({"id": app_id})
     assert updated is not None
 
+    lang = lang_of(await db.users.find_one({"id": doc["student_id"]}))
+    kw = {"company": doc["company_name"], "job": doc["job_title"]}
     await send_email(
         doc["student_email"],
-        f"Interview invitation from {doc['company_name']}: {doc['job_title']}",
-        "Choose your interview time",
-        f"{doc['company_name']} would like to invite you for an interview for {doc['job_title']}. "
-        "Pick the time that suits you best.",
-        "Choose a time",
-        f"{app_url()}/student/applications/{app_id}/interview",
+        text("invite_subject", lang, **kw),
+        text("invite_title", lang),
+        text("invite_body", lang, **kw),
+        text("invite_action", lang),
+        f"{app_url()}{localized_path(f'/student/applications/{app_id}/interview', lang)}",
+        lang=lang,
     )
     return Application(**_clean(updated))
 
@@ -132,30 +130,35 @@ async def choose_slot(
     updated = await db.applications.find_one({"id": app_id})
     assert updated is not None
     interview = updated["interview"]
-    when = _fmt(payload.slot)
+    slot = as_utc(payload.slot)
+    kw = {"company": doc["company_name"], "job": doc["job_title"], "student": doc["student_name"]}
 
+    lang = lang_of(user)
+    when = format_slot(slot, lang)
     await send_email(
         doc["student_email"],
-        f"Interview confirmed: {when}",
-        "Your interview is scheduled",
-        f"Your interview with {doc['company_name']} for {doc['job_title']} is confirmed for {when}. "
-        "Add it to your calendar with the attached file.",
-        "Open dashboard",
-        f"{app_url()}/student/dashboard",
-        attachments=[_ics_attachment(doc, interview, for_employer=False)],
+        text("confirmed_subject", lang, when=when),
+        text("confirmed_title", lang),
+        text("confirmed_body", lang, when=when, **kw),
+        text("dashboard_action", lang),
+        f"{app_url()}{localized_path('/student/dashboard', lang)}",
+        attachments=[_ics_attachment(doc, interview, for_employer=False, lang=lang)],
+        lang=lang,
     )
 
     employers = await db.users.find({"company_id": doc["company_id"], "role": "employer"}).to_list(20)
     for employer in employers:
+        lang = lang_of(employer)
+        when = format_slot(slot, lang)
         await send_email(
             employer["email"],
-            f"{doc['student_name']} chose an interview time",
-            "Interview time confirmed",
-            f"{doc['student_name']} will attend the interview for {doc['job_title']} on {when}. "
-            "Add it to your calendar with the attached file.",
-            "Open dashboard",
-            f"{app_url()}/employer/dashboard",
-            attachments=[_ics_attachment(doc, interview, for_employer=True)],
+            text("employer_confirmed_subject", lang, **kw),
+            text("employer_confirmed_title", lang),
+            text("employer_confirmed_body", lang, when=when, **kw),
+            text("dashboard_action", lang),
+            f"{app_url()}{localized_path('/employer/dashboard', lang)}",
+            attachments=[_ics_attachment(doc, interview, for_employer=True, lang=lang)],
+            lang=lang,
         )
     return Application(**_clean(updated))
 
@@ -163,10 +166,10 @@ async def choose_slot(
 @router.get("/student/applications/{app_id}/interview.ics")
 async def student_interview_ics(app_id: str, user: dict[str, Any] = Depends(current_student)):
     doc = await db.applications.find_one({"id": app_id, "student_id": user["id"]})
-    return _ics_response(doc, for_employer=False)
+    return _ics_response(doc, for_employer=False, lang=lang_of(user))
 
 
 @router.get("/employer/applications/{app_id}/interview.ics")
 async def employer_interview_ics(app_id: str, user: dict[str, Any] = Depends(current_employer)):
     doc = await db.applications.find_one({"id": app_id, "company_id": user.get("company_id")})
-    return _ics_response(doc, for_employer=True)
+    return _ics_response(doc, for_employer=True, lang=lang_of(user))

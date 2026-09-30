@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Bookmark, ClipboardList, UserRound } from "lucide-react";
 import { toast } from "sonner";

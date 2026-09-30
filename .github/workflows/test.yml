@@ -27,6 +27,7 @@ jobs:
           node-version: '24'
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run lint
       - run: npm run build
   e2e:
     runs-on: ubuntu-latest

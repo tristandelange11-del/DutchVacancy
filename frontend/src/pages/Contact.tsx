@@ -2,6 +2,7 @@ import { useState } from "react";
 import business from "@/config/business.json";
 import { useMutation } from "@tanstack/react-query";
 import { Mail, MapPin } from "lucide-react";
+import { RESPONSE_WORKING_DAYS } from "@/config/operations";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { PageHero } from "@/components/Static";
@@ -78,14 +79,21 @@ export default function Contact() {
               <a className="text-sm underline" href={`mailto:${business.contact_email}`}>{business.contact_email}</a>
             </div>
           </div>
-          <div className="flex gap-3">
-            <MapPin className="mt-0.5 h-4 w-4" />
-            <div>
-              <p className="font-heading text-sm font-bold">{t("contact.office")}</p>
-              <p className="text-sm">Online, the Netherlands</p>
+          {/* Only a real, registered address — never a placeholder. */}
+          {business.address && (
+            <div className="flex gap-3">
+              <MapPin className="mt-0.5 h-4 w-4" />
+              <div>
+                <p className="font-heading text-sm font-bold">{t("contact.office")}</p>
+                <p className="whitespace-pre-line text-sm">{business.address}</p>
+              </div>
             </div>
-          </div>
-          <p className="text-sm">{t("contact.answerNote")}</p>
+          )}
+          <p className="text-sm" data-testid="contact-answer-note">
+            {RESPONSE_WORKING_DAYS
+              ? t("contact.answerNoteDays").replace("{n}", String(RESPONSE_WORKING_DAYS))
+              : t("contact.answerNote")}
+          </p>
         </aside>
       </div>
     </Layout>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "@/lib/router";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";

@@ -207,3 +207,79 @@ export const STATUS_CLASSES: Record<AppStatus, string> = {
   accepted: "bg-green-50 text-green-700",
   rejected: "bg-red-50 text-red-700",
 };
+
+// ---------- knowledge base (mirrors the Kb* models in backend/models/schemas.py) ----------
+
+export type KbStatus = "draft" | "in_review" | "published";
+
+export interface LocalizedText {
+  en: string;
+  nl: string;
+}
+
+export interface KbSection {
+  title: LocalizedText;
+  paragraphs: LocalizedText[];
+}
+
+export interface KbContact {
+  body: string;
+  label: LocalizedText;
+  url: LocalizedText;
+}
+
+export interface KbJobLink {
+  label: LocalizedText;
+  /** Query string for /jobs — only filters with a stated value (e.g. english_level=english_only). */
+  query: string;
+}
+
+export interface KbSource {
+  publisher: string;
+  title: LocalizedText;
+  url: LocalizedText;
+  en_available: boolean;
+  checked_on: string;
+}
+
+export interface KbArticleSummary {
+  slug: string;
+  title: LocalizedText;
+  summary: LocalizedText;
+  status: KbStatus;
+  /** Passed the publication gate. False = a draft shown for review only (never indexed). */
+  live: boolean;
+  sensitive: boolean;
+  /** Date of the last real content review; null until reviewed. */
+  reviewed_on: string | null;
+  sources_checked_on: string;
+}
+
+export interface KbArticle extends KbArticleSummary {
+  answer: LocalizedText[];
+  applies_to: LocalizedText[];
+  exceptions: LocalizedText[];
+  next_steps: LocalizedText[];
+  details: KbSection[];
+  contacts: KbContact[];
+  job_link: KbJobLink | null;
+  employer_link: boolean;
+  related: KbArticleSummary[];
+  sources: KbSource[];
+  author: string | null;
+  reviewer: string | null;
+}
+
+// ---------- contact (mirrors ContactCreate in backend/models/schemas.py) ----------
+
+export type ContactKind = "general" | "employer";
+
+export interface ContactCreate {
+  kind?: ContactKind;
+  name: string;
+  email: string;
+  /** Required when kind is "employer". */
+  company?: string;
+  subject: string;
+  message: string;
+}

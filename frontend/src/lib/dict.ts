@@ -5,7 +5,8 @@ export const DICT: Record<string, Entry> = {
   // ---------- nav / footer ----------
   "nav.jobs": ["Browse Jobs", "Vacatures"],
   "nav.how": ["How It Works", "Hoe het werkt"],
-  "nav.guide": ["Student Guide", "Studentengids"],
+  "nav.guide": ["Knowledge base", "Kennisbank"],
+  "nav.employers": ["For employers", "Werkgevers"],
   "nav.about": ["About", "Over ons"],
   "nav.contact": ["Contact", "Contact"],
   "nav.login": ["Log in", "Inloggen"],
@@ -13,6 +14,10 @@ export const DICT: Record<string, Entry> = {
   "nav.logout": ["Log out", "Uitloggen"],
   "nav.dashboard": ["Dashboard", "Dashboard"],
   "nav.langLabel": ["Language", "Taal"],
+  // Shown in the language being offered (components/LanguageHint.tsx).
+  "langHint.text": ["This page is also available in English.", "Deze pagina is ook in het Nederlands beschikbaar."],
+  "langHint.switch": ["Switch to English", "Naar het Nederlands"],
+  "langHint.stay": ["Stay in Dutch", "Blijf in het Engels"],
   "footer.tagline": [
     "The job board for international students in the Netherlands. Every vacancy states its English requirement and work-permit support up front — no guessing, no dead ends.",
     "De vacaturebank voor internationale studenten in Nederland. Bij elke vacature staat vooraf welke Engelse taalvaardigheid nodig is en of er hulp is met een werkvergunning — geen gokwerk, geen doodlopende wegen.",
@@ -20,10 +25,11 @@ export const DICT: Record<string, Entry> = {
   "footer.students": ["Students", "Studenten"],
   "footer.company": ["Company", "Bedrijf"],
   "footer.browse": ["Browse jobs", "Vacatures bekijken"],
-  "footer.permits": ["Work permits & rules", "Werkvergunningen & regels"],
+  "footer.permits": ["Working as a student in NL", "Werken als student in NL"],
   "footer.how": ["How it works", "Hoe het werkt"],
   "footer.createAccount": ["Create an account", "Account aanmaken"],
   "footer.about": ["About us", "Over ons"],
+  "footer.employers": ["For employers", "Voor werkgevers"],
   "footer.privacy": ["Privacy policy", "Privacybeleid"],
   "footer.terms": ["Terms of service", "Algemene voorwaarden"],
   "footer.legal": [
@@ -39,10 +45,11 @@ export const DICT: Record<string, Entry> = {
   "label.internship": ["Internship / Stage", "Stage"],
   "label.working_student": ["Working student", "Werkstudent"],
   "label.graduate": ["Graduate / starter", "Starter"],
-  "label.twv_provided": ["TWV permit support", "Hulp met TWV-vergunning"],
-  "label.eu_eea": ["EU / EEA direct", "EU / EER direct"],
-  "label.freelance_kvk": ["Freelance / KVK", "Freelance / KVK"],
-  "label.none": ["No permit support", "Geen hulp met vergunning"],
+  // What the employer states it will do — never a promise that a permit is granted.
+  "label.twv_provided": ["Employer applies for a TWV", "Werkgever vraagt TWV aan"],
+  "label.eu_eea": ["EU/EEA/Swiss nationals (no TWV)", "EU/EER/Zwitserse nationaliteit (geen TWV)"],
+  "label.freelance_kvk": ["Freelance (KvK registration)", "Freelance (KvK-inschrijving)"],
+  "label.none": ["No TWV application", "Geen TWV-aanvraag"],
   "label.on_site": ["On-site", "Op locatie"],
   "label.hybrid": ["Hybrid", "Hybride"],
   "label.remote": ["Remote", "Op afstand"],
@@ -102,8 +109,8 @@ export const DICT: Record<string, Entry> = {
   "home.h1a": ["Dutch jobs that", "Nederlandse banen die"],
   "home.h1b": ["hire in English.", "in het Engels werken."],
   "home.lead": [
-    "Stop guessing whether a vacancy needs fluent Dutch. DutchVacancy lists only student roles from employers who work in English — with the hours, hourly rate and work-permit support stated up front.",
-    "Geen gokwerk meer of een vacature vloeiend Nederlands vereist. DutchVacancy toont alleen studentenbanen bij werkgevers die in het Engels werken — met de uren, het uurloon en de hulp bij werkvergunningen vooraf vermeld.",
+    "Stop guessing whether a vacancy needs fluent Dutch. Every vacancy on DutchVacancy states its language requirement up front, plus the hours, pay and contract type whenever the employer provides them.",
+    "Geen gokwerk meer of een vacature vloeiend Nederlands vereist. Bij elke vacature op DutchVacancy staat vooraf de taaleis, plus de uren, het loon en de contractvorm zodra de werkgever die opgeeft.",
   ],
   "home.searchPlaceholder": ["Job title, skill or company", "Functietitel, vaardigheid of bedrijf"],
   "home.allCities": ["All cities", "Alle steden"],
@@ -122,7 +129,7 @@ export const DICT: Record<string, Entry> = {
   "home.cardEnglish": ["English requirements up front", "Engelse taaleis direct duidelijk"],
   "home.cardEnglishBody": ["Know the working language before you apply", "Ken de werktaal voordat je solliciteert"],
   "home.cardClear": ["Clear employment details", "Duidelijke arbeidsvoorwaarden"],
-  "home.cardClearBody": ["Hours, pay range and permit support", "Uren, loonindicatie en vergunningshulp"],
+  "home.cardClearBody": ["Hours, pay and contract type when stated", "Uren, loon en contractvorm als ze zijn opgegeven"],
   "home.viewAll": ["View all jobs", "Alle vacatures bekijken"],
   "home.featuredOffline": [
     "Vacancies load as soon as the job service is reachable. Meanwhile, browse the guide below.",
@@ -168,32 +175,17 @@ export const DICT: Record<string, Entry> = {
   ],
   "home.citiesTitle": ["Explore the student hubs", "Ontdek de studentensteden"],
   "home.citiesRoles": ["+ roles", "+ functies"],
-  "home.legalTitle": ["Dutch work rules, in plain English", "Nederlandse arbeidsregels, simpel uitgelegd"],
+  // The rules themselves live in the knowledge base (backend/content/kb), where
+  // every claim has a checked official source — not in these UI strings.
+  "home.legalTitle": [
+    "Working in the Netherlands as an international student",
+    "Werken als internationale student in Nederland",
+  ],
   "home.legalLead": [
-    "The four things every international student needs to know before signing a contract in the Netherlands.",
-    "De vier dingen die elke internationale student moet weten voordat je in Nederland een contract ondertekent.",
+    "Permits, insurance, contracts and pay, explained in plain language. Every article names its official sources.",
+    "Vergunningen, verzekering, contracten en loon, in duidelijke taal uitgelegd. Elk artikel noemt zijn officiële bronnen.",
   ],
-  "home.legalCta": ["Read the full student guide", "Lees de volledige studentengids"],
-  "home.legal1t": ["16 hours per week during term", "16 uur per week tijdens het studiejaar"],
-  "home.legal1b": [
-    "Non-EU/EEA students may work up to 16 hours a week during the academic year — or full-time across June, July and August, but not both in the same year.",
-    "Studenten van buiten de EU/EER mogen tijdens het studiejaar maximaal 16 uur per week werken — of voltijd in juni, juli en augustus, maar niet beide in hetzelfde jaar.",
-  ],
-  "home.legal2t": ["TWV work permit", "TWV-werkvergunning"],
-  "home.legal2b": [
-    "Your employer applies for the TWV (work permit) at UWV on your behalf. It is free for them, and vacancies here flag when it's offered.",
-    "Je werkgever vraagt de TWV (werkvergunning) voor je aan bij het UWV. Dat is gratis, en bij vacatures hier staat wanneer dit wordt aangeboden.",
-  ],
-  "home.legal3t": ["BSN and Dutch bank account", "BSN en Nederlandse bankrekening"],
-  "home.legal3b": [
-    "Register at your municipality to get a BSN, then open a Dutch IBAN. Most employers cannot pay you without both.",
-    "Schrijf je in bij de gemeente voor een BSN en open daarna een Nederlands IBAN. Zonder beide kunnen werkgevers je meestal niet betalen.",
-  ],
-  "home.legal4t": ["Zoekjaar (orientation year)", "Zoekjaar (oriëntatiejaar)"],
-  "home.legal4b": [
-    "Graduated from a Dutch university? The orientation-year permit gives you 12 months to work full-time without a TWV.",
-    "Afgestudeerd aan een Nederlandse universiteit? Met het zoekjaar mag je 12 maanden voltijd werken zonder TWV.",
-  ],
+  "home.legalCta": ["Open the knowledge base", "Naar de kennisbank"],
   "home.ctaTitle": ["Ready to launch your Dutch career?", "Klaar om je Nederlandse carrière te starten?"],
   "home.ctaLead": [
     "Create a free account and apply to your first English-speaking vacancy today.",
@@ -217,7 +209,7 @@ export const DICT: Record<string, Entry> = {
   "jobs.filterCity": ["City", "Stad"],
   "jobs.filterEnglish": ["English requirement", "Engelse taaleis"],
   "jobs.filterType": ["Job type", "Soort baan"],
-  "jobs.filterPermit": ["Work permit support", "Hulp bij werkvergunning"],
+  "jobs.filterPermit": ["Work permit (TWV)", "Werkvergunning (TWV)"],
   "jobs.filterWork": ["Work arrangement", "Werkvorm"],
   "jobs.filterRate": ["Hourly rate", "Uurloon"],
   "jobs.rate15": ["€ 15+ / hour", "€ 15+ / uur"],
@@ -255,12 +247,12 @@ export const DICT: Record<string, Entry> = {
   "detail.applicant": ["applicant", "kandidaat"],
   "detail.alreadyApplied": ["You already applied to this role", "Je hebt al op deze functie gesolliciteerd"],
   "detail.applyNow": ["Apply now", "Solliciteer nu"],
-  "detail.rightsTitle": ["Know your rights", "Ken je rechten"],
-  "detail.rightsBody": [
-    "Non-EU students may work 16 hours a week during term, or full-time in June–August. Your employer arranges the TWV permit — never pay for one yourself.",
-    "Studenten van buiten de EU mogen tijdens het studiejaar 16 uur per week werken, of voltijd in juni–augustus. Je werkgever regelt de TWV-vergunning — betaal er nooit zelf voor.",
+  "detail.guideTitle": ["Good to know", "Goed om te weten"],
+  "detail.guideEmpty": [
+    "Whether you may take this job depends on your nationality and residence permit. The official bodies decide; our knowledge base lists them.",
+    "Of je deze baan mag doen, hangt af van je nationaliteit en verblijfsvergunning. De officiële instanties beslissen; onze kennisbank noemt ze.",
   ],
-  "detail.rightsLink": ["Read the student guide", "Lees de studentengids"],
+  "detail.guideAll": ["Open the knowledge base", "Naar de kennisbank"],
   "detail.applyLogin": ["Log in as a student to apply", "Log in als student om te solliciteren"],
   "detail.applyStudentOnly": [
     "Only student accounts can apply to vacancies",
@@ -385,28 +377,28 @@ export const DICT: Record<string, Entry> = {
   "register.failed": ["Could not create your account", "Kon je account niet aanmaken"],
   "register.already": ["Already registered?", "Al geregistreerd?"],
   "register.sideTitle": [
-    "Working in the Netherlands, step by step",
-    "Werken in Nederland, stap voor stap",
+    "What you get with a free account",
+    "Wat je krijgt met een gratis account",
   ],
-  "register.side1t": ["16 hours per week", "16 uur per week"],
+  "register.side1t": ["Language requirement up front", "Taaleis vooraf duidelijk"],
   "register.side1b": [
-    "Non-EU students work 16h/week during term, or full-time in June–August.",
-    "Studenten van buiten de EU werken 16 uur per week tijdens het studiejaar, of voltijd in juni–augustus.",
+    "Every vacancy states whether English is enough.",
+    "Bij elke vacature staat of Engels genoeg is.",
   ],
-  "register.side2t": ["TWV work permit", "TWV-werkvergunning"],
+  "register.side2t": ["One profile for every application", "Eén profiel voor elke sollicitatie"],
   "register.side2b": [
-    "Your employer arranges it at UWV — it costs you nothing.",
-    "Je werkgever regelt dit bij het UWV — het kost jou niets.",
+    "Your profile and CV go with each application you send.",
+    "Je profiel en cv gaan mee met elke sollicitatie die je verstuurt.",
   ],
-  "register.side3t": ["BSN + Dutch IBAN", "BSN + Nederlands IBAN"],
+  "register.side3t": ["Track your applications", "Volg je sollicitaties"],
   "register.side3b": [
-    "Register at the gemeente, then open a bank account to get paid.",
-    "Schrijf je in bij de gemeente en open daarna een bankrekening om betaald te worden.",
+    "Your dashboard shows when an employer reviews your application or invites you to an interview.",
+    "Je dashboard laat zien wanneer een werkgever je sollicitatie bekijkt of je uitnodigt voor een gesprek.",
   ],
-  "register.side4t": ["Zoekjaar", "Zoekjaar"],
+  "register.side4t": ["Free for students", "Gratis voor studenten"],
   "register.side4b": [
-    "Graduates get a 12-month orientation year to work without a permit.",
-    "Afgestudeerden krijgen een zoekjaar van 12 maanden om zonder vergunning te werken.",
+    "Creating an account and applying costs nothing.",
+    "Een account maken en solliciteren kost niets.",
   ],
 
   // ---------- student dashboard ----------
@@ -533,7 +525,7 @@ export const DICT: Record<string, Entry> = {
   "vf.category": ["Category", "Categorie"],
   "vf.jobType": ["Job type", "Soort baan"],
   "vf.english": ["English requirement", "Engelse taaleis"],
-  "vf.permit": ["Work permit support", "Hulp bij werkvergunning"],
+  "vf.permit": ["Work permit (TWV)", "Werkvergunning (TWV)"],
   "vf.workMode": ["Work arrangement", "Werkvorm"],
   "vf.hours": ["Hours per week", "Uren per week"],
   "vf.rateFrom": ["From (€)", "Vanaf (€)"],
@@ -604,11 +596,11 @@ export const DICT: Record<string, Entry> = {
   "about.s1b": [
     [
       "Finding work in the Netherlands can be unnecessarily unclear when a vacancy does not state its working language, hours or permit support.",
-      "We only list vacancies where that information is explicit. Every role on DutchVacancy carries its English requirement, its weekly hours, its hourly range and its permit support, stated by the employer at publication.",
+      "Every vacancy on DutchVacancy states its language requirement and closing date. Hours, pay (per hour or per month), contract type and start date are shown whenever the employer provides them — we never fill them in ourselves.",
     ],
     [
       "Werk vinden in Nederland is onnodig onduidelijk wanneer een vacature niets zegt over de werktaal, uren of vergunningshulp.",
-      "Wij plaatsen alleen vacatures waarin die informatie expliciet staat. Bij elke functie op DutchVacancy staan de Engelse taaleis, de weekuren, het uurloon en de vergunningshulp, opgegeven door de werkgever bij publicatie.",
+      "Bij elke vacature op DutchVacancy staan de taaleis en de sluitingsdatum. Uren, loon (per uur of per maand), contractvorm en startdatum tonen we zodra de werkgever ze opgeeft — we vullen ze nooit zelf in.",
     ],
   ],
   "about.s2t": ["What we do for employers", "Wat wij voor werkgevers doen"],
@@ -623,10 +615,10 @@ export const DICT: Record<string, Entry> = {
   "about.s3t": ["What we are not", "Wat wij niet zijn"],
   "about.s3b": [
     [
-      "We are not a recruitment agency and we never charge students. We are not affiliated with the IND, UWV or any Dutch government body — the guidance on this site is written in plain English to help you ask the right questions, not to replace official advice.",
+      "We are not a recruitment agency and we never charge students. We are not affiliated with the IND, UWV or any Dutch government body. Our knowledge base explains the rules and names its official sources; the official bodies decide in your situation.",
     ],
     [
-      "Wij zijn geen uitzendbureau en studenten betalen nooit. Wij zijn niet verbonden aan de IND, het UWV of een andere Nederlandse overheidsinstantie — de uitleg op deze site is eenvoudig geschreven om je de juiste vragen te laten stellen, niet als vervanging van officieel advies.",
+      "Wij zijn geen uitzendbureau en studenten betalen nooit. Wij zijn niet verbonden aan de IND, het UWV of een andere Nederlandse overheidsinstantie. Onze kennisbank legt de regels uit en noemt de officiële bronnen; de officiële instanties beslissen over jouw situatie.",
     ],
   ],
 
@@ -644,16 +636,16 @@ export const DICT: Record<string, Entry> = {
   "how.studentSteps": [
     [
       "Create a free student account. Name, email and a password — that's it.",
-      "Complete your profile. University, study programme, city, English level and a CV link. It is reused on every application.",
-      "Filter honestly. Pick “English only” and, if you are non-EU, “TWV permit support”. What's left is genuinely reachable.",
-      "Apply with a motivation note. The employer sees your name, university, CV link and your note.",
+      "Complete your profile. University, study programme, city, English level and your CV. It is reused on every application.",
+      "Filter honestly. Pick “English only” and, if you are from outside the EU/EEA, “Employer applies for a TWV”.",
+      "Apply with a motivation note. The employer sees your name, university, CV and your note.",
       "Track the outcome. Applied → under review → interview → offer, all in your dashboard.",
     ],
     [
       "Maak een gratis studentaccount. Naam, e-mailadres en wachtwoord — dat is alles.",
-      "Vul je profiel in. Universiteit, studie, stad, Engels niveau en een cv-link. Dit wordt bij elke sollicitatie hergebruikt.",
-      "Filter eerlijk. Kies “Alleen Engels” en, als je van buiten de EU komt, “Hulp met TWV-vergunning”. Wat overblijft is echt haalbaar.",
-      "Solliciteer met een motivatie. De werkgever ziet je naam, universiteit, cv-link en je motivatie.",
+      "Vul je profiel in. Universiteit, studie, stad, Engels niveau en je cv. Dit wordt bij elke sollicitatie hergebruikt.",
+      "Filter eerlijk. Kies “Alleen Engels” en, als je van buiten de EU/EER komt, “Werkgever vraagt TWV aan”.",
+      "Solliciteer met een motivatie. De werkgever ziet je naam, universiteit, cv en je motivatie.",
       "Volg het resultaat. Gesolliciteerd → in behandeling → gesprek → aanbod, allemaal in je dashboard.",
     ],
   ],
@@ -661,14 +653,14 @@ export const DICT: Record<string, Entry> = {
   "how.employerSteps": [
     [
       "Register an employer account with your company name and city.",
-      "Publish a vacancy — title, city, job type, hours, hourly range, English requirement and permit support.",
+      "Publish a vacancy — title, city, job type, language requirement and closing date, plus hours, pay and contract type if you want to state them.",
       "Keep drafts private. Uncheck “publish” while you're still writing; nothing is visible until you're ready.",
       "Review applicants in one pipeline, open CVs, and move candidates through the stages.",
       "Edit or unpublish anytime. A filled role should stop attracting applications.",
     ],
     [
       "Registreer een werkgeversaccount met je bedrijfsnaam en vestigingsplaats.",
-      "Plaats een vacature — titel, stad, soort baan, uren, uurloon, Engelse taaleis en vergunningshulp.",
+      "Plaats een vacature — titel, stad, soort baan, taaleis en sluitingsdatum, plus uren, loon en contractvorm als je die wilt vermelden.",
       "Houd concepten privé. Vink “publiceren” uit terwijl je nog schrijft; niets is zichtbaar tot jij klaar bent.",
       "Beoordeel kandidaten in één overzicht, open cv's en zet kandidaten door naar de volgende fase.",
       "Bewerk of depubliceer wanneer je wilt. Een gevulde functie hoeft geen sollicitaties meer te trekken.",
@@ -684,71 +676,118 @@ export const DICT: Record<string, Entry> = {
     ],
   ],
 
-  // ---------- guide ----------
-  "guide.eyebrow": ["Student guide", "Studentengids"],
+  // ---------- knowledge base (/guide) ----------
+  "guide.eyebrow": ["Knowledge base", "Kennisbank"],
   "guide.title": [
     "Working in the Netherlands as an international student",
-    "Werken in Nederland als internationale student",
+    "Werken als internationale student in Nederland",
   ],
   "guide.intro": [
-    "Permits, hours, BSN and taxes — the essentials in plain English. Always confirm details with the IND, UWV or your university's international office.",
-    "Vergunningen, uren, BSN en belasting — de basis, eenvoudig uitgelegd. Controleer details altijd bij de IND, het UWV of het international office van je universiteit.",
+    "Plain explanations of the rules for working alongside your studies. Every article names its official sources and when they were last read.",
+    "Duidelijke uitleg over de regels voor werken naast je studie. Elk artikel noemt zijn officiële bronnen en wanneer die voor het laatst zijn gelezen.",
   ],
-  "guide.s1t": ["How many hours may I work?", "Hoeveel uur mag ik werken?"],
-  "guide.s1b": [
+  "kb.articles": ["Articles", "Artikelen"],
+  "kb.none": [
+    "Our articles are checked by our content reviewer before we publish them. Until then, the official bodies below have the answers.",
+    "Onze artikelen worden eerst door onze inhoudelijk eigenaar gecontroleerd voordat we ze publiceren. Tot die tijd vind je de antwoorden bij de officiële instanties hieronder.",
+  ],
+  "kb.official": ["Official bodies", "Officiële instanties"],
+  "kb.official.ind": ["Residence permits, including for study", "Verblijfsvergunningen, ook voor studie"],
+  "kb.official.uwv": ["Work permits (TWV) — your employer applies", "Werkvergunningen (TWV) — je werkgever vraagt aan"],
+  "kb.official.svb": ["Whether you are insured in the Netherlands", "Of je in Nederland verzekerd bent"],
+  "kb.official.rvo": ["Minimum wage, contracts and payslips", "Minimumloon, contracten en loonstroken"],
+  "kb.official.bd": ["Taxes and the payroll tax credit", "Belasting en loonheffingskorting"],
+  "kb.findWork": ["Find work", "Werk vinden"],
+  "kb.findWorkBody": [
+    "Vacancies where, according to the employer, English is enough.",
+    "Vacatures waarvoor volgens de werkgever Engels genoeg is.",
+  ],
+  "kb.findWorkCta": ["See English-only vacancies", "Bekijk vacatures met alleen Engels"],
+  "kb.employers": ["For employers", "Voor werkgevers"],
+  "kb.employersBody": [
+    "Hiring an international student? See how publishing a vacancy and handling applications works.",
+    "Een internationale student aannemen? Lees hoe je een vacature plaatst en sollicitaties afhandelt.",
+  ],
+  "kb.employersCta": ["Information for employers", "Informatie voor werkgevers"],
+  "kb.draft": ["Draft — not reviewed", "Concept — niet beoordeeld"],
+  "kb.draftBanner": [
+    "Draft for internal review. Not yet checked by our content reviewer and not shown on the live site.",
+    "Concept voor interne controle. Nog niet gecontroleerd door onze inhoudelijk eigenaar en niet zichtbaar op de live site.",
+  ],
+  "kb.answer": ["Short answer", "Kort antwoord"],
+  "kb.appliesTo": ["Who this applies to", "Voor wie geldt dit?"],
+  "kb.exceptions": ["Exceptions", "Uitzonderingen"],
+  "kb.nextSteps": ["What you can do now", "Wat kun je nu doen?"],
+  "kb.contacts": ["Where to arrange it", "Waar regel je dit?"],
+  "kb.decides": [
+    "The official body decides in your situation. In doubt? Ask them.",
+    "De officiële instantie beslist over jouw situatie. Twijfel je? Vraag het na.",
+  ],
+  "kb.related": ["Read next", "Lees ook"],
+  "kb.sources": ["Official sources", "Officiële bronnen"],
+  "kb.readOn": ["read on", "gelezen op"],
+  "kb.inDutch": ["in Dutch", "Nederlandstalig"],
+  "kb.author": ["Written by", "Geschreven door"],
+  "kb.reviewer": ["Reviewed by", "Beoordeeld door"],
+  "kb.lastReviewed": ["Last checked", "Laatst gecontroleerd"],
+  "kb.notReviewed": ["Not yet reviewed by a person", "Nog niet door een persoon beoordeeld"],
+  "kb.noAuthor": ["No author assigned yet", "Nog geen auteur toegewezen"],
+  "kb.back": ["All articles", "Alle artikelen"],
+  "kb.loadFailed": ["Could not load this article.", "Dit artikel kon niet worden geladen."],
+
+  // ---------- employers (/employers) ----------
+  // Only what the platform actually does today — no customer numbers, logos or results.
+  "emp.eyebrow": ["For employers", "Voor werkgevers"],
+  "emp.title": [
+    "Hire international students who work in English",
+    "Neem internationale studenten aan die in het Engels werken",
+  ],
+  "emp.intro": [
+    "Publish a vacancy with a clear language requirement and handle applications, interviews and closing dates in one place.",
+    "Plaats een vacature met een duidelijke taaleis en regel sollicitaties, gesprekken en sluitingsdata op één plek.",
+  ],
+  "emp.howTitle": ["How it works", "Zo werkt het"],
+  "emp.steps": [
     [
-      "If you are from outside the EU/EEA or Switzerland, you may either work a maximum of 16 hours per week all year, or work full-time during June, July and August only. You must choose one option — you cannot combine them in the same calendar year.",
-      "EU/EEA and Swiss students have no hour limit and need no work permit, though a very high income can affect student finance eligibility.",
+      "Create a free employer account with your company name.",
+      "Publish a vacancy: title, city, language requirement and closing date, plus hours, pay and contract type if you want to state them. Drafts stay private.",
+      "Applications arrive in your dashboard with the candidate's profile, CV and motivation, and by email.",
+      "Invite a candidate by proposing up to five interview times, online or on location. The candidate picks one and you both get a calendar invite.",
+      "On the closing date the vacancy closes by itself and disappears from the listings. You can extend it before then.",
     ],
     [
-      "Kom je van buiten de EU/EER of Zwitserland, dan mag je óf het hele jaar maximaal 16 uur per week werken, óf alleen in juni, juli en augustus voltijd werken. Je moet kiezen — je mag ze niet combineren in hetzelfde kalenderjaar.",
-      "Studenten uit de EU/EER en Zwitserland hebben geen urenlimiet en geen werkvergunning nodig, al kan een heel hoog inkomen gevolgen hebben voor studiefinanciering.",
+      "Maak een gratis werkgeversaccount aan met je bedrijfsnaam.",
+      "Plaats een vacature: titel, stad, taaleis en sluitingsdatum, plus uren, loon en contractvorm als je die wilt vermelden. Concepten blijven privé.",
+      "Sollicitaties komen binnen in je dashboard, met het profiel, het cv en de motivatie van de kandidaat, en per e-mail.",
+      "Nodig een kandidaat uit door maximaal vijf gesprekstijden voor te stellen, online of op locatie. De kandidaat kiest er één en jullie krijgen allebei een agenda-uitnodiging.",
+      "Op de sluitingsdatum sluit de vacature vanzelf en verdwijnt ze uit het overzicht. Je kunt haar daarvoor verlengen.",
     ],
   ],
-  "guide.s2t": ["The TWV work permit", "De TWV-werkvergunning"],
-  "guide.s2b": [
-    [
-      "Non-EU students need a TWV (tewerkstellingsvergunning). Your employer applies for it at UWV — you cannot apply yourself, and it should never cost you money. Processing usually takes a few weeks, so start early. Vacancies on DutchVacancy are labelled when the employer offers TWV support.",
-    ],
-    [
-      "Studenten van buiten de EU hebben een TWV (tewerkstellingsvergunning) nodig. Je werkgever vraagt deze aan bij het UWV — jij kunt dit niet zelf doen en het mag jou nooit geld kosten. De behandeling duurt meestal enkele weken, dus begin op tijd. Bij vacatures op DutchVacancy staat het vermeld als de werkgever hulp met de TWV biedt.",
-    ],
+  "emp.studentsTitle": ["What students see", "Wat studenten zien"],
+  "emp.studentsBody": [
+    "Every vacancy shows its language requirement and closing date, and the hours, pay, contract type and start date you provided. Students filter on these, so being specific brings better-matched applications.",
+    "Elke vacature toont de taaleis en de sluitingsdatum, en de uren, het loon, de contractvorm en de startdatum die je opgaf. Studenten filteren hierop, dus concreet zijn levert beter passende sollicitaties op.",
   ],
-  "guide.s3t": ["BSN and a Dutch bank account", "BSN en een Nederlandse bankrekening"],
-  "guide.s3b": [
-    [
-      "Register at your gemeente (municipality) after arrival to receive a BSN (citizen service number). Bring your passport, proof of enrolment and your rental contract. With a BSN you can open a Dutch IBAN, which most employers require for payroll.",
-    ],
-    [
-      "Schrijf je na aankomst in bij je gemeente om een BSN (burgerservicenummer) te krijgen. Neem je paspoort, bewijs van inschrijving en je huurcontract mee. Met een BSN kun je een Nederlands IBAN openen, dat de meeste werkgevers nodig hebben voor de loonadministratie.",
-    ],
+  "emp.permitTitle": ["Hiring a student from outside the EU/EEA", "Een student van buiten de EU/EER aannemen"],
+  "emp.permitBody": [
+    "Check before the first working day whether a work permit (TWV) is needed and apply for it in time. Our knowledge base explains when it is needed; UWV handles the application.",
+    "Controleer vóór de eerste werkdag of een werkvergunning (TWV) nodig is en vraag die op tijd aan. Onze kennisbank legt uit wanneer die nodig is; UWV behandelt de aanvraag.",
   ],
-  "guide.s4t": ["Health insurance", "Zorgverzekering"],
-  "guide.s4b": [
-    [
-      "Once you start working in the Netherlands you usually become liable for Dutch basic health insurance (basisverzekering), even as a student. Check this before your first shift — fines for being uninsured are avoidable.",
-    ],
-    [
-      "Zodra je in Nederland gaat werken, ben je meestal verplicht een Nederlandse basisverzekering te nemen, ook als student. Regel dit vóór je eerste dienst — boetes voor onverzekerd zijn, zijn goed te voorkomen.",
-    ],
+  "emp.permitArticle": ["When is a TWV needed?", "Wanneer is een TWV nodig?"],
+  "emp.permitUwv": ["UWV: work permit for a working student", "UWV: werkvergunning werkstudent"],
+  "emp.startCta": ["Create an employer account", "Maak een werkgeversaccount"],
+  "emp.formTitle": ["Questions first? Send us your request", "Eerst vragen? Stuur ons je aanvraag"],
+  "emp.formIntro": [
+    "Tell us which roles you are hiring for. We use your details only to reply to this request.",
+    "Vertel ons voor welke functies je zoekt. We gebruiken je gegevens alleen om op deze aanvraag te reageren.",
   ],
-  "guide.s5t": ["Pay, holiday allowance and payslips", "Loon, vakantiegeld en loonstroken"],
-  "guide.s5b": [
-    [
-      "You are entitled to at least the statutory minimum wage for your age, 8% holiday allowance, and a written payslip for every period. Student jobs on this board typically pay € 14–24 per hour gross. Keep every payslip: you will need them for tax returns and for extending your residence permit.",
-    ],
-    [
-      "Je hebt recht op minimaal het wettelijk minimumloon voor jouw leeftijd, 8% vakantiegeld en een schriftelijke loonstrook per periode. Studentenbanen op deze vacaturebank betalen doorgaans € 14–24 bruto per uur. Bewaar elke loonstrook: je hebt ze nodig voor je belastingaangifte en voor verlenging van je verblijfsvergunning.",
-    ],
-  ],
-  "guide.s6t": ["The orientation year (zoekjaar)", "Het zoekjaar (oriëntatiejaar)"],
-  "guide.s6b": [
-    [
-      "Graduates of a Dutch higher-education programme can apply for the orientation-year permit within three years of graduating. It gives you 12 months of free access to the labour market — no TWV required, full-time allowed. Roles tagged “Graduate / Zoekjaar” here are aimed at exactly this group.",
-    ],
-    [
-      "Wie een Nederlandse hbo- of universitaire opleiding heeft afgerond, kan binnen drie jaar na afstuderen een zoekjaar aanvragen. Je krijgt dan 12 maanden vrije toegang tot de arbeidsmarkt — geen TWV nodig, voltijd toegestaan. Functies met het label “Starter / Zoekjaar” zijn precies voor deze groep bedoeld.",
-    ],
+  "emp.company": ["Company", "Bedrijf"],
+  "emp.message": ["Which roles, where and from when?", "Welke functies, waar en vanaf wanneer?"],
+  "emp.send": ["Send request", "Aanvraag versturen"],
+  "emp.subject": ["Employer request", "Werkgeversaanvraag"],
+  "emp.sent": [
+    "Thanks — your request has been received. We will reply by email.",
+    "Bedankt — je aanvraag is ontvangen. We reageren per e-mail.",
   ],
 
   // ---------- contact ----------
@@ -764,54 +803,53 @@ export const DICT: Record<string, Entry> = {
   "contact.message": ["Message", "Bericht"],
   "contact.send": ["Send message", "Bericht versturen"],
   "contact.sending": ["Sending…", "Versturen…"],
-  "contact.sent": [
-    "Thanks — we'll reply within two working days",
-    "Bedankt — we antwoorden binnen twee werkdagen",
-  ],
+  "contact.sent": ["Thanks — your message has been received.", "Bedankt — je bericht is ontvangen."],
   "contact.failed": ["Could not send your message", "Kon je bericht niet versturen"],
   "contact.emailLabel": ["Email", "E-mail"],
   "contact.office": ["Office", "Kantoor"],
-  "contact.answerNote": [
-    "We answer in English and Dutch, usually within two working days.",
-    "We antwoorden in het Engels en Nederlands, meestal binnen twee werkdagen.",
+  "contact.answerNote": ["We answer in English and Dutch.", "We antwoorden in het Engels en Nederlands."],
+  // {n} = RESPONSE_WORKING_DAYS in config/operations.ts, only once confirmed achievable.
+  "contact.answerNoteDays": [
+    "We answer in English and Dutch, within {n} working days.",
+    "We antwoorden in het Engels en Nederlands, binnen {n} werkdagen.",
   ],
 
   // ---------- privacy ----------
   "privacy.eyebrow": ["Privacy policy", "Privacybeleid"],
   "privacy.title": ["How DutchVacancy handles your data", "Hoe DutchVacancy met je gegevens omgaat"],
   "privacy.intro": [
-    "Last updated: 1 January 2026. We process personal data under the EU GDPR and Dutch implementation act (UAVG).",
-    "Laatst bijgewerkt: 1 januari 2026. Wij verwerken persoonsgegevens volgens de AVG en de Nederlandse Uitvoeringswet (UAVG).",
+    "Last updated: 29 September 2026. We process personal data under the EU GDPR and Dutch implementation act (UAVG).",
+    "Laatst bijgewerkt: 29 september 2026. Wij verwerken persoonsgegevens volgens de AVG en de Nederlandse Uitvoeringswet (UAVG).",
   ],
   "privacy.s1t": ["What we collect", "Wat wij verzamelen"],
   "privacy.s1b": [
     [
-      "Students: name, email address, password (hashed), university, study programme, city, English level, phone number, CV link, introduction text, saved jobs and applications.",
-      "Employers: name, email address, password (hashed), company name, city, industry, website and the vacancies you publish.",
-      "Everyone: a session cookie that keeps you logged in, and any message you send through the contact form.",
+      "Students: name, email address, password (hashed), university, study programme, city, English level, phone number, the CV file you upload, introduction text, saved jobs and applications.",
+      "Employers: name, email address, password (hashed), company name, city, industry, website, the vacancies you publish and the interview times you propose.",
+      "Everyone: a session cookie that keeps you logged in, and any message or employer request you send through our forms (name, email address, company, message).",
     ],
     [
-      "Studenten: naam, e-mailadres, wachtwoord (gehasht), universiteit, studie, stad, Engels niveau, telefoonnummer, cv-link, introductietekst, opgeslagen vacatures en sollicitaties.",
-      "Werkgevers: naam, e-mailadres, wachtwoord (gehasht), bedrijfsnaam, plaats, branche, website en de vacatures die je plaatst.",
-      "Iedereen: een sessiecookie waarmee je ingelogd blijft, en elk bericht dat je via het contactformulier verstuurt.",
+      "Studenten: naam, e-mailadres, wachtwoord (gehasht), universiteit, studie, stad, Engels niveau, telefoonnummer, het cv-bestand dat je uploadt, introductietekst, opgeslagen vacatures en sollicitaties.",
+      "Werkgevers: naam, e-mailadres, wachtwoord (gehasht), bedrijfsnaam, plaats, branche, website, de vacatures die je plaatst en de gesprekstijden die je voorstelt.",
+      "Iedereen: een sessiecookie waarmee je ingelogd blijft, en elk bericht of elke werkgeversaanvraag die je via onze formulieren verstuurt (naam, e-mailadres, bedrijf, bericht).",
     ],
   ],
   "privacy.s2t": ["Why we process it", "Waarom wij dit verwerken"],
   "privacy.s2b": [
     [
-      "To operate your account, show you relevant vacancies, deliver your applications to the employer you chose, and answer your support messages. When you apply to a vacancy, the employer receives your name, email, university, CV link and motivation text — that is the purpose of applying.",
+      "To operate your account, show you relevant vacancies, deliver your applications to the employer you chose, and answer your support messages. When you apply to a vacancy, the employer receives your name, email, university, CV and motivation text — that is the purpose of applying.",
     ],
     [
-      "Om je account te laten werken, relevante vacatures te tonen, je sollicitaties te bezorgen bij de werkgever die jij koos en je vragen te beantwoorden. Als je op een vacature solliciteert, ontvangt de werkgever je naam, e-mailadres, universiteit, cv-link en motivatie — dat is het doel van solliciteren.",
+      "Om je account te laten werken, relevante vacatures te tonen, je sollicitaties te bezorgen bij de werkgever die jij koos en je vragen te beantwoorden. Als je op een vacature solliciteert, ontvangt de werkgever je naam, e-mailadres, universiteit, cv en motivatie — dat is het doel van solliciteren.",
     ],
   ],
   "privacy.s3t": ["Cookies", "Cookies"],
   "privacy.s3b": [
     [
-      "We set one strictly necessary, httpOnly session cookie. We do not use advertising or cross-site tracking cookies.",
+      "We set one strictly necessary, httpOnly session cookie. Your language choice is stored in your own browser (local storage), not sent to us. We do not use advertising or cross-site tracking cookies, and our visitor statistics use no cookies at all.",
     ],
     [
-      "Wij plaatsen één strikt noodzakelijke httpOnly-sessiecookie. Wij gebruiken geen advertentie- of trackingcookies.",
+      "Wij plaatsen één strikt noodzakelijke httpOnly-sessiecookie. Je taalkeuze wordt in je eigen browser bewaard (local storage) en niet naar ons gestuurd. Wij gebruiken geen advertentie- of trackingcookies, en onze bezoekersstatistieken gebruiken helemaal geen cookies.",
     ],
   ],
   "privacy.s4t": ["Retention", "Bewaartermijn"],
@@ -830,6 +868,26 @@ export const DICT: Record<string, Entry> = {
     ],
     [
       "Je hebt het recht je gegevens in te zien, te corrigeren, te exporteren, te beperken of te laten verwijderen, en om bezwaar te maken tegen de verwerking. Neem contact op via het contactformulier en wij reageren binnen een maand. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.",
+    ],
+  ],
+
+  "privacy.s6t": ["Services we use", "Diensten die wij gebruiken"],
+  "privacy.s6b": [
+    [
+      "Hosting: the site and its database run on a server we rent from TransIP.",
+      "Email: account, application and interview emails are sent through Resend. When a student applies, we also send ourselves a short follow-up record (application number, vacancy, company and whether the notifications went out) — never the candidate's details, motivation or CV.",
+      "Error monitoring: when something breaks, a technical error report goes to Sentry. We configured it not to send request contents, form data or IP addresses.",
+      "Visitor statistics: on dutchvacancy.nl we count visits and a few actions (for example 'application sent') with Plausible Analytics, without cookies and without personal data. We never send names, email addresses, CV or form contents to it.",
+      "Payments: if an employer buys a paid option, Stripe collects the payment details directly during checkout. We never see or store card numbers — only the confirmation that the payment succeeded.",
+      "We do not sell your data and do not share it with advertisers or data brokers.",
+    ],
+    [
+      "Hosting: de site en de database draaien op een server die wij huren bij TransIP.",
+      "E-mail: e-mails over je account, sollicitaties en gesprekken versturen wij via Resend. Als een student solliciteert, sturen wij onszelf ook een kort opvolgbericht (sollicitatienummer, vacature, bedrijf en of de meldingen zijn verstuurd) — nooit de gegevens van de kandidaat, de motivatie of het cv.",
+      "Foutmeldingen: als er iets misgaat, gaat een technisch foutrapport naar Sentry. Wij hebben dit zo ingesteld dat er geen verzoekinhoud, formuliergegevens of IP-adressen worden meegestuurd.",
+      "Bezoekersstatistieken: op dutchvacancy.nl tellen wij bezoeken en enkele handelingen (bijvoorbeeld 'sollicitatie verstuurd') met Plausible Analytics, zonder cookies en zonder persoonsgegevens. Namen, e-mailadressen, cv's of formulierinhoud sturen wij daar nooit naartoe.",
+      "Betalingen: als een werkgever een betaalde optie koopt, verzamelt Stripe de betaalgegevens rechtstreeks tijdens het afrekenen. Wij zien of bewaren nooit kaartnummers — alleen de bevestiging dat de betaling is gelukt.",
+      "Wij verkopen je gegevens niet en delen ze niet met adverteerders of databrokers.",
     ],
   ],
 
@@ -892,6 +950,17 @@ export const DICT: Record<string, Entry> = {
     ],
     [
       "De dienst wordt geleverd “zoals hij is”. Voor zover de wet dit toestaat, is onze aansprakelijkheid beperkt tot directe schade tot € 250. Op deze voorwaarden is Nederlands recht van toepassing; de rechtbank Amsterdam is bevoegd.",
+    ],
+  ],
+  "terms.s7t": ["Fresh Vacancy (paid promotion)", "Fresh Vacancy (betaalde promotie)"],
+  "terms.s7b": [
+    [
+      "Employers can promote one published vacancy as “Fresh Vacancy” for € 14.95 excluding VAT. For 24 hours it is shown in one of the three featured places on the home page, labelled as sponsored. At most 3 vacancies can be Fresh at the same time, platform-wide; if all places are taken at the moment of payment, the vacancy is not promoted and the payment is refunded.",
+      "Payment is processed by Stripe at the moment of purchase. Once a placement has started, the fee is not refundable, including if you unpublish or close the vacancy early. We may change the price, duration or availability of this feature; the terms shown at checkout apply to that purchase.",
+    ],
+    [
+      "Werkgevers kunnen één gepubliceerde vacature promoten als “Fresh Vacancy” voor € 14,95 excl. btw. De vacature staat dan 24 uur op een van de drie uitgelichte plekken op de homepage, met het label gesponsord. Er kunnen platformbreed maximaal 3 vacatures tegelijk Fresh zijn; zijn alle plekken bezet op het moment van betalen, dan wordt de vacature niet gepromoot en wordt de betaling terugbetaald.",
+      "Betaling wordt verwerkt door Stripe op het moment van aankoop. Zodra een plaatsing is gestart, wordt het bedrag niet terugbetaald, ook niet als je de vacature eerder depubliceert of sluit. Wij kunnen de prijs, duur of beschikbaarheid van deze functie wijzigen; de voorwaarden die bij het afrekenen worden getoond, gelden voor die aankoop.",
     ],
   ],
 };

@@ -15,6 +15,7 @@ import os
 from typing import Any
 
 from lib.email import app_url, is_test_address, send_email
+from lib.site import localized_path
 
 MESSAGES: dict[str, dict[str, str]] = {
     "student_subject": {
@@ -66,7 +67,8 @@ async def notify_application(app: dict[str, Any], student_lang: str, employers: 
             _msg("student_title", student_lang, **kw),
             _msg("student_body", student_lang, **kw),
             _msg("student_action", student_lang, **kw),
-            f"{app_url()}/student/dashboard",
+            f"{app_url()}{localized_path('/student/dashboard', student_lang)}",
+            lang=student_lang,
         )
         status["student"] = "sent" if ok else "failed"
 
@@ -80,7 +82,8 @@ async def notify_application(app: dict[str, Any], student_lang: str, employers: 
             _msg("employer_title", lang, **kw),
             _msg("employer_body", lang, **kw),
             _msg("employer_action", lang, **kw),
-            f"{app_url()}/employer/dashboard",
+            f"{app_url()}{localized_path('/employer/dashboard', lang)}",
+            lang=lang,
         ):
             delivered += 1
     if not employers:

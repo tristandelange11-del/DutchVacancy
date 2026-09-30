@@ -1,6 +1,8 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DICT } from "@/lib/dict";
 import { LangContext, type Lang, type LangValue } from "@/lib/lang-context";
+import { langFromPath, localizePath } from "@/lib/paths";
 
 export type { Lang } from "@/lib/lang-context";
 
@@ -14,29 +16,47 @@ function prefersDutch(): boolean {
 }
 
 /**
- * An explicit choice always wins; otherwise fall back to the browser's own
- * language preference, so Dutch visitors land on the Dutch site.
+ * The language a visitor would probably pick: their explicit earlier choice, else
+ * the browser's. Only used to *offer* the other version (LanguageHint) — never to
+ * redirect, so every URL shows the same language to everyone, crawlers included.
  */
-function initialLang(): Lang {
-  if (typeof localStorage !== "undefined") {
+export function preferredLang(): Lang {
+  try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === "nl" || stored === "en") return stored;
+  } catch {
+    // Storage can be unavailable (private mode); fall back to the browser.
   }
   return prefersDutch() ? "nl" : "en";
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(initialLang);
+export function rememberLang(lang: Lang) {
+  try {
+    localStorage.setItem(STORAGE_KEY, lang);
+  } catch {
+    // Not remembering is fine; the URL still carries the language.
+  }
+}
 
-  // Keep <html lang> correct for the auto-detected language too, not just after a manual switch.
+/** Must sit inside the router: the language is read from the URL (see lib/paths.ts). */
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const lang = langFromPath(location.pathname);
+
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  const setLang = useCallback((next: Lang) => {
-    setLangState(next);
-    localStorage.setItem(STORAGE_KEY, next);
-  }, []);
+  const setLang = useCallback(
+    (next: Lang) => {
+      rememberLang(next);
+      if (next !== lang) {
+        navigate(localizePath(location.pathname + location.search + location.hash, next));
+      }
+    },
+    [lang, location.pathname, location.search, location.hash, navigate],
+  );
 
   const value = useMemo<LangValue>(() => {
     const idx = lang === "nl" ? 1 : 0;
