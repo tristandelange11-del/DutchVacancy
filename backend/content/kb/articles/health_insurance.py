@@ -21,8 +21,8 @@ ARTICLE = Article(
             en="Are you in the Netherlands as an international student only for your studies? Then according to the SVB you usually do not need to take out Dutch health insurance.",
         ),
         Text(
-            nl="Heb je een betaalde bijbaan? Dan kun je wel verzekerd zijn voor de Wet langdurige zorg (Wlz) en moet je een Nederlandse zorgverzekering afsluiten. Of dat voor jou geldt, hangt af van je situatie. De SVB kan dat voor je onderzoeken.",
-            en="Do you have a paid side job? Then you may be insured under the Long-term Care Act (Wlz), and you must take out Dutch health insurance. Whether this applies to you depends on your situation. The SVB can assess it for you.",
+            nl="Heb je een betaalde bijbaan? Dan kun je wel verzekerd zijn voor de Wet langdurige zorg (Wlz), en moet je dan een Nederlandse zorgverzekering afsluiten. Of dat voor jou geldt, hangt af van je situatie. De SVB kan dat voor je onderzoeken.",
+            en="Do you have a paid side job? Then you may be insured under the Long-term Care Act (Wlz), and in that case you must take out Dutch health insurance. Whether this applies to you depends on your situation. The SVB can assess it for you.",
         ),
     ),
     applies_to=(
@@ -115,7 +115,7 @@ ARTICLE = Article(
         ),
         Claim(
             id="side-job-may-need",
-            text="Met een betaalde bijbaan kun je verzekerd zijn voor de Wlz en moet je dan een zorgverzekering afsluiten.",
+            text="Met een betaalde bijbaan kun je verzekerd zijn voor de Wlz, en moet je dan een zorgverzekering afsluiten.",
             sources=("svb-wlz-studie",),
             applies_to="Buitenlandse studenten met betaald werk in Nederland",
             checked_on=CHECKED,

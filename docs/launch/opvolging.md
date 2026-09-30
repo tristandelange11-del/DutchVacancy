@@ -1,17 +1,17 @@
 # Opvolging van sollicitaties en werkgeversaanvragen
 
-**Status: wacht op informatie.** Leg hieronder vast wie opvolgt en welke reactietijd écht haalbaar is.
-Zolang dat niet is ingevuld, belooft de site geen reactietijd (`frontend/src/config/operations.ts`
-staat op `null`).
+**Status: vastgelegd op 30-09-2026.** Tristan volgt alles op, binnen 3 werkdagen. Dat staat nu ook op de
+site: de contactpagina en de bevestiging van het werkgeversformulier (`frontend/src/config/operations.ts`).
 
-## In te vullen door de eigenaar
-
-| Wat | Wie volgt op | Via welke mailbox | Haalbare reactietijd (werkdagen) | Vervanger bij afwezigheid |
+| Wat | Wie volgt op | Via welke mailbox | Reactietijd | Vervanger bij afwezigheid |
 |---|---|---|---|---|
-| Werkgeversaanvragen (`/employers`-formulier) | _nog invullen_ | _nog invullen_ | _nog invullen_ | _nog invullen_ |
-| Algemene contactberichten (`/contact`) | _nog invullen_ | _nog invullen_ | _nog invullen_ | _nog invullen_ |
-| Sollicitaties waarvan de werkgeversmelding mislukte | _nog invullen_ | _nog invullen_ | _nog invullen_ | _nog invullen_ |
-| Verzoeken over persoonsgegevens (AVG) | _nog invullen_ | _nog invullen_ | maximaal 1 maand (wettelijk) | _nog invullen_ |
+| Werkgeversaanvragen (`/employers`-formulier) | Tristan | `info@dutchvacancy.nl` | binnen 3 werkdagen | _nog aan te wijzen_ |
+| Algemene contactberichten (`/contact`) | Tristan | `info@dutchvacancy.nl` | binnen 3 werkdagen | _nog aan te wijzen_ |
+| Sollicitaties waarvan de werkgeversmelding mislukte | Tristan | `info@dutchvacancy.nl` | binnen 3 werkdagen | _nog aan te wijzen_ |
+| Verzoeken over persoonsgegevens (AVG) | Tristan | `info@dutchvacancy.nl` | maximaal 1 maand (wettelijk) | _nog aan te wijzen_ |
+
+Tip: zet bij vakantie een automatisch antwoord in de mailbox, of wijs een vervanger aan. Anders is
+"binnen 3 werkdagen" een belofte die je niet kunt nakomen.
 
 ## Hoe de meldingen nu lopen
 
@@ -29,13 +29,16 @@ staat op `null`).
   dus niets van testsollicitaties. Het opvolgbericht aan de eigen opvolgmailbox gaat wel, zodat je de
   opvolging kunt testen.
 
-## Wat nu is ingesteld (gecontroleerd op 29-09-2026)
+## Wat nu is ingesteld
 
 - De GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` is **niet** gezet. Staging en productie gebruiken daardoor
   de standaardwaarde **`info@dutchvacancy.nl`** (zie `deploy-staging.yml` en `deploy-production.yml`).
-- `dutchvacancy.nl` ontvangt mail via TransIP (MX: `mx.transip.email`). **Niet bevestigd:** of de mailbox
-  `info@dutchvacancy.nl` bestaat, doorstuurt en door iemand wordt gelezen. **Dit blokkeert de livegang.**
-  Zonder werkende mailbox komen werkgeversaanvragen nergens aan.
+- **Bevestigd op 30-09-2026:** een testaanvraag via het werkgeversformulier op staging kwam binnen in de
+  mailbox `info@dutchvacancy.nl` (TransIP-webmail). Het onderwerp was
+  "DutchVacancy employer request: Test bedrijf", en afzender, bedrijf en bericht stonden erin.
+  De mailbox werkt en de eigenaar leest hem.
+- Wie en hoe snel: vastgelegd, zie de tabel bovenaan. Aanrader: zet `CONTACT_NOTIFICATION_EMAIL` toch expliciet in GitHub, zodat het adres niet van een
+  standaardwaarde afhangt.
 
 ## Zo leg je het vast
 

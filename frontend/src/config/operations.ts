@@ -3,4 +3,5 @@
  * follows up (see docs/launch/opvolging.md) has confirmed they are achievable —
  * null means the site promises no response time at all.
  */
-export const RESPONSE_WORKING_DAYS: number | null = null;
+// Confirmed by the owner (Tristan) on 2026-09-30: he follows up within 3 working days.
+export const RESPONSE_WORKING_DAYS: number | null = 3;

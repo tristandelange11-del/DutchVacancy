@@ -12,7 +12,7 @@ ARTICLE = Article(
         en="Working alongside your studies: where do you start?",
     ),
     summary=Text(
-        nl="Of en hoeveel je mag werken hangt vooral af van je nationaliteit en je verblijfsvergunning. Dit zijn de eerste stappen.",
+        nl="Of en hoeveel je mag werken, hangt vooral af van je nationaliteit en je verblijfsvergunning. Dit zijn de eerste stappen.",
         en="Whether and how much you may work depends mainly on your nationality and your residence permit. These are the first steps.",
     ),
     answer=(
@@ -45,7 +45,7 @@ ARTICLE = Article(
             en="Working as a self-employed person: with a student residence permit you do not need a TWV for this and the hour limit does not apply, as long as you keep meeting the requirements of your permit. You do have to register with the Chamber of Commerce (KvK) and pay tax.",
         ),
         Text(
-            nl="Afgestudeerd en een verblijfsvergunning zoekjaar hoogopgeleiden? Dan mag je vrij werken en heeft je werkgever geen TWV nodig.",
+            nl="Ben je afgestudeerd en heb je een verblijfsvergunning zoekjaar hoogopgeleiden? Dan mag je vrij werken en heeft je werkgever geen TWV nodig.",
             en="Graduated and holding a residence permit for the orientation year? Then you may work freely and your employer does not need a TWV.",
         ),
     ),

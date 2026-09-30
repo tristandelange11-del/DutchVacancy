@@ -12,8 +12,8 @@ ARTICLE = Article(
         en="Which documents and details do you need to start?",
     ),
     summary=Text(
-        nl="Identiteitsbewijs, BSN, het formulier voor de loonheffingskorting en — van buiten de EU — je verblijfsvergunning en de TWV van je werkgever.",
-        en="ID, BSN, the payroll tax credit form and — from outside the EU — your residence permit and your employer's TWV.",
+        nl="Identiteitsbewijs, BSN, het formulier voor de loonheffingskorting en — van buiten de EU/EER en Zwitserland — je verblijfsvergunning en de TWV van je werkgever.",
+        en="ID, BSN, the payroll tax credit form and — from outside the EU/EEA and Switzerland — your residence permit and your employer's TWV.",
     ),
     answer=(
         Text(
@@ -53,7 +53,7 @@ ARTICLE = Article(
                     en="When you work, you are entitled to a reduction of your tax: the payroll tax credit. On a form you tell your employer whether to apply it. Students usually use the form 'Model opgaaf gegevens voor de loonheffingen (studenten- en scholierenregeling)'. You usually get it from your employer.",
                 ),
                 Text(
-                    nl="Werk je tegelijk bij meer dan 1 werkgever? Laat dan maar 1 werkgever de loonheffingskorting toepassen. Anders moet je achteraf waarschijnlijk belasting terugbetalen.",
+                    nl="Werk je tegelijk bij meer dan 1 werkgever? Laat dan slechts 1 werkgever de loonheffingskorting toepassen. Anders moet je achteraf waarschijnlijk belasting terugbetalen.",
                     en="Working for more than 1 employer at the same time? Then let only 1 employer apply the payroll tax credit. Otherwise you will probably have to pay tax back afterwards.",
                 ),
             ),

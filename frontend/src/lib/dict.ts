@@ -727,7 +727,7 @@ export const DICT: Record<string, Entry> = {
   "kb.sources": ["Official sources", "Officiële bronnen"],
   "kb.readOn": ["read on", "gelezen op"],
   "kb.inDutch": ["in Dutch", "Nederlandstalig"],
-  "kb.author": ["Written by", "Geschreven door"],
+  "kb.author": ["Editor", "Redactie"],
   "kb.reviewer": ["Reviewed by", "Beoordeeld door"],
   "kb.lastReviewed": ["Last checked", "Laatst gecontroleerd"],
   "kb.notReviewed": ["Not yet reviewed by a person", "Nog niet door een persoon beoordeeld"],
@@ -788,6 +788,10 @@ export const DICT: Record<string, Entry> = {
   "emp.sent": [
     "Thanks — your request has been received. We will reply by email.",
     "Bedankt — je aanvraag is ontvangen. We reageren per e-mail.",
+  ],
+  "emp.sentDays": [
+    "Thanks — your request has been received. We will reply by email within {n} working days.",
+    "Bedankt — je aanvraag is ontvangen. We reageren binnen {n} werkdagen per e-mail.",
   ],
 
   // ---------- contact ----------

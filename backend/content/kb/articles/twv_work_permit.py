@@ -71,8 +71,8 @@ ARTICLE = Article(
             title=Text(nl="Wat er gebeurt als het niet klopt", en="What happens if it is not right"),
             paragraphs=(
                 Text(
-                    nl="De Nederlandse Arbeidsinspectie controleert of je werkgever een TWV heeft en of je niet meer werkt dan toegestaan. Is dat wel zo, dan meldt de Arbeidsinspectie dit bij de IND en krijgt je werkgever een boete. De IND neemt dan contact op met je onderwijsinstelling.",
-                    en="The Netherlands Labour Authority checks whether your employer has a TWV and whether you work more than allowed. If not, it reports this to the IND and fines your employer. The IND then contacts your educational institution.",
+                    nl="De Nederlandse Arbeidsinspectie controleert of je werkgever een TWV heeft en of je niet meer werkt dan toegestaan. Werk je zonder TWV of meer dan toegestaan? Dan meldt de Arbeidsinspectie dit bij de IND en krijgt je werkgever een boete. De IND neemt dan contact op met je onderwijsinstelling.",
+                    en="The Netherlands Labour Authority checks whether your employer has a TWV and whether you work more than allowed. Working without a TWV or more than allowed? Then the Labour Authority reports this to the IND and fines your employer. The IND then contacts your educational institution.",
                 ),
             ),
         ),

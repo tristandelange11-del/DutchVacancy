@@ -9,7 +9,7 @@ de livegang moet kloppen. "Wie" staat voor wie het doet: **jij** (Tristan), of *
 |---|---|---|---|
 | A1 | PR's #12 t/m #15 gemerged en op staging gezet | jij (merge), Claude (deploy) | staging toont de kennisbank en de werkgeverspagina |
 | A2 | `frontend/src/config/business.json`: juridische naam, correspondentieadres, KvK-nummer, contactadres | jij → Claude | `scripts/check-production-readiness.mjs` slaagt; de privacy- en voorwaardenpagina tonen geen conceptmelding meer |
-| A3 | Opvolgmailbox bestaat en wordt gelezen; GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` gezet | jij | zie `opvolging.md`, stap 1–4 |
+| A3 | Opvolgmailbox bestaat en wordt gelezen (**gedaan**: `info@dutchvacancy.nl`, getest 30-09-2026); GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` expliciet gezet (aanrader) | jij | zie `opvolging.md` |
 | A4 | Haalbare reactietijd vastgelegd (of bewust geen) | jij → Claude | `config/operations.ts` |
 | A5 | Geheimen die in de chat stonden vervangen: Resend-sleutel en GitHub-token | jij | oude sleutel ingetrokken in Resend en GitHub; nieuwe sleutel in GitHub Secrets |
 | A6 | Privacyverklaring en voorwaarden juridisch laten nakijken; verwerkersovereenkomsten met TransIP, Resend, Sentry, Plausible (en Stripe als je betalingen aanzet); nagaan waar elke dienst gegevens verwerkt, en buiten de EU zo nodig vermelden | jij (of een jurist) | schriftelijk akkoord |

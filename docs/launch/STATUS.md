@@ -7,8 +7,8 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
 
 ## Oordeel
 
-- **Livegang: nog niet.** Er zijn vijf blokkades, allemaal informatie of handelingen van jou: bedrijfsgegevens
-  (KvK, adres), een werkende opvolgmailbox met eigenaar, juridische controle van privacy en voorwaarden met
+- **Livegang: nog niet.** Er zijn vier blokkades, allemaal informatie of handelingen van jou: bedrijfsgegevens
+  (KvK, adres), juridische controle van privacy en voorwaarden met
   verwerkersovereenkomsten, het vervangen van de in de chat gedeelde sleutels, en de productieproxy + DNS
   na jouw akkoord.
 - **Eerste campagne: niet klaar.** Naast de blokkades hierboven: er staan **nog geen echte vacatures**, de
@@ -61,8 +61,8 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 |---|---|---|
 | Vacature vinden → registreren → terug naar de vacature → e-mail bevestigen → solliciteren → bevestiging | Gereed en getest | e2e desktop en 390 px mobiel; testadressen krijgen nooit mail |
 | Interne toewijzing: opvolgbericht naar de opvolgmailbox | Gereed en getest | zonder kandidaatgegevens, motivatie of cv |
-| **Wie volgt op en welke reactietijd is haalbaar** | Blokkeert livegang | `opvolging.md`; de mailbox `info@dutchvacancy.nl` is niet bevestigd |
-| Echte bezorging van e-mails op staging voor de nieuwe onderdelen | Wacht op informatie | na merge en deploy, met jouw akkoord (er gaat een mail naar de opvolgmailbox) |
+| Wie volgt op en welke reactietijd is haalbaar | Gereed en getest | Tristan, binnen 3 werkdagen (vastgelegd 30-09-2026); de mailbox `info@dutchvacancy.nl` werkt. Nog aan te wijzen: een vervanger bij afwezigheid |
+| Echte bezorging van de werkgeversaanvraag op staging | Gereed en getest | 30-09-2026: testaanvraag kwam binnen in `info@dutchvacancy.nl`. Sollicitatie- en gespreksmails op staging zijn nog niet opnieuw echt verstuurd |
 
 ### 7. Overzichtspagina's
 | Onderdeel | Status | Toelichting |
@@ -95,7 +95,7 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 |---|---|---|
 | Over ons, met bedrijfsgegevens en eerlijke meldingen waar iets nog niet is ingevuld | Gereed en getest | |
 | **KvK-nummer, correspondentieadres, juridische naam** | Blokkeert livegang | `business.json`; de productievoorbereiding weigert zonder deze gegevens |
-| Contactpagina zonder onbevestigde beloftes (geen "Online, the Netherlands", geen reactietijd) | Gereed en getest | e2e |
+| Contactpagina zonder onbevestigde beloftes: geen "Online, the Netherlands", alleen de bevestigde reactietijd van 3 werkdagen | Gereed en getest | e2e |
 | Werkgeverspagina met werkend formulier | Gereed en getest | backend (opslag + mail met bedrijfsnaam) en e2e (alleen succes melden na bevestiging van de server) |
 | Privacy- en cookie-informatie die klopt met wat er echt draait | Gereed | cv-upload, werkgeversaanvragen, TransIP, Resend, Sentry, Plausible, Stripe |
 | Sentry stuurde formulierinhoud mee bij fouten | Gereed en getest | **gevonden en verholpen:** geen verzoekinhoud meer naar Sentry (test bewijst het) |
@@ -112,11 +112,11 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 ### 12. Controles vóór de eerste campagne
 | Controle | Status |
 |---|---|
-| Genoeg echte vacatures | **Blokkeert** (0 echte vacatures) |
+| Genoeg echte vacatures | **Blokkeert** (1 werkgever gevonden, nog 0 vacatures geplaatst) |
 | Advertentie en landingspagina sluiten op elkaar aan | Wacht op informatie (nog geen campagne-opzet) |
 | Formulieren werken (sollicitatie, registratie, werkgevers, contact) | Gereed en getest (lokaal/CI); bezorging op staging volgt |
 | Metingen werken | Wacht op informatie (productie + Plausible-doelen) |
-| Opvolging belegd | **Blokkeert** |
+| Opvolging belegd | Gereed (Tristan, binnen 3 werkdagen) |
 | Geen kritieke fouten | Gereed en getest in CI; staging controleren na de deploy |
 | Ontbrekende accounts | Search Console, advertentieaccounts (Google Ads / Meta / LinkedIn, afhankelijk van je keuze), optioneel Google Cloud voor de Indexing API |
 
@@ -144,12 +144,15 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 
 ## Wat ik van je nodig heb
 
-1. Inhoudelijk eigenaar van de kennisbank (naam en rol).
-2. Wie opvolgt, via welke mailbox, en een haalbare reactietijd (`opvolging.md`).
-3. KvK-nummer, correspondentieadres en juridische naam.
-4. Akkoord op de taalstructuur zoals gebouwd: Nederlands op `/`, Engels op `/en/`. Liever Engels op `/`? Dat is één instelling.
-5. Of er echte werkgevers en vacatures klaarstaan.
-6. Welke advertentiekanalen je overweegt (voor de controle van advertentie en landingspagina).
+Stand 30-09-2026. Vastgelegd: Tristan volgt op binnen 3 werkdagen, de taalstructuur is akkoord, en er is
+1 echte werkgever.
+
+1. **Kennisbank:** lees de 7 artikelen op staging en geef per artikel akkoord of verbeterpunten. Daarna
+   komen ze onder jouw naam als redactie en beoordelaar uit concept.
+2. KvK-nummer, correspondentieadres en juridische naam (volgt).
+3. De vacatures van de eerste werkgever: titel, stad, taaleis, uren, loon en sluitingsdatum. Plaatsen kan
+   zodra productie live is.
+4. Je keuze uit de voorgestelde advertentiekanalen (voor de controle van advertentie en landingspagina).
 
 ## Latere uitbreidingen (niet nodig voor de eerste livegang)
 
