@@ -25,7 +25,7 @@ const NAV = [
 function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2.5 group" data-testid="brand-logo">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-transform duration-200 group-hover:-rotate-6">
+      <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white shadow-sm transition-transform duration-200 group-hover:-rotate-6">
         <Briefcase className="h-4.5 w-4.5" />
       </span>
       <span className="font-heading text-lg font-extrabold tracking-tight">
@@ -214,31 +214,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2">
             <span className="font-heading text-xl font-extrabold text-white">
-              Dutch<span className="text-primary">Vacancy</span>
+              Dutch<span className="text-brand-soft">Vacancy</span>
             </span>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-400">{t("footer.tagline")}</p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">{t("footer.students")}</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">{t("footer.students")}</h4>
             <ul className="mt-4 space-y-2 text-sm">
-              <li><Link to="/jobs" className="hover:text-primary" data-testid="footer-jobs-link">{t("footer.browse")}</Link></li>
-              <li><Link to="/guide" className="hover:text-primary" data-testid="footer-guide-link">{t("footer.permits")}</Link></li>
-              <li><Link to="/how-it-works" className="hover:text-primary" data-testid="footer-how-link">{t("footer.how")}</Link></li>
-              <li><Link to="/register" className="hover:text-primary" data-testid="footer-register-link">{t("footer.createAccount")}</Link></li>
+              <li><Link to="/jobs" className="hover:text-brand-soft" data-testid="footer-jobs-link">{t("footer.browse")}</Link></li>
+              <li><Link to="/guide" className="hover:text-brand-soft" data-testid="footer-guide-link">{t("footer.permits")}</Link></li>
+              <li><Link to="/how-it-works" className="hover:text-brand-soft" data-testid="footer-how-link">{t("footer.how")}</Link></li>
+              <li><Link to="/register" className="hover:text-brand-soft" data-testid="footer-register-link">{t("footer.createAccount")}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">{t("footer.company")}</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">{t("footer.company")}</h4>
             <ul className="mt-4 space-y-2 text-sm">
-              <li><Link to="/employers" className="hover:text-primary" data-testid="footer-employers-link">{t("footer.employers")}</Link></li>
-              <li><Link to="/about" className="hover:text-primary" data-testid="footer-about-link">{t("footer.about")}</Link></li>
-              <li><Link to="/contact" className="hover:text-primary" data-testid="footer-contact-link">{t("nav.contact")}</Link></li>
-              <li><Link to="/privacy" className="hover:text-primary" data-testid="footer-privacy-link">{t("footer.privacy")}</Link></li>
-              <li><Link to="/terms" className="hover:text-primary" data-testid="footer-terms-link">{t("footer.terms")}</Link></li>
+              <li><Link to="/employers" className="hover:text-brand-soft" data-testid="footer-employers-link">{t("footer.employers")}</Link></li>
+              <li><Link to="/about" className="hover:text-brand-soft" data-testid="footer-about-link">{t("footer.about")}</Link></li>
+              <li><Link to="/contact" className="hover:text-brand-soft" data-testid="footer-contact-link">{t("nav.contact")}</Link></li>
+              <li><Link to="/privacy" className="hover:text-brand-soft" data-testid="footer-privacy-link">{t("footer.privacy")}</Link></li>
+              <li><Link to="/terms" className="hover:text-brand-soft" data-testid="footer-terms-link">{t("footer.terms")}</Link></li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-slate-500">
+        <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-slate-400">
           © {new Date().getFullYear()} DutchVacancy — {t("footer.legal")}
         </div>
       </footer>

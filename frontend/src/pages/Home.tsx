@@ -1,40 +1,51 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
-  BadgeCheck,
   BriefcaseBusiness,
+  CalendarClock,
+  Check,
   FileCheck2,
-  Globe2,
+  FileText,
+  HeartPulse,
+  IdCard,
+  Languages,
   Search,
-  Sparkles,
-  Users,
+  type LucideIcon,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
-import { KbArticleCard, OfficialBodies } from "@/components/Kb";
+import { DraftBadge, OfficialBodies } from "@/components/Kb";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiGet } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
-import { useKbArticles } from "@/lib/kb";
-import { CITIES, type JobList, type Stats } from "@/lib/types";
+import { loc, useKbArticles } from "@/lib/kb";
+import { formatDate } from "@/lib/jobFormat";
+import { CITIES, type JobList, type KbArticleSummary } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 
-const STUDENT_STEPS = [
-  { icon: Search, key: "student1" },
-  { icon: FileCheck2, key: "student2" },
-  { icon: BadgeCheck, key: "student3" },
-];
+const STUDENT_STEPS = ["student1", "student2", "student3"];
+const EMPLOYER_STEPS = ["employer1", "employer2", "employer3"];
+const FACTS = ["home.fact1", "home.fact2", "home.fact3", "home.fact4"];
 
-const EMPLOYER_STEPS = [
-  { icon: BriefcaseBusiness, key: "employer1" },
-  { icon: Users, key: "employer2" },
-  { icon: Globe2, key: "employer3" },
+/** Tile colours follow the position, so four tiles always differ; icons follow the article. */
+const TILES = [
+  "bg-orange-100 text-orange-800",
+  "bg-green-100 text-green-800",
+  "bg-blue-100 text-blue-800",
+  "bg-amber-100 text-amber-800",
 ];
+const ARTICLE_ICONS: Record<string, LucideIcon> = {
+  "start-working": BriefcaseBusiness,
+  "twv-work-permit": FileCheck2,
+  "health-insurance": HeartPulse,
+  "employment-contract": FileText,
+  "documents-to-start": IdCard,
+  "jobs-without-dutch": Languages,
+  "work-and-exams": CalendarClock,
+};
 
 export default function Home() {
   const navigate = useNavigate();
@@ -46,121 +57,125 @@ export default function Home() {
   });
   const [q, setQ] = useState("");
   const [city, setCity] = useState("");
+  const [englishOnly, setEnglishOnly] = useState(true);
 
-  const stats = useQuery({ queryKey: ["stats"], queryFn: () => apiGet<Stats>("/stats") });
   const guide = useKbArticles();
   const featured = useQuery({
     queryKey: ["jobs", "featured"],
     queryFn: () => apiGet<JobList>("/jobs/fresh"),
   });
 
-  function search() {
+  function search(e: FormEvent) {
+    e.preventDefault();
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (city) params.set("city", city);
+    if (englishOnly) params.set("english_level", "english_only");
     navigate(`/jobs?${params.toString()}`);
   }
 
   const items = featured.data?.items ?? [];
+  const articles = (guide.data ?? []).slice(0, 4);
 
   return (
     <Layout>
       {/* HERO */}
       <section className="relative overflow-hidden bg-navy text-slate-100">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/25 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-sky-500/20 blur-3xl" />
-        <div className="relative mx-auto grid w-full max-w-7xl gap-14 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
+        <HeroDecor />
+        <div className="relative mx-auto grid w-full max-w-7xl gap-14 px-4 pb-28 pt-14 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16 lg:pb-32 lg:pt-24">
           <div className="animate-rise-in">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
-              <Sparkles className="h-3.5 w-3.5" /> {t("home.badge")}
+            <span className="inline-flex items-center rounded-full border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-orange-200">
+              {t("home.badge")}
             </span>
-            <h1 className="mt-6 font-heading text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-[3.4rem]">
-              {t("home.h1a")}
-              <span className="block text-primary">{t("home.h1b")}</span>
+            <h1 className="mt-6 font-heading text-[2.4rem] font-extrabold leading-[1.04] text-brand-soft sm:text-5xl lg:text-6xl">
+              {t("home.h1a")} {t("home.h1b")}
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-300">{t("home.lead")}</p>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">{t("home.lead")}</p>
 
-            <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm sm:flex sm:items-center sm:gap-2">
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && search()}
-                placeholder={t("home.searchPlaceholder")}
-                data-testid="hero-search-input"
-                className="h-11 border-white/15 bg-white/10 text-white placeholder:text-slate-400"
-              />
-              <select
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                data-testid="hero-city-select"
-                aria-label={t("jobs.filterCity")}
-                className="mt-2 h-11 w-full rounded-lg border border-white/15 bg-white/10 px-3 text-sm text-white sm:mt-0 sm:w-44"
-              >
-                <option value="" className="text-slate-900">{t("home.allCities")}</option>
-                {CITIES.map((c) => (
-                  <option key={c} value={c} className="text-slate-900">{c}</option>
-                ))}
-              </select>
-              <Button
-                onClick={search}
-                data-testid="hero-search-button"
-                className="mt-2 h-11 w-full gap-2 sm:mt-0 sm:w-auto"
-              >
+            <form
+              role="search"
+              onSubmit={search}
+              className="mt-8 flex flex-col gap-1 rounded-2xl bg-white p-2 text-foreground shadow-xl sm:flex-row sm:items-stretch sm:gap-2"
+            >
+              <label className="flex flex-1 flex-col gap-0.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 focus-within:ring-2 focus-within:ring-ring">
+                {t("home.searchWhat")}
+                <input
+                  type="search"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder={t("home.searchPlaceholder")}
+                  data-testid="hero-search-input"
+                  className="w-full bg-transparent py-1 text-base font-medium text-foreground outline-none placeholder:text-slate-400 sm:text-[15px]"
+                />
+              </label>
+              <label className="relative flex flex-col gap-0.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 focus-within:ring-2 focus-within:ring-ring before:absolute before:inset-x-3 before:top-0 before:h-px before:bg-border sm:w-48 sm:before:inset-x-auto sm:before:inset-y-2 sm:before:left-0 sm:before:h-auto sm:before:w-px">
+                {t("home.searchWhere")}
+                <select
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  data-testid="hero-city-select"
+                  className="w-full bg-transparent py-1 text-base font-medium text-foreground outline-none sm:text-[15px]"
+                >
+                  <option value="">{t("home.allCities")}</option>
+                  {CITIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </label>
+              <Button type="submit" data-testid="hero-search-button" className="h-12 gap-2 rounded-xl px-5 text-[15px] font-semibold sm:h-auto">
                 <Search className="h-4 w-4" /> {t("home.search")}
               </Button>
-            </div>
+            </form>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/register" className={cn(buttonVariants({ variant: "outline" }), "border-white/25 bg-transparent text-white hover:bg-white/10")} data-testid="hero-student-cta">
+            <label className="mt-4 flex w-fit cursor-pointer items-center gap-2.5 text-sm text-slate-200">
+              <input
+                type="checkbox"
+                checked={englishOnly}
+                onChange={(e) => setEnglishOnly(e.target.checked)}
+                data-testid="hero-english-only"
+                className="h-[18px] w-[18px] accent-brand"
+              />
+              {t("home.englishOnly")}
+            </label>
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <Link
+                to="/register"
+                className={cn(buttonVariants({ variant: "outline" }), "h-11 rounded-xl border-white/25 bg-transparent px-4 font-semibold text-white hover:bg-white/10 hover:text-white")}
+                data-testid="hero-student-cta"
+              >
                 {t("home.studentCta")}
               </Link>
-              <Link to="/register?role=employer" className="inline-flex items-center gap-1.5 px-2 py-2 text-sm font-semibold text-orange-200 hover:text-primary" data-testid="hero-employer-cta">
+              <Link to="/register?role=employer" className="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-200 hover:text-white" data-testid="hero-employer-cta">
                 {t("home.employerCta")} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          <div className="relative hidden lg:block">
-            <div className="animate-float-slow rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-              <img
-                src="https://images.pexels.com/photos/6238120/pexels-photo-6238120.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-                alt="International students in the Netherlands"
-                className="h-64 w-full rounded-2xl object-cover"
-              />
-              <div className="mt-5 space-y-3">
-                {[
-                  [t("home.cardEnglish"), t("home.cardEnglishBody")],
-                  [t("home.cardClear"), t("home.cardClearBody")],
-                ].map(([title, meta]) => (
-                  <div key={title} className="rounded-xl border border-white/10 bg-navy-soft/70 p-4">
-                    <p className="font-heading text-sm font-bold text-white">{title}</p>
-                    <p className="text-xs text-slate-400">{meta}</p>
-                  </div>
+          <div className="relative mx-auto w-full max-w-md lg:mt-6 lg:self-start">
+            <aside className="-rotate-2 rounded-3xl bg-white p-6 text-foreground shadow-[0_24px_48px_-12px_rgba(0,0,0,0.45)] sm:p-7" data-testid="hero-facts">
+              <h2 className="font-heading text-xl font-extrabold sm:text-[1.4rem]">{t("home.factsTitle")}</h2>
+              <ul className="mt-5 space-y-3.5 text-[15px] leading-normal text-slate-700">
+                {FACTS.map((key) => (
+                  <li key={key} className="flex items-start gap-3">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-white">
+                      <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
+                    </span>
+                    {t(key)}
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+              <Link to="/guide" className="mt-5 inline-block text-sm font-semibold text-primary hover:underline" data-testid="hero-facts-guide">
+                {t("home.factsLink")}
+              </Link>
+            </aside>
+            <span
+              aria-hidden="true"
+              className="absolute -right-2 -top-5 rotate-[8deg] rounded-full bg-blue-50 px-4 py-2 font-heading text-base font-extrabold text-[#1e40af] shadow-[0_8px_20px_-6px_rgba(0,0,0,0.4)] sm:-right-3.5"
+            >
+              {t("label.english_only")}
+            </span>
           </div>
-        </div>
-      </section>
-
-      {/* STATS */}
-      <section className="border-b border-border bg-card">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-2 divide-border px-4 py-10 sm:px-6 lg:grid-cols-4 lg:divide-x">
-          {[
-            { value: stats.data ? `${stats.data.jobs}` : "—", label: t("home.statJobs"), testid: "stat-jobs" },
-            { value: stats.data ? `${stats.data.employers}` : "—", label: t("home.statEmployers"), testid: "stat-employers" },
-            { value: stats.data ? `${stats.data.english_only}` : "—", label: t("home.statEnglish"), testid: "stat-english" },
-            {
-              value: stats.data?.avg_hourly != null ? `€ ${stats.data.avg_hourly.toFixed(2).replace(".", ",")}` : "—",
-              label: t("home.statRate"),
-              testid: "stat-rate",
-            },
-          ].map((s) => (
-            <div key={s.testid} className="px-2 py-3 lg:px-8">
-              <p className="font-heading text-3xl font-extrabold text-primary" data-testid={s.testid}>{s.value}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{s.label}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -171,7 +186,7 @@ export default function Home() {
             <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">{t("home.featuredTitle")}</h2>
             <p className="mt-2 max-w-xl text-muted-foreground">{t("home.featuredLead")}</p>
           </div>
-          <Link to="/jobs" className={buttonVariants({ variant: "outline" })} data-testid="featured-view-all">
+          <Link to="/jobs" className={cn(buttonVariants({ variant: "outline" }), "h-10 rounded-xl bg-card px-4 font-semibold")} data-testid="featured-view-all">
             {t("home.viewAll")}
           </Link>
         </div>
@@ -180,12 +195,16 @@ export default function Home() {
           <p className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground" data-testid="featured-empty">
             {t("home.featuredOffline")}
           </p>
+        ) : featured.isSuccess && items.length === 0 ? (
+          <p className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground" data-testid="featured-none">
+            {t("home.featuredEmpty")}
+          </p>
         ) : (
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="featured-jobs-grid">
             {items.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
-            {items.length === 0 &&
+            {featured.isPending &&
               Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="h-60 animate-pulse rounded-2xl border border-border bg-muted/50" />
               ))}
@@ -194,77 +213,51 @@ export default function Home() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="bg-card py-20" id="how">
+      <section className="border-y border-border bg-card py-20" id="how">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
           <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">{t("home.pathsTitle")}</h2>
           <p className="mt-2 max-w-xl text-muted-foreground">{t("home.pathsLead")}</p>
-          <Tabs defaultValue="students" className="mt-8">
-            <TabsList variant="line" data-testid="how-it-works-tabs">
-              <TabsTrigger value="students" data-testid="tab-students">{t("home.tabStudents")}</TabsTrigger>
-              <TabsTrigger value="employers" data-testid="tab-employers">{t("home.tabEmployers")}</TabsTrigger>
-            </TabsList>
-            {[
-              ["students", STUDENT_STEPS] as const,
-              ["employers", EMPLOYER_STEPS] as const,
-            ].map(([tab, steps]) => (
-              <TabsContent key={tab} value={tab} className="pt-8">
-                <div className="grid gap-5 md:grid-cols-3">
-                  {steps.map((step, i) => (
-                    <div key={step.key} className="rounded-2xl border border-border bg-background p-6 transition-shadow duration-200 hover:shadow-md">
-                      <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground">
-                        <step.icon className="h-5 w-5" />
-                      </span>
-                      <p className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-primary">
-                        {t("home.step")} {i + 1}
-                      </p>
-                      <h3 className="mt-1 font-heading text-lg font-bold">{t(`home.${step.key}t`)}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t(`home.${step.key}b`)}</p>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-      </section>
-
-      {/* CITIES */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6">
-        <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">{t("home.citiesTitle")}</h2>
-        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {CITIES.map((c) => (
-            <Link
-              key={c}
-              to={`/jobs?city=${encodeURIComponent(c)}`}
-              data-testid={`city-card-${c.toLowerCase()}`}
-              className="group rounded-2xl border border-border bg-card p-5 text-center transition-[transform,border-color] duration-200 hover:-translate-y-1 hover:border-primary/50"
-            >
-              <span className="font-heading text-base font-bold group-hover:text-primary">{c}</span>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {stats.data?.city_counts[c] ?? 0}
-                {t("home.citiesRoles")}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* LEGAL */}
-      <section className="bg-card py-20">
-        <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <div>
-            <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">{t("home.legalTitle")}</h2>
-            <p className="mt-3 text-muted-foreground">{t("home.legalLead")}</p>
-            <Link to="/guide" className={cn(buttonVariants(), "mt-6")} data-testid="legal-guide-link">
-              {t("home.legalCta")}
-            </Link>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            <div className="flex flex-col rounded-3xl bg-accent p-6 sm:p-8" data-testid="how-students">
+              <h3 className="font-heading text-[1.4rem] font-extrabold text-accent-foreground">{t("home.tabStudents")}</h3>
+              <Steps keys={STUDENT_STEPS} circle="bg-primary text-white" body="text-slate-600" />
+              <Link to="/register" className={cn(buttonVariants(), "mt-8 h-11 self-start rounded-xl px-4 font-semibold")} data-testid="how-student-cta">
+                {t("home.studentCta")}
+              </Link>
+            </div>
+            <div className="flex flex-col rounded-3xl bg-navy p-6 text-slate-100 sm:p-8" data-testid="how-employers">
+              <h3 className="font-heading text-[1.4rem] font-extrabold text-white">{t("home.tabEmployers")}</h3>
+              <Steps keys={EMPLOYER_STEPS} circle="bg-brand-soft text-navy" body="text-slate-300" />
+              <Link
+                to="/employers"
+                className={cn(buttonVariants({ variant: "outline" }), "mt-8 h-11 self-start rounded-xl border-white/25 bg-transparent px-4 font-semibold text-white hover:bg-white/10 hover:text-white")}
+                data-testid="how-employer-cta"
+              >
+                {t("kb.employersCta")}
+              </Link>
+            </div>
           </div>
-          {/* Rules are only stated in reviewed knowledge-base articles; until one is
-              live, point to the official bodies instead of paraphrasing them here. */}
-          {(guide.data ?? []).length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2" data-testid="home-kb-articles">
-              {(guide.data ?? []).slice(0, 4).map((article) => (
-                <KbArticleCard key={article.slug} article={article} />
+        </div>
+      </section>
+
+      {/* KNOWLEDGE BASE */}
+      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-3xl">
+            <h2 className="font-heading text-3xl font-extrabold sm:text-4xl">{t("home.legalTitle")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("home.legalLead")}</p>
+          </div>
+          <Link to="/guide" className="text-sm font-semibold text-primary hover:underline" data-testid="legal-guide-link">
+            {t("home.legalCta")}
+          </Link>
+        </div>
+        {/* Rules are only stated in reviewed knowledge-base articles; until one is
+            live, point to the official bodies instead of paraphrasing them here. */}
+        <div className="mt-10">
+          {articles.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="home-kb-articles">
+              {articles.map((article, i) => (
+                <ArticleTile key={article.slug} article={article} index={i} />
               ))}
             </div>
           ) : (
@@ -274,20 +267,24 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl bg-navy px-6 py-14 text-center sm:px-14">
-          <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-primary/30 blur-3xl" />
-          <h2 className="relative font-heading text-3xl font-extrabold text-white sm:text-4xl">
-            {t("home.ctaTitle")}
-          </h2>
-          <p className="relative mx-auto mt-3 max-w-lg text-slate-300">{t("home.ctaLead")}</p>
-          <div className="relative mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/jobs" className={buttonVariants({ size: "lg" })} data-testid="cta-find-job">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-brand px-6 py-12 text-navy sm:px-12 lg:flex lg:items-center lg:justify-between lg:gap-10 lg:py-14">
+          <CtaDecor />
+          <div className="relative max-w-2xl">
+            <h2 className="font-heading text-3xl font-extrabold leading-tight sm:text-4xl">{t("home.ctaTitle")}</h2>
+            <p className="mt-3 text-base font-medium sm:text-lg">{t("home.ctaLead")}</p>
+          </div>
+          <div className="relative mt-8 flex flex-wrap gap-3 lg:mr-24 lg:mt-0 lg:shrink-0">
+            <Link
+              to="/jobs"
+              className="inline-flex h-12 items-center rounded-xl bg-navy px-6 text-[15px] font-bold text-white transition-colors hover:bg-navy-soft"
+              data-testid="cta-find-job"
+            >
               {t("home.ctaFind")}
             </Link>
             <Link
               to="/register?role=employer"
-              className={cn(buttonVariants({ variant: "outline", size: "lg" }), "border-white/25 bg-transparent text-white hover:bg-white/10")}
+              className="inline-flex h-12 items-center rounded-xl border-2 border-navy px-6 text-[15px] font-bold text-navy transition-colors hover:bg-navy hover:text-white"
               data-testid="cta-post-job"
             >
               {t("home.ctaPost")}
@@ -296,5 +293,96 @@ export default function Home() {
         </div>
       </section>
     </Layout>
+  );
+}
+
+function Steps({ keys, circle, body }: { keys: string[]; circle: string; body: string }) {
+  const { t } = useLang();
+  return (
+    <ol className="mt-6 space-y-5">
+      {keys.map((key, i) => (
+        <li key={key} className="flex gap-4">
+          <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full font-heading text-base font-extrabold", circle)}>
+            {i + 1}
+          </span>
+          <div>
+            <p className="font-heading font-bold">{t(`home.${key}t`)}</p>
+            <p className={cn("mt-0.5 text-sm leading-relaxed", body)}>{t(`home.${key}b`)}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ArticleTile({ article, index }: { article: KbArticleSummary; index: number }) {
+  const { t, lang } = useLang();
+  const Icon = ARTICLE_ICONS[article.slug] ?? FileText;
+  const checked = formatDate(article.reviewed_on, lang);
+  return (
+    <Link
+      to={`/guide/${article.slug}`}
+      data-testid={`kb-card-${article.slug}`}
+      className="group flex flex-col gap-3 rounded-3xl border border-border bg-card p-5 transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+    >
+      <span className={cn("grid h-12 w-12 place-items-center rounded-2xl", TILES[index % TILES.length])}>
+        <Icon className="h-6 w-6" aria-hidden="true" />
+      </span>
+      <DraftBadge article={article} />
+      <h3 className="font-heading text-[1.05rem] font-bold leading-snug group-hover:text-primary">{loc(article.title, lang)}</h3>
+      <p className="flex-1 text-sm leading-relaxed text-muted-foreground">{loc(article.summary, lang)}</p>
+      {checked && (
+        <p className="text-xs text-muted-foreground">
+          {t("kb.lastReviewed")}: {checked}
+        </p>
+      )}
+    </Link>
+  );
+}
+
+/** Dots and a canal bridge in the hero; purely decorative. */
+function HeroDecor() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 620 620"
+      className="pointer-events-none absolute -right-24 bottom-0 h-[420px] w-[420px] sm:right-0 lg:h-[620px] lg:w-[620px]"
+    >
+      <circle cx="520" cy="44" r="8" fill="#ea580c" />
+      <circle cx="584" cy="92" r="5" fill="#fb923c" />
+      <circle cx="446" cy="70" r="4" fill="#fb923c" />
+      <circle cx="600" cy="196" r="10" fill="#ea580c" />
+      <circle cx="120" cy="40" r="5" fill="#ea580c" />
+      <circle cx="36" cy="130" r="7" fill="#fb923c" />
+      <circle cx="596" cy="330" r="6" fill="#fb923c" />
+      <circle cx="30" cy="420" r="9" fill="#ea580c" />
+      <circle cx="572" cy="470" r="4" fill="#fdba74" />
+      <circle cx="260" cy="24" r="4" fill="#fdba74" />
+      <g fill="none" stroke="#7c2d12" strokeWidth="2" strokeLinecap="round">
+        <path d="M60 560 C 200 532, 480 532, 620 560" />
+        <path d="M60 578 C 200 550, 480 550, 620 578" />
+        <path d="M100 550 V 572 M160 542 V 564 M220 537 V 559 M280 534 V 556 M340 533 V 555 M400 534 V 556 M460 537 V 559 M520 542 V 564 M580 550 V 572" />
+        <path d="M120 620 A 62 62 0 0 1 244 620" />
+        <path d="M256 620 A 62 62 0 0 1 380 620" />
+        <path d="M392 620 A 62 62 0 0 1 516 620" />
+      </g>
+    </svg>
+  );
+}
+
+function CtaDecor() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 420 256" className="pointer-events-none absolute bottom-0 right-0 h-[256px] w-[420px]">
+      <circle cx="380" cy="36" r="9" fill="#ffffff" fillOpacity="0.9" />
+      <circle cx="330" cy="70" r="5" fill="#fed7aa" />
+      <circle cx="400" cy="120" r="4" fill="#ffffff" fillOpacity="0.8" />
+      <circle cx="250" cy="30" r="4" fill="#fed7aa" />
+      <g fill="none" stroke="#fed7aa" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.8">
+        <path d="M40 256 A 58 58 0 0 1 156 256" />
+        <path d="M168 256 A 58 58 0 0 1 284 256" />
+        <path d="M296 256 A 58 58 0 0 1 412 256" />
+        <path d="M20 200 C 140 176, 300 176, 420 200" />
+      </g>
+    </svg>
   );
 }
