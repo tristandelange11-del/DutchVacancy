@@ -82,15 +82,23 @@ def test_every_published_article_passes_the_gate():
             assert publication_problems(article) == [], article.slug
 
 
-def test_no_article_is_live_before_a_named_reviewer_exists():
-    # Today no content owner has been designated, so nothing may be live yet.
-    assert all(publication_problems(a) for a in ARTICLES)
+def test_all_seven_articles_were_reviewed_by_the_content_owner():
+    # Reviewed and approved by the owner on 2026-09-30. A later edit that clears the
+    # reviewer or backdates the review makes the gate (and this test) fail.
+    for article in ARTICLES:
+        assert article.status == "published", article.slug
+        assert article.author == article.reviewer == "Tristan de Lange", article.slug
+        assert publication_problems(article) == [], article.slug
+
+
+def as_draft(article):
+    return dataclasses.replace(article, status="draft", author=None, reviewer=None, reviewed_on=None)
 
 
 # ---------- the gate itself ----------
 
 def test_gate_blocks_drafts_and_missing_people():
-    article = BY_SLUG["twv-work-permit"]
+    article = as_draft(BY_SLUG["twv-work-permit"])
     assert "status is 'draft', not 'published'" in publication_problems(article, TODAY)
     assert publication_problems(reviewed(article), TODAY) == []
     assert "no named author or editor" in publication_problems(reviewed(article, author=" "), TODAY)
@@ -128,24 +136,35 @@ def test_review_warnings_flag_overdue_reviews_and_known_law_changes():
 
 # ---------- what each environment serves ----------
 
-def test_production_serves_no_drafts(client, production):
-    assert client.get("/kb").json() == []
-    assert client.get("/kb/start-working").status_code == 404
-    assert "/guide/" not in client.get("/seo/sitemap.xml").text
+def test_production_serves_reviewed_articles_and_hides_drafts(client, production, monkeypatch):
+    draft = as_draft(BY_SLUG["work-and-exams"])
+    others = [a for a in ARTICLES if a.slug != "work-and-exams"]
+    use_articles(monkeypatch, [*others, draft])
 
-
-def test_staging_serves_drafts_marked_as_not_live(client, staging):
     listing = client.get("/kb").json()
-    assert [a["slug"] for a in listing] == [a.slug for a in ARTICLES]
-    assert all(a["live"] is False and a["reviewed_on"] is None for a in listing)
+    assert [a["slug"] for a in listing] == [a.slug for a in others]
+    assert all(a["live"] is True for a in listing)
+    assert client.get("/kb/work-and-exams").status_code == 404
+    sitemap = client.get("/seo/sitemap.xml").text
+    assert "/guide/start-working" in sitemap and "/guide/work-and-exams" not in sitemap
+
+
+def test_staging_also_serves_drafts_marked_as_not_live(client, staging, monkeypatch):
+    draft = as_draft(BY_SLUG["twv-work-permit"])
+    others = [a for a in ARTICLES if a.slug != "twv-work-permit"]
+    use_articles(monkeypatch, [draft, *others])
+
+    listing = {a["slug"]: a for a in client.get("/kb").json()}
+    assert len(listing) == len(ARTICLES)
+    assert listing["twv-work-permit"]["live"] is False and listing["twv-work-permit"]["reviewed_on"] is None
+    assert listing["start-working"]["live"] is True
 
     article = client.get("/kb/twv-work-permit").json()
-    assert article["status"] == "draft"
+    assert article["status"] == "draft" and article["author"] is None
     assert article["sources"] and all(s["url"]["nl"].startswith("https://") for s in article["sources"])
     assert article["contacts"] and article["job_link"]["query"] == "permit_support=twv_provided"
-    assert {r["slug"] for r in article["related"]} == {"start-working", "employment-contract"}
     # Drafts never reach the sitemap, even where they are shown.
-    assert "/guide/" not in client.get("/seo/sitemap.xml").text
+    assert "/guide/twv-work-permit" not in client.get("/seo/sitemap.xml").text
 
 
 def test_internal_verification_record_is_never_served(client, staging):
@@ -154,18 +173,16 @@ def test_internal_verification_record_is_never_served(client, staging):
         assert internal not in body
 
 
-def test_a_reviewed_article_goes_live_on_production(client, production, monkeypatch):
-    live = reviewed(BY_SLUG["start-working"])
-    others = [a for a in ARTICLES if a.slug != "start-working"]
-    use_articles(monkeypatch, [live, *others])
-
-    listing = client.get("/kb").json()
-    assert [a["slug"] for a in listing] == ["start-working"]
-    assert listing[0]["live"] is True and listing[0]["reviewed_on"] == live.reviewed_on.isoformat()
-
+def test_a_live_article_shows_its_editor_and_review_date(client, production):
     article = client.get("/kb/start-working").json()
-    assert article["author"] == "Jane Editor" and article["reviewer"] == "Content Owner"
-    # Related drafts are hidden on production instead of linking to a 404.
-    assert article["related"] == []
-    assert client.get("/kb/twv-work-permit").status_code == 404
-    assert "/guide/start-working" in client.get("/seo/sitemap.xml").text
+    assert article["live"] is True
+    assert article["author"] == article["reviewer"] == "Tristan de Lange"
+    assert article["reviewed_on"] == "2026-09-30"
+    # Related articles are live too, so they are linked.
+    assert {r["slug"] for r in article["related"]} == {"twv-work-permit", "health-insurance", "documents-to-start"}
+
+
+def test_related_drafts_are_not_linked_on_production(client, production, monkeypatch):
+    others = [as_draft(a) if a.slug != "start-working" else a for a in ARTICLES]
+    use_articles(monkeypatch, others)
+    assert client.get("/kb/start-working").json()["related"] == []

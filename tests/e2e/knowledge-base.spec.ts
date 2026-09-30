@@ -52,7 +52,15 @@ test("an article follows the fixed structure and drafts stay out of search", asy
     await expect(page.getByTestId(part)).toBeVisible();
   }
   await expect(page.getByTestId("kb-sources").getByRole("link").first()).toHaveAttribute("href", /^https:\/\//);
-  if (!article.live) {
+  if (article.live) {
+    // Reviewed: no draft banner, the editor and review date are shown, and it is indexable with Article data.
+    await expect(page.getByTestId("kb-draft-banner")).toHaveCount(0);
+    await expect(page.getByTestId("kb-byline")).toContainText("Tristan de Lange");
+    await expect(page.getByTestId("kb-last-reviewed")).toHaveText("30 September 2026");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /^index/);
+    const ld = JSON.parse((await page.locator("#dv-json-ld").textContent()) ?? "{}");
+    expect(ld).toMatchObject({ "@type": "Article", author: { name: "Tristan de Lange" }, dateModified: "2026-09-30" });
+  } else {
     await expect(page.getByTestId("kb-draft-banner")).toBeVisible();
     await expect(page.getByTestId("kb-last-reviewed")).toHaveText(/not yet reviewed/i);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);

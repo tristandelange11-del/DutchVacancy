@@ -1,5 +1,10 @@
+from datetime import date
+
 from content.kb.model import Article, Claim, Contact, JobLink, Section, Text
 from content.kb.sources import CHECKED
+
+# Content review by the owner: read on staging and approved on 2026-09-30.
+REVIEWED = date(2026, 9, 30)
 
 ARTICLE = Article(
     slug="jobs-without-dutch",
@@ -7,8 +12,11 @@ ARTICLE = Article(
     # Practical advice about using the site; the only legal statement (TWV) is
     # covered by its own claim and the TWV article.
     sensitive=False,
-    status="draft",
-    drafted_by="AI draft (Claude), 2026-09-29; not yet reviewed by a person",
+    status="published",
+    drafted_by="AI draft (Claude), 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30",
+    author="Tristan de Lange",
+    reviewer="Tristan de Lange",
+    reviewed_on=REVIEWED,
     title=Text(
         nl="Bijbanen vinden wanneer je nog geen Nederlands spreekt",
         en="Finding a side job when you do not speak Dutch yet",
