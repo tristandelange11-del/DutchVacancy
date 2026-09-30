@@ -34,7 +34,7 @@ staat op `null`).
 - De GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` is **niet** gezet. Staging en productie gebruiken daardoor
   de standaardwaarde **`info@dutchvacancy.nl`** (zie `deploy-staging.yml` en `deploy-production.yml`).
 - **Bevestigd op 30-09-2026:** een testaanvraag via het werkgeversformulier op staging kwam binnen in de
-  mailbox `info@dutchvacancy.nl` (TransIP-webmail, in de inbox, niet in spam). Het onderwerp was
+  mailbox `info@dutchvacancy.nl` (TransIP-webmail). Het onderwerp was
   "DutchVacancy employer request: Test bedrijf", en afzender, bedrijf en bericht stonden erin.
   De mailbox werkt en de eigenaar leest hem.
 - Nog open: **wie** opvolgt, met vervanger, en welke reactietijd haalbaar is. Zie de tabel bovenaan.
