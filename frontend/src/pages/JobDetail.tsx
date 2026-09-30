@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
+import LogoMark from "@/components/LogoMark";
 import CvUploadField from "@/components/CvUploadField";
 import GuideLinks from "@/components/GuideLinks";
 import { Badge } from "@/components/ui/badge";
@@ -70,7 +71,7 @@ export default function JobDetail() {
     onSuccess: () => {
       // Only here: the server stored the application, so it counts exactly once.
       track("Apply Complete", { job_id: jobId });
-      toast.success(t("detail.sent"));
+      toast.success(t("detail.sent"), { icon: <LogoMark size={22} mode="done" /> });
       setOpen(false);
       setMotivation("");
       queryClient.invalidateQueries({ queryKey: ["job", jobId] });
@@ -431,7 +432,14 @@ export default function JobDetail() {
               disabled={motivation.trim().length < 10 || (job.cv_required && !cv.url) || apply.isPending}
               data-testid="apply-submit-button"
             >
-              {apply.isPending ? t("detail.sending") : t("detail.send")}
+              {apply.isPending ? (
+                <>
+                  <LogoMark size={20} mode="load" tone="primary" />
+                  {t("detail.sending")}
+                </>
+              ) : (
+                t("detail.send")
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
