@@ -25,7 +25,7 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
 | [#12](https://github.com/tristandelange11-del/DutchVacancy/pull/12) | Complete vacatures, sluitingsdata, sollicitatieroute, meldingen | groen |
 | [#13](https://github.com/tristandelange11-del/DutchVacancy/pull/13) | Kennisbank met bronnen en publicatiepoort | groen |
 | [#14](https://github.com/tristandelange11-del/DutchVacancy/pull/14) | Werkgeverspagina en formulier, contact/over ons/privacy, metingen, SEO-correcties, tweetalige mails | groen |
-| volgende PR (`claude/language-urls`) | Taal in de URL: Nederlands op `/`, Engels op `/en/`, met hreflang en een tweetalige sitemap | loopt na openen |
+| [#15](https://github.com/tristandelange11-del/DutchVacancy/pull/15) | Taal in de URL: Nederlands op `/`, Engels op `/en/`, met hreflang en een tweetalige sitemap | loopt na openen |
 
 De PR's bouwen op elkaar voort: merge ze op volgorde. **PR #7** (privacy/voorwaarden) is in #14 opgenomen en gecorrigeerd: Fresh Vacancy staat op de homepage en niet bovenaan de zoekresultaten, en de verwerkersovereenkomsten zijn niet als feit vermeld. #7 kan dus dicht zonder merge. Daarna zet Claude staging bij (de preview, achter
 wachtwoord en niet vindbaar).
