@@ -100,7 +100,7 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 | Privacy- en cookie-informatie die klopt met wat er echt draait | Gereed | cv-upload, werkgeversaanvragen, TransIP, Resend, Sentry, Plausible, Stripe |
 | Sentry stuurde formulierinhoud mee bij fouten | Gereed en getest | **gevonden en verholpen:** geen verzoekinhoud meer naar Sentry (test bewijst het) |
 | **Juridische controle en verwerkersovereenkomsten** | Blokkeert livegang | door jou of een jurist |
-| Geen verzonnen reviews, logo's, partners of aantallen | Gereed | er staan er geen; de homepage-tellers komen uit de database |
+| Geen verzonnen reviews, logo's, partners of aantallen | Gereed | er staan er geen; de homepage toont sinds ontwerp A geen tellers meer |
 
 ### 11. Meten
 | Onderdeel | Status | Toelichting |

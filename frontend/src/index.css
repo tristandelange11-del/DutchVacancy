@@ -151,3 +151,83 @@
     letter-spacing: -0.02em;
     }
 }
+
+/* The DutchVacancy mark (components/LogoMark.tsx): D and V speech bubbles that talk. */
+.dv-logo .dv-logo__d,
+.dv-logo .dv-logo__v,
+.dv-logo .dv-logo__dot {
+  transform-box: fill-box;
+}
+.dv-logo .dv-logo__d { transform-origin: 15% 95%; transition: transform 0.25s ease; }
+.dv-logo .dv-logo__v { transform-origin: 85% 95%; transition: transform 0.25s ease; }
+.dv-logo .dv-logo__dot { transform-origin: 50% 50%; animation: dv-dot 0.9s ease-in-out infinite; }
+.dv-logo .dv-logo__dot--2 { animation-delay: 0.15s; }
+.dv-logo .dv-logo__dot--3 { animation-delay: 0.3s; }
+.dv-logo .dv-logo__dots-d,
+.dv-logo .dv-logo__dots-v,
+.dv-logo .dv-logo__ask,
+.dv-logo .dv-logo__check { opacity: 0; }
+@keyframes dv-dot {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-2px); }
+}
+
+/* Hovering the logo link: the bubbles lean towards each other. */
+.group:hover > .dv-logo--still .dv-logo__d,
+.group:hover > .dv-logo--talk .dv-logo__d { transform: translate(1.5px, 1px) rotate(-5deg); }
+.group:hover > .dv-logo--still .dv-logo__v,
+.group:hover > .dv-logo--talk .dv-logo__v { transform: translate(-1.5px, -1px) rotate(5deg); }
+
+/* talk: one conversation after the page settles, then the still mark. */
+.dv-logo--talk .dv-logo__letter-d { animation: dv-talk-letter-d 10s 0.8s; }
+.dv-logo--talk .dv-logo__dots-d { animation: dv-talk-dots-d 10s 0.8s; }
+.dv-logo--talk .dv-logo__ask { animation: dv-talk-ask 10s 0.8s; }
+.dv-logo--talk .dv-logo__d { animation: dv-talk-d 10s 0.8s ease-in-out; }
+.dv-logo--talk .dv-logo__letter-v { animation: dv-talk-letter-v 10s 0.8s; }
+.dv-logo--talk .dv-logo__dots-v { animation: dv-talk-dots-v 10s 0.8s; }
+.dv-logo--talk .dv-logo__check { animation: dv-talk-check 10s 0.8s; }
+.dv-logo--talk .dv-logo__v { animation: dv-talk-v 10s 0.8s ease-in-out; }
+@keyframes dv-talk-letter-d { 0%, 10% { opacity: 1; } 12%, 83% { opacity: 0; } 86%, 100% { opacity: 1; } }
+@keyframes dv-talk-dots-d { 0%, 11% { opacity: 0; } 13%, 24% { opacity: 1; } 26%, 100% { opacity: 0; } }
+@keyframes dv-talk-ask { 0%, 25% { opacity: 0; } 27%, 82% { opacity: 1; } 85%, 100% { opacity: 0; } }
+@keyframes dv-talk-d {
+  0%, 25% { transform: scale(1); } 28% { transform: scale(1.08); } 31%, 86% { transform: scale(1); }
+  90% { transform: translate(1.5px, 1.5px); } 94%, 100% { transform: translate(0, 0); }
+}
+@keyframes dv-talk-letter-v { 0%, 37% { opacity: 1; } 39%, 83% { opacity: 0; } 86%, 100% { opacity: 1; } }
+@keyframes dv-talk-dots-v { 0%, 39% { opacity: 0; } 41%, 54% { opacity: 1; } 56%, 100% { opacity: 0; } }
+@keyframes dv-talk-check {
+  0%, 55% { opacity: 0; stroke-dashoffset: 1; } 57% { opacity: 1; stroke-dashoffset: 1; }
+  63%, 82% { opacity: 1; stroke-dashoffset: 0; } 85%, 100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes dv-talk-v {
+  0%, 55% { transform: scale(1); } 58% { transform: scale(1.08); } 61%, 86% { transform: scale(1); }
+  90% { transform: translate(-1.5px, -1.5px); } 94%, 100% { transform: translate(0, 0); }
+}
+
+/* load: the bubbles take turns typing. */
+.dv-logo--load .dv-logo__letter-d,
+.dv-logo--load .dv-logo__letter-v { opacity: 0; }
+.dv-logo--load .dv-logo__dots-d { animation: dv-load-a 2.4s infinite; }
+.dv-logo--load .dv-logo__dots-v { animation: dv-load-b 2.4s infinite; }
+@keyframes dv-load-a { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0.3; } 100% { opacity: 1; } }
+@keyframes dv-load-b { 0%, 45% { opacity: 0.3; } 50%, 95% { opacity: 1; } 100% { opacity: 0.3; } }
+
+/* done: the V turns into a check and the D nods. */
+.dv-logo--done .dv-logo__letter-v { animation: dv-done-letter .3s both; }
+.dv-logo--done .dv-logo__check { animation: dv-done-check .6s .25s both; }
+.dv-logo--done .dv-logo__v { animation: dv-done-pop .5s .2s both; }
+.dv-logo--done .dv-logo__d { animation: dv-done-nod .6s .6s both; }
+@keyframes dv-done-letter { to { opacity: 0; } }
+@keyframes dv-done-check { from { opacity: 1; stroke-dashoffset: 1; } to { opacity: 1; stroke-dashoffset: 0; } }
+@keyframes dv-done-pop { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+@keyframes dv-done-nod { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(1.5px, 1.5px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dv-logo * { animation: none !important; transition: none !important; }
+  .dv-logo--load .dv-logo__dots-d,
+  .dv-logo--load .dv-logo__dots-v,
+  .dv-logo--done .dv-logo__check { opacity: 1; }
+  .dv-logo--done .dv-logo__letter-v { opacity: 0; }
+  .dv-logo--done .dv-logo__check { stroke-dashoffset: 0; }
+}
