@@ -8,19 +8,19 @@ Een AI-concept is geen geverifieerde bron. Elke bewering hieronder is gecontrole
 
 | Artikel | Gevoelig | Status | Auteur | Beoordelaar | Beoordeeld op | Live op productie | Blokkades |
 |---|---|---|---|---|---|---|---|
-| Werken naast je studie: waar begin je? (`/guide/start-working`) | ja | draft | — | — | — | nee | status is 'draft', not 'published'; no named author or editor; sensitive article without a designated content reviewer; no content review date |
-| Wanneer is een TWV nodig? (`/guide/twv-work-permit`) | ja | draft | — | — | — | nee | status is 'draft', not 'published'; no named author or editor; sensitive article without a designated content reviewer; no content review date |
-| Wat betekent werken naast je studie voor je zorgverzekering? (`/guide/health-insurance`) | ja | draft | — | — | — | nee | status is 'draft', not 'published'; no named author or editor; sensitive article without a designated content reviewer; no content review date |
-| Welke documenten en gegevens heb je nodig om te beginnen? (`/guide/documents-to-start`) | ja | draft | — | — | — | nee | status is 'draft', not 'published'; no named author or editor; sensitive article without a designated content reviewer; no content review date |
-| Een arbeidsovereenkomst begrijpen: uren, loon en afspraken (`/guide/employment-contract`) | ja | draft | — | — | — | nee | status is 'draft', not 'published'; no named author or editor; sensitive article without a designated content reviewer; no content review date |
-| Bijbanen vinden wanneer je nog geen Nederlands spreekt (`/guide/jobs-without-dutch`) | nee | draft | — | — | — | nee | status is 'draft', not 'published'; no named author or editor; no content review date |
-| Werk combineren met colleges en tentamens (`/guide/work-and-exams`) | ja | draft | — | — | — | nee | status is 'draft', not 'published'; no named author or editor; sensitive article without a designated content reviewer; no content review date |
+| Werken naast je studie: waar begin je? (`/guide/start-working`) | ja | published | Tristan de Lange | Tristan de Lange | 2026-09-30 | ja | — |
+| Wanneer is een TWV nodig? (`/guide/twv-work-permit`) | ja | published | Tristan de Lange | Tristan de Lange | 2026-09-30 | ja | — |
+| Wat betekent werken naast je studie voor je zorgverzekering? (`/guide/health-insurance`) | ja | published | Tristan de Lange | Tristan de Lange | 2026-09-30 | ja | — |
+| Welke documenten en gegevens heb je nodig om te beginnen? (`/guide/documents-to-start`) | ja | published | Tristan de Lange | Tristan de Lange | 2026-09-30 | ja | — |
+| Een arbeidsovereenkomst begrijpen: uren, loon en afspraken (`/guide/employment-contract`) | ja | published | Tristan de Lange | Tristan de Lange | 2026-09-30 | ja | — |
+| Bijbanen vinden wanneer je nog geen Nederlands spreekt (`/guide/jobs-without-dutch`) | nee | published | Tristan de Lange | Tristan de Lange | 2026-09-30 | ja | — |
+| Werk combineren met colleges en tentamens (`/guide/work-and-exams`) | ja | published | Tristan de Lange | Tristan de Lange | 2026-09-30 | ja | — |
 
 ## Werken naast je studie: waar begin je?
 
-- Pad: `/guide/start-working` · gevoelig: ja · status: draft
-- Eerste versie: AI draft (Claude), sources read 2026-09-29; not yet reviewed by a person
-- Periodieke controle: elke 182 dagen (start na eerste beoordeling)
+- Pad: `/guide/start-working` · gevoelig: ja · status: published
+- Eerste versie: AI draft (Claude), sources read 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30
+- Periodieke controle: elke 182 dagen, volgende uiterlijk 2027-03-31
 - Open vragen / bewust weggelaten:
   - Uitzonderingen voor specifieke nationaliteiten (bijvoorbeeld op grond van verdragen) zijn niet onderzocht.
   - Regels voor een verblijfsvergunning studie mbo of voortgezet onderwijs zijn niet gecontroleerd.
@@ -38,9 +38,9 @@ Een AI-concept is geen geverifieerde bron. Elke bewering hieronder is gecontrole
 
 ## Wanneer is een TWV nodig?
 
-- Pad: `/guide/twv-work-permit` · gevoelig: ja · status: draft
-- Eerste versie: AI draft (Claude), sources read 2026-09-29; not yet reviewed by a person
-- Periodieke controle: elke 182 dagen (start na eerste beoordeling)
+- Pad: `/guide/twv-work-permit` · gevoelig: ja · status: published
+- Eerste versie: AI draft (Claude), sources read 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30
+- Periodieke controle: elke 182 dagen, volgende uiterlijk 2027-03-31
 - Open vragen / bewust weggelaten:
   - Of een TWV-aanvraag kosten meebrengt voor de werkgever is niet gecontroleerd; het artikel zegt daarom niets over kosten.
   - Uitzonderingen voor specifieke nationaliteiten zijn niet onderzocht.
@@ -59,9 +59,9 @@ Een AI-concept is geen geverifieerde bron. Elke bewering hieronder is gecontrole
 
 ## Wat betekent werken naast je studie voor je zorgverzekering?
 
-- Pad: `/guide/health-insurance` · gevoelig: ja · status: draft
-- Eerste versie: AI draft (Claude), sources read 2026-09-29; not yet reviewed by a person
-- Periodieke controle: elke 182 dagen (start na eerste beoordeling)
+- Pad: `/guide/health-insurance` · gevoelig: ja · status: published
+- Eerste versie: AI draft (Claude), sources read 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30
+- Periodieke controle: elke 182 dagen, volgende uiterlijk 2027-03-31
 - Open vragen / bewust weggelaten:
   - De verwijzing naar Nuffic op Rijksoverheid.nl is niet gevolgd; alleen SVB, Rijksoverheid en IND zijn gebruikt.
 
@@ -81,9 +81,9 @@ Een AI-concept is geen geverifieerde bron. Elke bewering hieronder is gecontrole
 
 ## Welke documenten en gegevens heb je nodig om te beginnen?
 
-- Pad: `/guide/documents-to-start` · gevoelig: ja · status: draft
-- Eerste versie: AI draft (Claude), sources read 2026-09-29; not yet reviewed by a person
-- Periodieke controle: elke 182 dagen (start na eerste beoordeling)
+- Pad: `/guide/documents-to-start` · gevoelig: ja · status: published
+- Eerste versie: AI draft (Claude), sources read 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30
+- Periodieke controle: elke 182 dagen, volgende uiterlijk 2027-03-31
 - Open vragen / bewust weggelaten:
   - Welke documenten een gemeente bij inschrijving vraagt, verschilt per gemeente en is niet gecontroleerd; het artikel noemt ze daarom niet.
 
@@ -101,9 +101,9 @@ Een AI-concept is geen geverifieerde bron. Elke bewering hieronder is gecontrole
 
 ## Een arbeidsovereenkomst begrijpen: uren, loon en afspraken
 
-- Pad: `/guide/employment-contract` · gevoelig: ja · status: draft
-- Eerste versie: AI draft (Claude), sources read 2026-09-29; not yet reviewed by a person
-- Periodieke controle: elke 182 dagen (start na eerste beoordeling)
+- Pad: `/guide/employment-contract` · gevoelig: ja · status: published
+- Eerste versie: AI draft (Claude), sources read 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30
+- Periodieke controle: elke 182 dagen, volgende uiterlijk 2027-03-31
 - Bekende wijzigingen die een nieuwe controle vragen:
   - 2026-12-31: Gelijkwaardige arbeidsvoorwaarden voor uitzendkrachten treden in werking.
   - 2027-01-01: Nieuwe minimumloonbedragen en een hoger minimumjeugdloon; controleer de link naar de bedragenpagina (die heet nu 'Bedragen minimumloon 2026').
@@ -128,9 +128,9 @@ Een AI-concept is geen geverifieerde bron. Elke bewering hieronder is gecontrole
 
 ## Bijbanen vinden wanneer je nog geen Nederlands spreekt
 
-- Pad: `/guide/jobs-without-dutch` · gevoelig: nee · status: draft
-- Eerste versie: AI draft (Claude), 2026-09-29; not yet reviewed by a person
-- Periodieke controle: elke 182 dagen (start na eerste beoordeling)
+- Pad: `/guide/jobs-without-dutch` · gevoelig: nee · status: published
+- Eerste versie: AI draft (Claude), 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30
+- Periodieke controle: elke 182 dagen, volgende uiterlijk 2027-03-31
 
 | Bewering | Bron(nen) | Geldt voor | Gecontroleerd | Onzekerheid |
 |---|---|---|---|---|
@@ -138,9 +138,9 @@ Een AI-concept is geen geverifieerde bron. Elke bewering hieronder is gecontrole
 
 ## Werk combineren met colleges en tentamens
 
-- Pad: `/guide/work-and-exams` · gevoelig: ja · status: draft
-- Eerste versie: AI draft (Claude), sources read 2026-09-29; not yet reviewed by a person
-- Periodieke controle: elke 182 dagen (start na eerste beoordeling)
+- Pad: `/guide/work-and-exams` · gevoelig: ja · status: published
+- Eerste versie: AI draft (Claude), sources read 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30
+- Periodieke controle: elke 182 dagen, volgende uiterlijk 2027-03-31
 
 | Bewering | Bron(nen) | Geldt voor | Gecontroleerd | Onzekerheid |
 |---|---|---|---|---|

@@ -1,12 +1,20 @@
+from datetime import date
+
 from content.kb.model import Article, Claim, Contact, JobLink, Text
 from content.kb.sources import CHECKED
+
+# Content review by the owner: read on staging and approved on 2026-09-30.
+REVIEWED = date(2026, 9, 30)
 
 ARTICLE = Article(
     slug="start-working",
     order=1,
     sensitive=True,
-    status="draft",
-    drafted_by="AI draft (Claude), sources read 2026-09-29; not yet reviewed by a person",
+    status="published",
+    drafted_by="AI draft (Claude), sources read 2026-09-29; reviewed and approved by the owner (Tristan de Lange) on 2026-09-30",
+    author="Tristan de Lange",
+    reviewer="Tristan de Lange",
+    reviewed_on=REVIEWED,
     title=Text(
         nl="Werken naast je studie: waar begin je?",
         en="Working alongside your studies: where do you start?",

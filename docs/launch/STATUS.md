@@ -11,9 +11,9 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
   (KvK, adres), juridische controle van privacy en voorwaarden met
   verwerkersovereenkomsten, het vervangen van de in de chat gedeelde sleutels, en de productieproxy + DNS
   na jouw akkoord.
-- **Eerste campagne: niet klaar.** Naast de blokkades hierboven: er staan **nog geen echte vacatures**, de
-  kennisbankartikelen zijn **nog niet inhoudelijk beoordeeld**, en de metingen draaien pas als de site live
-  is en de Plausible-doelen bestaan. Adverteren naar een site zonder vacatures kost geld zonder resultaat.
+- **Eerste campagne: niet klaar.** Naast de blokkades hierboven: er staan **nog geen echte vacatures**
+  (1 werkgever gevonden), en de metingen draaien pas als de site live is en de Plausible-doelen bestaan.
+  De kennisbank is beoordeeld en gepubliceerd (30-09-2026). Adverteren naar een site zonder vacatures kost geld zonder resultaat.
 - **Technisch klaar:** vacaturepagina's, de sollicitatieroute (desktop en mobiel), het afsluiten van
   vacatures, de kennisbank met publicatiepoort, de werkgeverspagina met formulier en privacyvriendelijke
   metingen. Alles staat in PR's met groene tests.
@@ -45,8 +45,8 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 | 7 artikelen (NL + EN) in vaste opbouw: antwoord, voor wie, uitzonderingen, stappen, instantie, vacatures, bronnen, auteur, datum | Gereed en getest | structuurtests per artikel; handmatig bekeken op desktop, mobiel, NL, EN |
 | Alle bronnen zelf geopend en gelezen (IND, UWV, SVB, Rijksoverheid, Belastingdienst) | Gereed | `kennisbank-verificatie.md`: per bewering de bron, voor wie, datum en open vragen |
 | Fouten uit de oude teksten gehaald | Gereed en getest | o.a. "loonstrook elke periode" (onjuist), "€ 14–24 typisch" (verzonnen), "kost je niets", "enkele weken" (UWV: binnen 5 weken); e2e controleert dat ze weg zijn |
-| Publicatiepoort: op productie alleen artikelen met status gepubliceerd, echte auteur en (bij gevoelige artikelen) beoordelaar en datum | Gereed en getest | backend-tests plus sabotagecheck; op productie is nu 0 van 7 zichtbaar |
-| **Inhoudelijk eigenaar die de artikelen beoordeelt** | Wacht op informatie | Zonder beoordelaar blijven alle artikelen concept. Op staging zijn ze zichtbaar met een conceptlabel en noindex |
+| Publicatiepoort: op productie alleen artikelen met status gepubliceerd, echte auteur en (bij gevoelige artikelen) beoordelaar en datum | Gereed en getest | backend-tests plus sabotagecheck; alle 7 artikelen voldoen nu en zijn zichtbaar |
+| Inhoudelijk eigenaar die de artikelen beoordeelt | Gereed en getest | Tristan de Lange (redactie en beoordelaar). Op 30-09-2026 heeft Claude alles nagelezen (19 correcties) en heeft Tristan de artikelen gelezen en goedgekeurd. Volgende controle uiterlijk 31-03-2027, eerder bij de signaaldata. **Advies vóór campagnes:** laat de artikelen over TWV, zorgverzekering en arbeidsovereenkomst nog door een deskundige bekijken (bijv. een international office) |
 | Periodieke controle en signalering van bronwijzigingen | Gereed, deels getest | controle-interval en wetswijzigingsdata zijn getest. De broncontrole is lokaal gedraaid (27 pagina's stabiel, SVB handmatig). De GitHub-workflow draait voor het eerst na de merge |
 | Artikel → vacatures (alleen met bekende taaleis), vacature → uitleg, werkgevers → uitleg | Gereed en getest | er wordt geen vergunningsondersteuning of verzekeringsdekking beloofd; de vergunningslabels beschrijven wat de werkgever doet |
 
@@ -144,15 +144,13 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 
 ## Wat ik van je nodig heb
 
-Stand 30-09-2026. Vastgelegd: Tristan volgt op binnen 3 werkdagen, de taalstructuur is akkoord, en er is
-1 echte werkgever.
+Stand 30-09-2026. Vastgelegd: Tristan volgt op binnen 3 werkdagen, de taalstructuur is akkoord, de kennisbank
+is beoordeeld en gepubliceerd, en er is 1 echte werkgever.
 
-1. **Kennisbank:** lees de 7 artikelen op staging en geef per artikel akkoord of verbeterpunten. Daarna
-   komen ze onder jouw naam als redactie en beoordelaar uit concept.
-2. KvK-nummer, correspondentieadres en juridische naam (volgt).
-3. De vacatures van de eerste werkgever: titel, stad, taaleis, uren, loon en sluitingsdatum. Plaatsen kan
+1. KvK-nummer, correspondentieadres en juridische naam (volgt).
+2. De vacatures van de eerste werkgever: titel, stad, taaleis, uren, loon en sluitingsdatum. Plaatsen kan
    zodra productie live is.
-4. Je keuze uit de voorgestelde advertentiekanalen (voor de controle van advertentie en landingspagina).
+3. Je keuze uit de voorgestelde advertentiekanalen (voor de controle van advertentie en landingspagina).
 
 ## Latere uitbreidingen (niet nodig voor de eerste livegang)
 
