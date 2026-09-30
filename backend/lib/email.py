@@ -9,6 +9,16 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+# RFC 2606 / 6761 reserved names. Test accounts and applications use these, so a test
+# run can never email a real employer or candidate even with a live Resend key.
+_RESERVED_DOMAINS = {"example.com", "example.org", "example.net"}
+_RESERVED_SUFFIXES = (".example", ".test", ".invalid", ".localhost")
+
+
+def is_test_address(address: str) -> bool:
+    domain = address.rsplit("@", 1)[-1].strip().lower()
+    return domain in _RESERVED_DOMAINS or domain.endswith(_RESERVED_SUFFIXES)
+
 
 def app_url() -> str:
     return os.getenv("APP_URL", "http://localhost:5173").rstrip("/")
@@ -25,6 +35,9 @@ async def send_email(
 ) -> bool:
     api_key = os.getenv("RESEND_API_KEY", "").strip()
     sender = os.getenv("EMAIL_FROM", "DutchVacancy <noreply@dutchvacancy.nl>").strip()
+    if is_test_address(to):
+        logger.info("Email to reserved test address %s was not sent (%s).", to, subject)
+        return False
     if not api_key:
         logger.warning("RESEND_API_KEY is not configured. Email to %s was not sent.", to)
         return False

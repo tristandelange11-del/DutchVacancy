@@ -1,21 +1,24 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Bookmark,
   BookmarkCheck,
+  Briefcase,
   Building2,
   CalendarClock,
+  CalendarDays,
   CheckCircle2,
+  Clock,
   Euro,
+  FileText,
   Globe,
   MapPin,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
-import { euro } from "@/components/JobCard";
 import CvUploadField from "@/components/CvUploadField";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -27,13 +30,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { apiGet, apiPost, ApiError } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { useToggleSave } from "@/lib/hooks";
 import { useLang } from "@/lib/i18n";
+import { apiErrorText, formatDate, formatPay } from "@/lib/jobFormat";
 import { useSession } from "@/lib/session";
 import { jobPostingJsonLd, useSeo } from "@/lib/seo";
 import type { Application, JobDetail as JobDetailType } from "@/lib/types";
@@ -41,8 +44,9 @@ import { cn } from "@/lib/utils";
 
 export default function JobDetail() {
   const { jobId = "" } = useParams();
+  const navigate = useNavigate();
   const { user } = useSession();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const toggleSave = useToggleSave();
   const [open, setOpen] = useState(false);
   const [motivation, setMotivation] = useState("");
@@ -69,24 +73,31 @@ export default function JobDetail() {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
     onError: (err) => {
-      const detail = err instanceof ApiError ? (err.body as { detail?: string })?.detail : null;
-      toast.error(detail ?? t("detail.sendFailed"));
+      toast.error(apiErrorText(err, t, t("detail.sendFailed")));
     },
   });
 
   // Hooks run before the loading/error returns: on the first paint the fallback
   // copy applies, then the real vacancy title, summary and JobPosting JSON-LD.
+  // A closed vacancy is kept out of search and carries no JobPosting markup.
   const seoJob = data?.job;
+  const seoPay = seoJob ? formatPay(seoJob, t) : null;
   useSeo({
-    title: seoJob ? `${seoJob.title} at ${seoJob.company_name} — ${seoJob.city}` : "Student vacancy",
+    title: seoJob ? `${seoJob.title} — ${seoJob.company_name}, ${seoJob.city}` : t("detail.seoFallbackTitle"),
     description: seoJob
-      ? `${seoJob.title} at ${seoJob.company_name} in ${seoJob.city}. ${seoJob.hours_per_week} hours per week, € ${seoJob.hourly_min}–${seoJob.hourly_max} per hour. ${seoJob.description}`.slice(
-          0,
-          300,
-        )
-      : "English-speaking student vacancy in the Netherlands on DutchVacancy.",
+      ? [
+          `${seoJob.title} — ${seoJob.company_name}, ${seoJob.city}.`,
+          seoJob.hours_per_week != null ? `${seoJob.hours_per_week} ${t("detail.hoursWeek")}.` : "",
+          seoPay ? `${seoPay}.` : "",
+          seoJob.description,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .slice(0, 300)
+      : t("detail.seoFallbackDescription"),
     type: "article",
-    jsonLd: seoJob ? jobPostingJsonLd(seoJob) : null,
+    noindex: seoJob ? !seoJob.is_open : false,
+    jsonLd: seoJob && seoJob.is_open ? jobPostingJsonLd(seoJob, data?.company ?? null) : null,
   });
 
   if (isLoading) {
@@ -115,10 +126,13 @@ export default function JobDetail() {
 
   const { job, company } = data;
   const isStudent = user?.role === "student";
+  const pay = formatPay(job, t);
+  const closes = formatDate(job.closes_at, lang);
 
   function handleApplyClick() {
     if (!user) {
-      toast.error(t("detail.applyLogin"));
+      // Straight into sign-up with a way back here, instead of a toast with no next step.
+      navigate(`/register?next=${encodeURIComponent(`/jobs/${jobId}`)}`);
       return;
     }
     if (!isStudent) {
@@ -156,9 +170,21 @@ export default function JobDetail() {
                 {job.permit_support !== "none" && (
                   <Badge className="bg-[#F0FDF4] text-[#166534]">{t(`label.${job.permit_support}`)}</Badge>
                 )}
+                {job.schedule_tags.map((tag) => (
+                  <Badge key={tag} className="bg-white/10 text-white">{t(`label.schedule_${tag}`)}</Badge>
+                ))}
               </div>
             </div>
           </div>
+          {!job.is_open && (
+            <div className="mt-6 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm" role="status" data-testid="job-closed-banner">
+              <p className="font-semibold text-white">{t("detail.closedTitle")}</p>
+              <p className="mt-1 text-slate-300">
+                {closes ? `${t("detail.closedOn")} ${closes}. ` : ""}
+                {t("detail.closedBody")}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -219,28 +245,89 @@ export default function JobDetail() {
 
         <aside className="h-fit space-y-4 lg:sticky lg:top-24">
           <div className="rounded-2xl border border-border bg-card p-6">
-            <p className="flex items-center gap-2 font-heading text-2xl font-extrabold" data-testid="job-detail-rate">
-              <Euro className="h-5 w-5 text-primary" />
-              {euro(job.hourly_min)} – {euro(job.hourly_max)}
-            </p>
-            <p className="text-sm text-muted-foreground">{t("detail.gross")}</p>
-            <ul className="mt-5 space-y-3 text-sm">
-              <li className="flex items-center gap-2.5"><MapPin className="h-4 w-4 text-muted-foreground" /> {job.city}</li>
-              <li className="flex items-center gap-2.5"><CalendarClock className="h-4 w-4 text-muted-foreground" /> {job.hours_per_week} {t("detail.hoursWeek")}</li>
-              <li className="flex items-center gap-2.5">
-                <Users className="h-4 w-4 text-muted-foreground" /> {job.applicant_count}{" "}
-                {job.applicant_count === 1 ? t("detail.applicant") : t("detail.applicants")}
-              </li>
-            </ul>
+            {pay ? (
+              <>
+                <p className="flex items-center gap-2 font-heading text-2xl font-extrabold" data-testid="job-detail-rate">
+                  <Euro className="h-5 w-5 text-primary" />
+                  {pay}
+                </p>
+                <p className="text-sm text-muted-foreground">{t("detail.gross")}</p>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground" data-testid="job-detail-rate">{t("job.payNotStated")}</p>
+            )}
+            <dl className="mt-5 space-y-3 text-sm" data-testid="job-detail-facts">
+              <div className="flex items-start gap-2.5">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div><dt className="sr-only">{t("detail.location")}</dt><dd>{job.city} · {t(`label.${job.work_mode}`)}</dd></div>
+              </div>
+              {job.hours_per_week != null && (
+                <div className="flex items-start gap-2.5">
+                  <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div><dt className="sr-only">{t("detail.hours")}</dt><dd>{job.hours_per_week} {t("detail.hoursWeek")}</dd></div>
+                </div>
+              )}
+              {job.schedule && (
+                <div className="flex items-start gap-2.5">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div><dt className="text-xs text-muted-foreground">{t("detail.schedule")}</dt><dd>{job.schedule}</dd></div>
+                </div>
+              )}
+              {job.contract_type && (
+                <div className="flex items-start gap-2.5">
+                  <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div><dt className="text-xs text-muted-foreground">{t("detail.contract")}</dt><dd>{t(`label.contract_${job.contract_type}`)}</dd></div>
+                </div>
+              )}
+              {job.start_date && (
+                <div className="flex items-start gap-2.5">
+                  <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div><dt className="text-xs text-muted-foreground">{t("detail.start")}</dt><dd>{formatDate(job.start_date, lang)}</dd></div>
+                </div>
+              )}
+              <div className="flex items-start gap-2.5">
+                <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div>
+                  <dt className="text-xs text-muted-foreground">{t("detail.published")}</dt>
+                  <dd data-testid="job-detail-posted">{formatDate(job.created_at, lang)}</dd>
+                </div>
+              </div>
+              {closes && (
+                <div className="flex items-start gap-2.5">
+                  <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div>
+                    <dt className="text-xs text-muted-foreground">{job.is_open ? t("detail.closes") : t("detail.closedOn")}</dt>
+                    <dd data-testid="job-detail-closes">{closes}</dd>
+                  </div>
+                </div>
+              )}
+              {job.cv_required && (
+                <div className="flex items-start gap-2.5">
+                  <FileText className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <div><dt className="sr-only">{t("detail.cvLabel")}</dt><dd>{t("detail.cvRequired")}</dd></div>
+                </div>
+              )}
+              <div className="flex items-start gap-2.5">
+                <Users className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div>
+                  <dt className="sr-only">{t("detail.applicants")}</dt>
+                  <dd>{job.applicant_count} {job.applicant_count === 1 ? t("detail.applicant") : t("detail.applicants")}</dd>
+                </div>
+              </div>
+            </dl>
 
             {job.applied ? (
               <div className="mt-6 rounded-xl bg-green-50 px-4 py-3 text-center text-sm font-semibold text-green-700" data-testid="job-already-applied">
                 {t("detail.alreadyApplied")}
               </div>
-            ) : (
+            ) : job.is_open ? (
               <Button className="mt-6 w-full" size="lg" onClick={handleApplyClick} data-testid="job-apply-button">
                 {t("detail.applyNow")}
               </Button>
+            ) : (
+              <Link to="/jobs" className={cn(buttonVariants({ size: "lg" }), "mt-6 w-full")} data-testid="job-closed-browse">
+                {t("detail.closedBrowse")}
+              </Link>
             )}
 
             <Button
@@ -272,6 +359,20 @@ export default function JobDetail() {
         </aside>
       </div>
 
+      {job.is_open && !job.applied && <div className="h-20 lg:hidden" aria-hidden="true" />}
+      {job.is_open && !job.applied && (
+        // On phones the facts card with the apply button sits below the description;
+        // this keeps the next step in reach without scrolling.
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 p-3 backdrop-blur lg:hidden" data-testid="job-apply-bar">
+          <div className="mx-auto flex max-w-xl items-center gap-3">
+            <p className="min-w-0 flex-1 truncate text-sm font-semibold">{pay ?? job.title}</p>
+            <Button onClick={handleApplyClick} data-testid="job-apply-bar-button">
+              {t("detail.applyNow")}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent data-testid="apply-dialog">
           <DialogHeader>
@@ -293,7 +394,13 @@ export default function JobDetail() {
                 placeholder={t("detail.motivationPlaceholder")}
                 data-testid="apply-motivation-input"
                 className="mt-1.5"
+                aria-describedby="motivation-hint"
               />
+              <p id="motivation-hint" className="mt-1.5 text-xs text-muted-foreground" data-testid="apply-motivation-hint">
+                {motivation.trim().length < 10
+                  ? `${t("detail.motivationMin")} (${motivation.trim().length}/10)`
+                  : t("detail.motivationOk")}
+              </p>
             </div>
             <div>
               <Label>{t("detail.cvLabel")}</Label>
@@ -305,7 +412,9 @@ export default function JobDetail() {
                   onChange={setCv}
                 />
               </div>
-              <p className="mt-1.5 text-xs text-muted-foreground">{t("cv.applyHint")}</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {job.cv_required ? t("detail.cvRequiredHint") : t("cv.applyHint")}
+              </p>
             </div>
           </div>
           <DialogFooter>
@@ -314,7 +423,7 @@ export default function JobDetail() {
             </Button>
             <Button
               onClick={() => apply.mutate()}
-              disabled={motivation.trim().length < 10 || apply.isPending}
+              disabled={motivation.trim().length < 10 || (job.cv_required && !cv.url) || apply.isPending}
               data-testid="apply-submit-button"
             >
               {apply.isPending ? t("detail.sending") : t("detail.send")}

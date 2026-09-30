@@ -6,11 +6,13 @@ them, which is what Google actually fetches.
 """
 
 import os
+from datetime import datetime, timezone
 from xml.sax.saxutils import escape
 
 from fastapi import APIRouter, Request, Response
 
 from lib.db import db
+from lib.vacancies import open_query
 
 router = APIRouter(tags=["seo"])
 
@@ -65,8 +67,9 @@ async def robots_txt(request: Request) -> Response:
 @router.get("/seo/sitemap.xml", response_class=Response)
 async def sitemap_xml(request: Request) -> Response:
     root = base_url(request)
+    # Closed vacancies drop out of the sitemap the moment they close.
     jobs = (
-        await db.jobs.find({"published": True}, {"id": 1, "created_at": 1})
+        await db.jobs.find(open_query(datetime.now(timezone.utc)), {"id": 1, "created_at": 1})
         .sort("created_at", -1)
         .to_list(1000)
     )

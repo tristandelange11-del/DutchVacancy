@@ -2,12 +2,9 @@ import { Link } from "react-router-dom";
 import { Bookmark, BookmarkCheck, Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLang } from "@/lib/i18n";
+import { formatPay } from "@/lib/jobFormat";
 import { cn } from "@/lib/utils";
 import type { JobWithMeta } from "@/lib/types";
-
-export function euro(n: number) {
-  return `€ ${n.toFixed(2).replace(".", ",")}`;
-}
 
 export default function JobCard({
   job,
@@ -17,6 +14,7 @@ export default function JobCard({
   onToggleSave?: (job: JobWithMeta) => void;
 }) {
   const { t } = useLang();
+  const pay = formatPay(job, t);
 
   return (
     <article
@@ -66,10 +64,17 @@ export default function JobCard({
         <span className="inline-flex items-center gap-1.5" data-testid={`job-card-city-${job.id}`}>
           <MapPin className="h-3.5 w-3.5" /> {job.city}
         </span>
-        <span className="inline-flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5" /> {job.hours_per_week}
-          {t("job.perWeek")}
-        </span>
+        {job.hours_per_week != null && (
+          <span className="inline-flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" /> {job.hours_per_week}
+            {t("job.perWeek")}
+          </span>
+        )}
+        {!job.is_open && (
+          <Badge className="bg-slate-100 text-slate-600" data-testid={`job-card-closed-${job.id}`}>
+            {t("job.closed")}
+          </Badge>
+        )}
       </div>
 
       <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{job.description}</p>
@@ -89,8 +94,7 @@ export default function JobCard({
 
       <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
         <span className="font-heading text-sm font-bold" data-testid={`job-card-rate-${job.id}`}>
-          {euro(job.hourly_min)} – {euro(job.hourly_max)}
-          <span className="font-sans text-xs font-normal text-muted-foreground"> {t("job.perHour")}</span>
+          {pay ?? <span className="font-sans text-xs font-normal text-muted-foreground">{t("job.payNotStated")}</span>}
         </span>
         <Link
           to={`/jobs/${job.id}`}

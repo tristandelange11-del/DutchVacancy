@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import httpx
@@ -8,14 +8,17 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from lib.auth import current_employer
 from lib.db import db
+from lib.vacancies import MAX_LISTING_DAYS, closes_at, is_open
 from models.schemas import (
     Application,
     CheckoutResponse,
     Company,
     Job,
     JobCreate,
+    JobWithMeta,
     OkResponse,
     StatusUpdate,
+    as_utc,
 )
 
 router = APIRouter(prefix="/employer", tags=["employer"])
@@ -23,6 +26,28 @@ router = APIRouter(prefix="/employer", tags=["employer"])
 
 def clean(doc: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in doc.items() if k != "_id"}
+
+
+def _with_status(doc: dict[str, Any]) -> JobWithMeta:
+    now = datetime.now(timezone.utc)
+    return JobWithMeta(**clean(doc), is_open=is_open(doc, now), closes_at=closes_at(doc))
+
+
+def _check_closing_date(payload: JobCreate) -> None:
+    """A published vacancy needs a real closing date so it can never linger as an open job."""
+    if not payload.published:
+        return
+    now = datetime.now(timezone.utc)
+    if payload.valid_through is None:
+        raise HTTPException(status_code=422, detail={
+            "code": "closing_date_required", "message": "Set a closing date before publishing"})
+    if payload.valid_through <= now:
+        raise HTTPException(status_code=422, detail={
+            "code": "closing_date_past", "message": "The closing date must be in the future to publish"})
+    if payload.valid_through > now + timedelta(days=MAX_LISTING_DAYS):
+        raise HTTPException(status_code=422, detail={
+            "code": "closing_date_too_far",
+            "message": f"The closing date can be at most {MAX_LISTING_DAYS} days ahead"})
 
 
 @router.get("/company", response_model=Company)
@@ -44,20 +69,21 @@ async def update_company(payload: Company, user: dict[str, Any] = Depends(curren
     return Company(**data)
 
 
-@router.get("/jobs", response_model=list[Job])
+@router.get("/jobs", response_model=list[JobWithMeta])
 async def my_jobs(user: dict[str, Any] = Depends(current_employer)):
     docs = (
         await db.jobs.find({"company_id": user.get("company_id")})
         .sort("created_at", -1)
         .to_list(200)
     )
-    return [Job(**clean(d)) for d in docs]
+    return [_with_status(d) for d in docs]
 
 
 @router.post("/jobs", response_model=Job)
 async def create_job(payload: JobCreate, user: dict[str, Any] = Depends(current_employer)):
     if not user.get("email_verified", False):
         raise HTTPException(status_code=403, detail="Verify your email before publishing a vacancy")
+    _check_closing_date(payload)
     job = Job(
         **payload.model_dump(),
         company_id=user["company_id"],
@@ -75,7 +101,10 @@ async def fresh_checkout(job_id: str, user: dict[str, Any] = Depends(current_emp
     if not job:
         raise HTTPException(status_code=404, detail="Published vacancy not found")
     now = datetime.now(timezone.utc)
-    if job.get("fresh_until") and job["fresh_until"] > now:
+    if not is_open(job, now):
+        raise HTTPException(status_code=409, detail="This vacancy is closed; extend its closing date first")
+    # Mongo returns naive UTC datetimes; comparing one to an aware `now` raised TypeError.
+    if job.get("fresh_until") and as_utc(job["fresh_until"]) > now:
         raise HTTPException(status_code=409, detail="This vacancy already has an active Fresh placement")
     active = await db.jobs.count_documents({"published": True, "fresh_until": {"$gt": now}})
     if active >= 3:
@@ -122,6 +151,7 @@ async def update_job(
     doc = await db.jobs.find_one({"id": job_id, "company_id": user.get("company_id")})
     if not doc:
         raise HTTPException(status_code=404, detail="Job not found")
+    _check_closing_date(payload)
     await db.jobs.update_one({"id": job_id}, {"$set": payload.model_dump()})
     updated = await db.jobs.find_one({"id": job_id})
     assert updated is not None

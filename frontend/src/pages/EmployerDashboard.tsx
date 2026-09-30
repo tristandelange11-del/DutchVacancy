@@ -4,7 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { BriefcaseBusiness, Pencil, Plus, Sparkles, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
-import { euro } from "@/components/JobCard";
+import { apiErrorText, formatDate, formatPay } from "@/lib/jobFormat";
 import CvPreview from "@/components/CvPreview";
 import DeleteAccount from "@/components/DeleteAccount";
 import InterviewDialog from "@/components/InterviewDialog";
@@ -22,6 +22,7 @@ import {
   type Application,
   type CheckoutResponse,
   type Job,
+  type JobWithMeta,
   type PublicConfig,
 } from "@/lib/types";
 import { cn, formatDateTime } from "@/lib/utils";
@@ -38,7 +39,7 @@ export default function EmployerDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [interviewFor, setInterviewFor] = useState<Application | null>(null);
 
-  const jobs = useQuery({ queryKey: ["employer-jobs"], queryFn: () => apiGet<Job[]>("/employer/jobs") });
+  const jobs = useQuery({ queryKey: ["employer-jobs"], queryFn: () => apiGet<JobWithMeta[]>("/employer/jobs") });
   const applicants = useQuery({
     queryKey: ["employer-applications"],
     queryFn: () => apiGet<Application[]>("/employer/applications"),
@@ -53,7 +54,7 @@ export default function EmployerDashboard() {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
     },
-    onError: () => toast.error(t("ed.updateFailed")),
+    onError: (err) => toast.error(apiErrorText(err, t, t("ed.updateFailed"))),
   });
 
   const removeJob = useMutation({
@@ -151,16 +152,34 @@ export default function EmployerDashboard() {
                           {job.title}
                         </Link>
                         <Badge
-                          className={job.published ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-600"}
+                          className={
+                            job.is_open
+                              ? "bg-green-50 text-green-700"
+                              : job.published
+                                ? "bg-amber-50 text-amber-800"
+                                : "bg-slate-100 text-slate-600"
+                          }
                           data-testid={`employer-vacancy-state-${job.id}`}
                         >
-                          {job.published ? t("ed.statPublished") : t("ed.draft")}
+                          {job.is_open ? t("ed.statPublished") : job.published ? t("job.closed") : t("ed.draft")}
                         </Badge>
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {job.city} · {t(`label.${job.job_type}`)} · {t(`label.${job.english_level}`)} ·{" "}
-                        {euro(job.hourly_min)}–{euro(job.hourly_max)}
+                        {[
+                          job.city,
+                          t(`label.${job.job_type}`),
+                          t(`label.${job.english_level}`),
+                          formatPay(job, t),
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
                       </p>
+                      {job.closes_at && (
+                        <p className="mt-0.5 text-xs text-muted-foreground" data-testid={`employer-vacancy-closes-${job.id}`}>
+                          {job.is_open ? t("detail.closes") : t("detail.closedOn")} {formatDate(job.closes_at, lang)}
+                          {!job.is_open && job.published ? ` — ${t("ed.extendHint")}` : ""}
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       {config.data?.payments_enabled && job.published && !(job.fresh_until && new Date(job.fresh_until) > new Date()) && (

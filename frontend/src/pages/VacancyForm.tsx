@@ -11,44 +11,84 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { useLang } from "@/lib/i18n";
+import { apiErrorText } from "@/lib/jobFormat";
 import {
   CATEGORIES,
   CITIES,
+  CONTRACT_TYPES,
   ENGLISH_LEVELS,
   JOB_TYPES,
   PERMITS,
+  SCHEDULE_TAGS,
   WORK_MODES,
+  type ContractType,
   type EnglishLevel,
   type Job,
   type JobInput,
   type JobType,
   type PermitSupport,
+  type SalaryPeriod,
   type WorkMode,
 } from "@/lib/types";
 
-const EMPTY: JobInput = {
-  title: "",
-  city: "Amsterdam",
-  category: CATEGORIES[0],
-  job_type: "part_time",
-  english_level: "english_only",
-  permit_support: "twv_provided",
-  work_mode: "on_site",
-  hourly_min: 15,
-  hourly_max: 18,
-  hours_per_week: 16,
-  description: "",
-  requirements: [],
-  perks: [],
-  published: true,
-};
+const DEFAULT_LISTING_DAYS = 30;
+
+/** End of the given local day, as ISO — a vacancy closing "on" a date stays open that whole day. */
+function endOfDayIso(yyyyMmDd: string) {
+  return new Date(`${yyyyMmDd}T23:59:00`).toISOString();
+}
+
+function localDate(iso: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function defaultClosing() {
+  const d = new Date();
+  d.setDate(d.getDate() + DEFAULT_LISTING_DAYS);
+  return endOfDayIso(localDate(d.toISOString()));
+}
+
+// Pay, hours, contract, start and schedule start empty: only what the employer states
+// gets published. The closing date is prefilled but visible and editable.
+function emptyJob(): JobInput {
+  return {
+    title: "",
+    city: "Amsterdam",
+    category: CATEGORIES[0],
+    job_type: "part_time",
+    english_level: "english_only",
+    permit_support: "none",
+    work_mode: "on_site",
+    hourly_min: null,
+    hourly_max: null,
+    salary_period: "hour",
+    hours_per_week: null,
+    schedule: "",
+    schedule_tags: [],
+    contract_type: null,
+    start_date: null,
+    valid_through: defaultClosing(),
+    cv_required: false,
+    description: "",
+    requirements: [],
+    perks: [],
+    published: true,
+  };
+}
+
+function numberOrNull(v: string) {
+  return v.trim() === "" ? null : Number(v);
+}
 
 export default function VacancyForm() {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const { t } = useLang();
   const editing = Boolean(jobId);
-  const [form, setForm] = useState<JobInput>(EMPTY);
+  const [form, setForm] = useState<JobInput>(emptyJob);
   const [reqText, setReqText] = useState("");
   const [perkText, setPerkText] = useState("");
 
@@ -88,7 +128,7 @@ export default function VacancyForm() {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       navigate("/employer/dashboard");
     },
-    onError: () => toast.error(t("vf.failed")),
+    onError: (err) => toast.error(apiErrorText(err, t, t("vf.failed"))),
   });
 
   return (
@@ -150,16 +190,78 @@ export default function VacancyForm() {
               </select>
             </div>
             <div>
-              <Label htmlFor="hours">{t("vf.hours")}</Label>
-              <Input id="hours" type="number" min={1} max={40} value={form.hours_per_week} onChange={(e) => set("hours_per_week", Number(e.target.value))} data-testid="vacancy-hours-input" className="mt-1.5" />
+              <Label htmlFor="hours">{t("vf.hours")} <span className="font-normal text-muted-foreground">({t("vf.optional")})</span></Label>
+              <Input id="hours" type="number" min={1} max={40} value={form.hours_per_week ?? ""} onChange={(e) => set("hours_per_week", numberOrNull(e.target.value))} data-testid="vacancy-hours-input" className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="hmin">{t("vf.rateFrom")}</Label>
-              <Input id="hmin" type="number" step="0.5" min={1} value={form.hourly_min} onChange={(e) => set("hourly_min", Number(e.target.value))} data-testid="vacancy-hourlymin-input" className="mt-1.5" />
+              <Label htmlFor="contract">{t("vf.contract")} <span className="font-normal text-muted-foreground">({t("vf.optional")})</span></Label>
+              <select id="contract" value={form.contract_type ?? ""} onChange={(e) => set("contract_type", (e.target.value || null) as ContractType | null)} data-testid="vacancy-contract-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
+                <option value="">{t("vf.notStated")}</option>
+                {CONTRACT_TYPES.map((v) => <option key={v} value={v}>{t(`label.contract_${v}`)}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <fieldset className="rounded-xl border border-border p-4">
+            <legend className="px-1 text-sm font-medium">{t("vf.pay")} <span className="font-normal text-muted-foreground">({t("vf.optional")})</span></legend>
+            <p className="text-xs text-muted-foreground">{t("vf.payHint")}</p>
+            <div className="mt-3 grid gap-4 sm:grid-cols-3">
+              <div>
+                <Label htmlFor="hmin">{t("vf.rateFrom")}</Label>
+                <Input id="hmin" type="number" step="0.01" min={0.01} value={form.hourly_min ?? ""} onChange={(e) => set("hourly_min", numberOrNull(e.target.value))} data-testid="vacancy-hourlymin-input" className="mt-1.5" />
+              </div>
+              <div>
+                <Label htmlFor="hmax">{t("vf.rateTo")}</Label>
+                <Input id="hmax" type="number" step="0.01" min={0.01} value={form.hourly_max ?? ""} onChange={(e) => set("hourly_max", numberOrNull(e.target.value))} data-testid="vacancy-hourlymax-input" className="mt-1.5" />
+              </div>
+              <div>
+                <Label htmlFor="period">{t("vf.payPeriod")}</Label>
+                <select id="period" value={form.salary_period} onChange={(e) => set("salary_period", e.target.value as SalaryPeriod)} data-testid="vacancy-period-select" className="mt-1.5 h-9 w-full rounded-lg border border-input bg-background px-3 text-sm">
+                  <option value="hour">{t("vf.perHour")}</option>
+                  <option value="month">{t("vf.perMonth")}</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <div>
+            <Label htmlFor="schedule">{t("vf.schedule")} <span className="font-normal text-muted-foreground">({t("vf.optional")})</span></Label>
+            <Input id="schedule" value={form.schedule} maxLength={300} placeholder={t("vf.schedulePlaceholder")} onChange={(e) => set("schedule", e.target.value)} data-testid="vacancy-schedule-input" className="mt-1.5" />
+            <div className="mt-2 flex flex-wrap gap-4" role="group" aria-label={t("vf.scheduleTags")}>
+              {SCHEDULE_TAGS.map((tag) => (
+                <label key={tag} className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={form.schedule_tags.includes(tag)}
+                    onCheckedChange={(c) =>
+                      set("schedule_tags", c ? [...form.schedule_tags, tag] : form.schedule_tags.filter((x) => x !== tag))
+                    }
+                    data-testid={`vacancy-tag-${tag}`}
+                  />
+                  {t(`label.schedule_${tag}`)}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="start">{t("vf.start")} <span className="font-normal text-muted-foreground">({t("vf.optional")})</span></Label>
+              <Input id="start" type="date" value={form.start_date ?? ""} onChange={(e) => set("start_date", e.target.value || null)} data-testid="vacancy-start-input" className="mt-1.5" />
             </div>
             <div>
-              <Label htmlFor="hmax">{t("vf.rateTo")}</Label>
-              <Input id="hmax" type="number" step="0.5" min={1} value={form.hourly_max} onChange={(e) => set("hourly_max", Number(e.target.value))} data-testid="vacancy-hourlymax-input" className="mt-1.5" />
+              <Label htmlFor="closes">{t("vf.closes")}</Label>
+              <Input
+                id="closes"
+                type="date"
+                required={form.published}
+                min={localDate(new Date().toISOString())}
+                value={localDate(form.valid_through)}
+                onChange={(e) => set("valid_through", e.target.value ? endOfDayIso(e.target.value) : null)}
+                data-testid="vacancy-closes-input"
+                className="mt-1.5"
+                aria-describedby="closes-hint"
+              />
+              <p id="closes-hint" className="mt-1 text-xs text-muted-foreground">{t("vf.closesHint")}</p>
             </div>
           </div>
 
@@ -175,6 +277,15 @@ export default function VacancyForm() {
             <Label htmlFor="perks">{t("vf.perks")}</Label>
             <Textarea id="perks" rows={3} value={perkText} onChange={(e) => setPerkText(e.target.value)} data-testid="vacancy-perks-input" className="mt-1.5" />
           </div>
+
+          <label className="flex items-center gap-2.5 text-sm font-medium">
+            <Checkbox
+              checked={form.cv_required}
+              onCheckedChange={(c) => set("cv_required", Boolean(c))}
+              data-testid="vacancy-cv-required-checkbox"
+            />
+            {t("vf.cvRequired")}
+          </label>
 
           <label className="flex items-center gap-2.5 text-sm font-medium">
             <Checkbox

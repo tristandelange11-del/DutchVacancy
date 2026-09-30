@@ -4,10 +4,12 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from lib.applications import notify_application
 from lib.auth import current_student, optional_user
 from lib.db import db
 from lib.contact import notify_contact
 from lib.ratelimit import limiter
+from lib.vacancies import closes_at, is_open, open_query
 from models.schemas import (
     Application,
     ApplicationCreate,
@@ -25,6 +27,11 @@ from models.schemas import (
 router = APIRouter(tags=["jobs"])
 
 
+def _error(status: int, code: str, message: str) -> HTTPException:
+    """Errors the frontend translates by `code`; `message` is the English fallback."""
+    return HTTPException(status_code=status, detail={"code": code, "message": message})
+
+
 async def _decorate(
     jobs: list[dict[str, Any]], user: Optional[dict[str, Any]]
 ) -> list[JobWithMeta]:
@@ -35,6 +42,7 @@ async def _decorate(
         saved_ids = {s["job_id"] for s in saved}
         apps = await db.applications.find({"student_id": user["id"]}).to_list(500)
         applied_ids = {a["job_id"] for a in apps}
+    now = datetime.now(timezone.utc)
     out = []
     for doc in jobs:
         clean = {k: v for k, v in doc.items() if k != "_id"}
@@ -47,6 +55,8 @@ async def _decorate(
                 applied=clean["id"] in applied_ids,
                 homepage_feature=homepage_feature,
                 fresh_sponsored=fresh_sponsored,
+                is_open=is_open(doc, now),
+                closes_at=closes_at(doc),
             )
         )
     return out
@@ -64,40 +74,46 @@ async def list_jobs(
     limit: int = Query(default=60, le=200),
     user: Optional[dict[str, Any]] = Depends(optional_user),
 ):
-    query: dict[str, Any] = {"published": True}
+    conditions: list[dict[str, Any]] = [open_query(datetime.now(timezone.utc))]
     if q.strip():
-        query["$or"] = [
+        conditions.append({"$or": [
             {"title": {"$regex": q.strip(), "$options": "i"}},
             {"company_name": {"$regex": q.strip(), "$options": "i"}},
             {"description": {"$regex": q.strip(), "$options": "i"}},
-        ]
+        ]})
     if city:
-        query["city"] = city
+        conditions.append({"city": city})
     if job_type:
-        query["job_type"] = job_type
+        conditions.append({"job_type": job_type})
     if english_level:
-        query["english_level"] = english_level
+        conditions.append({"english_level": english_level})
     if permit_support:
-        query["permit_support"] = permit_support
+        conditions.append({"permit_support": permit_support})
     if work_mode:
-        query["work_mode"] = work_mode
+        conditions.append({"work_mode": work_mode})
     if min_rate:
-        query["hourly_max"] = {"$gte": min_rate}
+        # Only hourly wages are comparable to an hourly minimum; monthly pay and
+        # vacancies without stated pay are left out rather than guessed.
+        conditions.append({"hourly_max": {"$gte": min_rate}, "salary_period": {"$ne": "month"}})
 
-    docs = await db.jobs.find(query).sort("created_at", -1).to_list(limit)
+    docs = await db.jobs.find({"$and": conditions}).sort("created_at", -1).to_list(limit)
     items = await _decorate(docs, user)
     return JobList(items=items, total=len(items))
 
 
 @router.get("/stats", response_model=Stats)
 async def stats():
-    jobs = await db.jobs.count_documents({"published": True})
-    employers = await db.companies.count_documents({})
-    english_only = await db.jobs.count_documents({"published": True, "english_level": "english_only"})
-    docs = await db.jobs.find({"published": True}, {"hourly_min": 1, "hourly_max": 1}).to_list(500)
-    rates = [(d.get("hourly_min", 0) + d.get("hourly_max", 0)) / 2 for d in docs] or [0]
+    open_now = open_query(datetime.now(timezone.utc))
+    jobs = await db.jobs.count_documents(open_now)
+    employers = len(await db.jobs.distinct("company_id", open_now))
+    english_only = await db.jobs.count_documents({"$and": [open_now, {"english_level": "english_only"}]})
+    docs = await db.jobs.find(
+        {"$and": [open_now, {"salary_period": {"$ne": "month"}, "hourly_min": {"$ne": None}, "hourly_max": {"$ne": None}}]},
+        {"hourly_min": 1, "hourly_max": 1},
+    ).to_list(500)
+    rates = [(d["hourly_min"] + d["hourly_max"]) / 2 for d in docs if d.get("hourly_min") and d.get("hourly_max")]
     city_rows = await db.jobs.aggregate([
-        {"$match": {"published": True}},
+        {"$match": open_now},
         {"$group": {"_id": "$city", "count": {"$sum": 1}}},
     ]).to_list(500)
     city_counts = {
@@ -109,7 +125,7 @@ async def stats():
         jobs=jobs,
         employers=employers,
         english_only=english_only,
-        avg_hourly=round(sum(rates) / len(rates), 2),
+        avg_hourly=round(sum(rates) / len(rates), 2) if rates else None,
         city_counts=city_counts,
     )
 
@@ -118,15 +134,14 @@ async def stats():
 async def fresh_jobs(user: Optional[dict[str, Any]] = Depends(optional_user)):
     now = datetime.now(timezone.utc)
     paid = await db.jobs.find({
-        "published": True,
-        "fresh_until": {"$gt": now},
+        "$and": [open_query(now), {"fresh_until": {"$gt": now}}],
     }).sort("fresh_until", 1).to_list(3)
     paid_ids = [job["id"] for job in paid]
     remaining = 3 - len(paid)
     fillers: list[dict[str, Any]] = []
     if remaining:
         pipeline = [
-            {"$match": {"published": True, "id": {"$nin": paid_ids}}},
+            {"$match": {"$and": [open_query(now), {"id": {"$nin": paid_ids}}]}},
             {"$sample": {"size": remaining}},
         ]
         fillers = await db.jobs.aggregate(pipeline).to_list(remaining)
@@ -165,12 +180,17 @@ async def apply(
     job_id: str, payload: ApplicationCreate, user: dict[str, Any] = Depends(current_student)
 ):
     if not user.get("email_verified", False):
-        raise HTTPException(status_code=403, detail="Verify your email before applying")
+        raise _error(403, "email_not_verified", "Verify your email before applying")
     doc = await db.jobs.find_one({"id": job_id, "published": True})
     if not doc:
-        raise HTTPException(status_code=404, detail="Job not found")
+        raise _error(404, "job_not_found", "Job not found")
+    if not is_open(doc, datetime.now(timezone.utc)):
+        raise _error(409, "job_closed", "This vacancy is closed and no longer accepts applications")
     if await db.applications.find_one({"job_id": job_id, "student_id": user["id"]}):
-        raise HTTPException(status_code=409, detail="You already applied to this vacancy")
+        raise _error(409, "already_applied", "You already applied to this vacancy")
+    cv_url = payload.cv_url or (user.get("profile") or {}).get("cv_url", "")
+    if doc.get("cv_required") and not cv_url:
+        raise _error(422, "cv_required", "This employer asks for a CV with every application")
     job = Job(**{k: v for k, v in doc.items() if k != "_id"})
     app = Application(
         job_id=job.id,
@@ -182,10 +202,15 @@ async def apply(
         student_email=user["email"],
         student_university=(user.get("profile") or {}).get("university", ""),
         motivation=payload.motivation,
-        cv_url=payload.cv_url or (user.get("profile") or {}).get("cv_url", ""),
+        cv_url=cv_url,
         cv_filename=payload.cv_filename or (user.get("profile") or {}).get("cv_filename", ""),
     )
-    await db.applications.insert_one(app.model_dump())
+    doc_app = app.model_dump()
+    await db.applications.insert_one(doc_app)
+    # Stored first, notified second: a mail outage must never lose an application.
+    employers = await db.users.find({"company_id": job.company_id, "role": "employer"}).to_list(20)
+    delivery = await notify_application(doc_app, user.get("lang") or "en", employers)
+    await db.applications.update_one({"id": app.id}, {"$set": {"notification_status": delivery}})
     return app
 
 
