@@ -117,6 +117,31 @@ export const DICT: Record<string, Entry> = {
   "home.search": ["Search", "Zoeken"],
   "home.studentCta": ["Create a student account", "Maak een studentaccount"],
   "home.employerCta": ["I'm hiring students", "Ik zoek studenten"],
+  "home.searchWhat": ["What are you looking for?", "Wat zoek je?"],
+  "home.searchWhere": ["Where?", "Waar?"],
+  "home.englishOnly": ["Only vacancies where English is enough", "Alleen vacatures waarvoor Engels genoeg is"],
+  // Each line matches a field every published vacancy has (or states when missing).
+  "home.factsTitle": ["On every vacancy", "Dit staat bij elke vacature"],
+  "home.fact1": [
+    "The language requirement: English only, basic Dutch welcome, or Dutch required",
+    "De taaleis: alleen Engels, basis Nederlands welkom, of Nederlands vereist",
+  ],
+  "home.fact2": [
+    "The closing date, so you never apply to a closed vacancy",
+    "De sluitingsdatum, zodat je nooit op een gesloten vacature reageert",
+  ],
+  "home.fact3": [
+    "Hours, schedule and pay per hour or per month, when the employer states them",
+    "Uren, rooster en loon per uur of per maand, als de werkgever ze opgeeft",
+  ],
+  "home.fact4": [
+    "Whether the employer applies for a work permit (TWV)",
+    "Of de werkgever een werkvergunning (TWV) aanvraagt",
+  ],
+  "home.factsLink": [
+    "What are you allowed to do as an international student? Read the knowledge base",
+    "Wat mag je als internationale student? Lees de kennisbank",
+  ],
   "home.statJobs": ["Live student vacancies", "Actuele studentenvacatures"],
   "home.statEmployers": ["Employers with open vacancies", "Werkgevers met open vacatures"],
   "home.statEnglish": ["No Dutch required", "Geen Nederlands vereist"],
@@ -131,6 +156,10 @@ export const DICT: Record<string, Entry> = {
   "home.cardClear": ["Clear employment details", "Duidelijke arbeidsvoorwaarden"],
   "home.cardClearBody": ["Hours, pay and contract type when stated", "Uren, loon en contractvorm als ze zijn opgegeven"],
   "home.viewAll": ["View all jobs", "Alle vacatures bekijken"],
+  "home.featuredEmpty": [
+    "No vacancies online yet. New vacancies appear here as soon as employers publish them.",
+    "Nog geen vacatures online. Nieuwe vacatures verschijnen hier zodra werkgevers ze plaatsen.",
+  ],
   "home.featuredOffline": [
     "Vacancies load as soon as the job service is reachable. Meanwhile, browse the guide below.",
     "Vacatures worden geladen zodra de vacatureservice bereikbaar is. Bekijk intussen de gids hieronder.",

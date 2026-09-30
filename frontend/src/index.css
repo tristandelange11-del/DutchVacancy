@@ -41,6 +41,9 @@
     --color-foreground: var(--foreground);
     --color-background: var(--background);
     --color-navy: #0f172a;
+    /* Brand orange for the logo and decoration; buttons and links use the darker --primary. */
+    --color-brand: #ea580c;
+    --color-brand-soft: #fb923c;
     --color-navy-soft: #1e293b;
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
@@ -70,7 +73,8 @@
     --card-foreground: #0f172a;
     --popover: #ffffff;
     --popover-foreground: #0f172a;
-    --primary: #ea580c;
+    /* #c2410c keeps white button text at 5.2:1 (WCAG AA); #ea580c gave 3.6:1. */
+    --primary: #c2410c;
     --primary-foreground: #ffffff;
     --secondary: #f1f5f9;
     --secondary-foreground: #0f172a;
@@ -81,7 +85,7 @@
     --destructive: #dc2626;
     --border: #e2e8f0;
     --input: #e2e8f0;
-    --ring: #ea580c;
+    --ring: #c2410c;
     --chart-1: #ea580c;
     --chart-2: #0284c7;
     --chart-3: #16a34a;
@@ -90,12 +94,12 @@
     --radius: 0.75rem;
     --sidebar: #ffffff;
     --sidebar-foreground: #0f172a;
-    --sidebar-primary: #ea580c;
+    --sidebar-primary: #c2410c;
     --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: #fff7ed;
     --sidebar-accent-foreground: #9a3412;
     --sidebar-border: #e2e8f0;
-    --sidebar-ring: #ea580c;
+    --sidebar-ring: #c2410c;
 }
 
 .dark {

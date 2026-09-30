@@ -158,7 +158,7 @@ export default function JobDetail() {
     <Layout>
       <div className="bg-navy py-10 text-slate-100">
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-          <Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm text-slate-300 hover:text-primary" data-testid="job-detail-back">
+          <Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm text-slate-300 hover:text-brand-soft" data-testid="job-detail-back">
             <ArrowLeft className="h-4 w-4" /> {t("detail.back")}
           </Link>
           <div className="mt-5 flex flex-wrap items-start gap-5">

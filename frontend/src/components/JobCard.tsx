@@ -6,6 +6,15 @@ import { formatPay } from "@/lib/jobFormat";
 import { cn } from "@/lib/utils";
 import type { JobWithMeta } from "@/lib/types";
 
+/** Initials tiles cycle through three brand colours, stable per employer. */
+const TILE_COLORS = ["bg-navy", "bg-primary", "bg-[#1e40af]"];
+
+function tileColor(companyId: string) {
+  let sum = 0;
+  for (const ch of companyId) sum += ch.charCodeAt(0);
+  return TILE_COLORS[sum % TILE_COLORS.length];
+}
+
 export default function JobCard({
   job,
   onToggleSave,
@@ -29,7 +38,7 @@ export default function JobCard({
         </div>
       )}
       <div className="flex items-start gap-3">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-navy font-heading text-sm font-bold text-white">
+        <span className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-xl font-heading text-sm font-bold text-white", tileColor(job.company_id))}>
           {job.company_name.slice(0, 2).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
