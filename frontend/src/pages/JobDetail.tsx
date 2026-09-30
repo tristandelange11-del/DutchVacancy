@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import CvUploadField from "@/components/CvUploadField";
+import GuideLinks from "@/components/GuideLinks";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -349,13 +350,7 @@ export default function JobDetail() {
             </Button>
           </div>
 
-          <div className="rounded-2xl border border-border bg-accent p-5 text-accent-foreground">
-            <h3 className="font-heading text-sm font-bold">{t("detail.rightsTitle")}</h3>
-            <p className="mt-2 text-sm leading-relaxed">{t("detail.rightsBody")}</p>
-            <Link to="/guide" className="mt-3 inline-block text-sm font-semibold underline" data-testid="job-guide-link">
-              {t("detail.rightsLink")}
-            </Link>
-          </div>
+          <GuideLinks job={job} />
         </aside>
       </div>
 

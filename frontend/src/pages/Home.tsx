@@ -13,11 +13,13 @@ import {
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
+import { KbArticleCard, OfficialBodies } from "@/components/Kb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiGet } from "@/lib/api";
 import { useLang } from "@/lib/i18n";
+import { useKbArticles } from "@/lib/kb";
 import { CITIES, type JobList, type Stats } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
@@ -46,6 +48,7 @@ export default function Home() {
   const [city, setCity] = useState("");
 
   const stats = useQuery({ queryKey: ["stats"], queryFn: () => apiGet<Stats>("/stats") });
+  const guide = useKbArticles();
   const featured = useQuery({
     queryKey: ["jobs", "featured"],
     queryFn: () => apiGet<JobList>("/jobs/fresh"),
@@ -256,14 +259,17 @@ export default function Home() {
               {t("home.legalCta")}
             </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="rounded-2xl border border-border bg-background p-5">
-                <h3 className="font-heading text-base font-bold">{t(`home.legal${n}t`)}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t(`home.legal${n}b`)}</p>
-              </div>
-            ))}
-          </div>
+          {/* Rules are only stated in reviewed knowledge-base articles; until one is
+              live, point to the official bodies instead of paraphrasing them here. */}
+          {(guide.data ?? []).length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2" data-testid="home-kb-articles">
+              {(guide.data ?? []).slice(0, 4).map((article) => (
+                <KbArticleCard key={article.slug} article={article} />
+              ))}
+            </div>
+          ) : (
+            <OfficialBodies />
+          )}
         </div>
       </section>
 

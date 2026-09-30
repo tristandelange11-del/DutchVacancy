@@ -11,6 +11,7 @@ from xml.sax.saxutils import escape
 
 from fastapi import APIRouter, Request, Response
 
+from content.kb import ARTICLES, is_live
 from lib.db import db
 from lib.vacancies import open_query
 
@@ -79,6 +80,15 @@ async def sitemap_xml(request: Request) -> Response:
         urls.append(
             f"<url><loc>{escape(root + path)}</loc>"
             f"<changefreq>{freq}</changefreq><priority>{priority}</priority></url>"
+        )
+    # Only reviewed, live articles — never drafts, not even where drafts are shown.
+    for article in ARTICLES:
+        if not is_live(article):
+            continue
+        urls.append(
+            f"<url><loc>{escape(root + '/guide/' + article.slug)}</loc>"
+            f"<lastmod>{article.reviewed_on.isoformat()}</lastmod>"
+            "<changefreq>monthly</changefreq><priority>0.7</priority></url>"
         )
     for job in jobs:
         created = job.get("created_at")
