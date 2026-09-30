@@ -257,20 +257,29 @@ class Stats(BaseModel):
     city_counts: dict[str, int] = Field(default_factory=dict)
 
 
-class ContactMessage(BaseModel):
-    id: str = Field(default_factory=new_id)
-    name: str = Field(min_length=2)
-    email: EmailStr
-    subject: str = Field(min_length=2)
-    message: str = Field(min_length=10)
-    created_at: datetime = Field(default_factory=utcnow)
+ContactKind = Literal["general", "employer"]
 
 
 class ContactCreate(BaseModel):
-    name: str = Field(min_length=2)
+    # "employer" = a hiring request from the employer page; it carries the company
+    # so the follow-up owner can recognise it. Nothing else is asked for.
+    kind: ContactKind = "general"
+    name: str = Field(min_length=2, max_length=120)
     email: EmailStr
-    subject: str = Field(min_length=2)
-    message: str = Field(min_length=10)
+    company: str = Field(default="", max_length=120)
+    subject: str = Field(min_length=2, max_length=200)
+    message: str = Field(min_length=10, max_length=5000)
+
+    @model_validator(mode="after")
+    def _employer_needs_company(self):
+        if self.kind == "employer" and len(self.company.strip()) < 2:
+            raise ValueError("company is required for an employer request")
+        return self
+
+
+class ContactMessage(ContactCreate):
+    id: str = Field(default_factory=new_id)
+    created_at: datetime = Field(default_factory=utcnow)
 
 
 class OkResponse(BaseModel):

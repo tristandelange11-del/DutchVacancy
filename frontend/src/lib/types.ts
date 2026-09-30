@@ -269,3 +269,17 @@ export interface KbArticle extends KbArticleSummary {
   author: string | null;
   reviewer: string | null;
 }
+
+// ---------- contact (mirrors ContactCreate in backend/models/schemas.py) ----------
+
+export type ContactKind = "general" | "employer";
+
+export interface ContactCreate {
+  kind?: ContactKind;
+  name: string;
+  email: string;
+  /** Required when kind is "employer". */
+  company?: string;
+  subject: string;
+  message: string;
+}

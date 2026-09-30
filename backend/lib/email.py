@@ -7,6 +7,8 @@ from typing import Optional
 
 import httpx
 
+from lib.mail_text import text
+
 logger = logging.getLogger(__name__)
 
 # RFC 2606 / 6761 reserved names. Test accounts and applications use these, so a test
@@ -32,6 +34,7 @@ async def send_email(
     action: str,
     url: str,
     attachments: Optional[list[dict[str, str]]] = None,
+    lang: str = "en",
 ) -> bool:
     api_key = os.getenv("RESEND_API_KEY", "").strip()
     sender = os.getenv("EMAIL_FROM", "DutchVacancy <noreply@dutchvacancy.nl>").strip()
@@ -49,7 +52,7 @@ async def send_email(
       <p style="margin:28px 0">
         <a href="{escape(url, quote=True)}" style="background:#f97316;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:700">{escape(action)}</a>
       </p>
-      <p style="font-size:12px;color:#64748b">If you did not request this email, you can ignore it.</p>
+      <p style="font-size:12px;color:#64748b">{escape(text("ignore_footer", lang))}</p>
     </div>
     """
     payload = {"from": sender, "to": [to], "subject": subject, "html": html}

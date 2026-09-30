@@ -16,6 +16,7 @@ const NAV = [
   { key: "nav.jobs", to: "/jobs" },
   { key: "nav.how", to: "/how-it-works" },
   { key: "nav.guide", to: "/guide" },
+  { key: "nav.employers", to: "/employers" },
   { key: "nav.about", to: "/about" },
   { key: "nav.contact", to: "/contact" },
 ];
@@ -57,7 +58,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-lg">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:h-18 lg:gap-6">
           <Logo />
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-1 xl:flex">
             {NAV.map((item) => (
               <NavLink
                 key={item.to}
@@ -65,7 +66,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 data-testid={`nav-link-${item.to.replace("/", "")}`}
                 className={({ isActive }) =>
                   cn(
-                    "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground",
+                    "whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground",
                     isActive && "bg-accent text-accent-foreground",
                   )
                 }
@@ -75,7 +76,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className="ml-auto hidden items-center gap-2 lg:flex">
+          <div className="ml-auto hidden items-center gap-2 xl:flex">
             <LanguageSwitch />
             {user ? (
               <>
@@ -118,7 +119,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             )}
           </div>
 
-          <div className="ml-auto flex items-center gap-2 lg:hidden">
+          <div className="ml-auto flex items-center gap-2 xl:hidden">
             <LanguageSwitch scope="mobile" />
             <button
               type="button"
@@ -133,7 +134,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         {open && (
-          <div className="border-t border-border bg-background px-4 pb-4 lg:hidden" data-testid="mobile-menu">
+          <div className="border-t border-border bg-background px-4 pb-4 xl:hidden" data-testid="mobile-menu">
             <nav className="flex flex-col py-2">
               {NAV.map((item) => (
                 <Link
@@ -226,6 +227,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">{t("footer.company")}</h4>
             <ul className="mt-4 space-y-2 text-sm">
+              <li><Link to="/employers" className="hover:text-primary" data-testid="footer-employers-link">{t("footer.employers")}</Link></li>
               <li><Link to="/about" className="hover:text-primary" data-testid="footer-about-link">{t("footer.about")}</Link></li>
               <li><Link to="/contact" className="hover:text-primary" data-testid="footer-contact-link">{t("nav.contact")}</Link></li>
               <li><Link to="/privacy" className="hover:text-primary" data-testid="footer-privacy-link">{t("footer.privacy")}</Link></li>

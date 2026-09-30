@@ -3,8 +3,8 @@ import { apiGet } from "@/lib/api";
 import type { Lang } from "@/lib/lang-context";
 import type { JobWithMeta, KbArticle, KbArticleSummary, LocalizedText } from "@/lib/types";
 
-/** Where "information for employers" links point until a dedicated employer page exists. */
-export const EMPLOYER_INFO_PATH = "/how-it-works";
+/** Where "information for employers" links point. */
+export const EMPLOYER_INFO_PATH = "/employers";
 
 /** The official bodies' own sites — named on the hub when no article is live yet. */
 export const OFFICIAL_BODIES = [
