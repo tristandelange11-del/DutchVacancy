@@ -200,7 +200,7 @@ export default function Home() {
             {t("home.featuredEmpty")}
           </p>
         ) : (
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="featured-jobs-grid">
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="featured-jobs-grid">
             {items.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
