@@ -1,5 +1,6 @@
 from typing import Any, Optional
 import os
+import re
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -25,6 +26,17 @@ from models.schemas import (
 )
 
 router = APIRouter(tags=["jobs"])
+
+# A filter may name several values ("city=Groningen,Utrecht"); more than this are ignored.
+MAX_FILTER_VALUES = 20
+
+
+def _one_of(field: str, raw: str) -> Optional[dict[str, Any]]:
+    """`Groningen,Utrecht` matches either; one value matches exactly; blanks are skipped."""
+    values = [v.strip() for v in raw.split(",") if v.strip()][:MAX_FILTER_VALUES]
+    if not values:
+        return None
+    return {field: values[0]} if len(values) == 1 else {field: {"$in": values}}
 
 
 def _error(status: int, code: str, message: str) -> HTTPException:
@@ -76,21 +88,23 @@ async def list_jobs(
 ):
     conditions: list[dict[str, Any]] = [open_query(datetime.now(timezone.utc))]
     if q.strip():
+        # The search text is matched literally: "c++" is a word to find, not a pattern.
+        pattern = re.escape(q.strip())
         conditions.append({"$or": [
-            {"title": {"$regex": q.strip(), "$options": "i"}},
-            {"company_name": {"$regex": q.strip(), "$options": "i"}},
-            {"description": {"$regex": q.strip(), "$options": "i"}},
+            {"title": {"$regex": pattern, "$options": "i"}},
+            {"company_name": {"$regex": pattern, "$options": "i"}},
+            {"description": {"$regex": pattern, "$options": "i"}},
         ]})
-    if city:
-        conditions.append({"city": city})
-    if job_type:
-        conditions.append({"job_type": job_type})
-    if english_level:
-        conditions.append({"english_level": english_level})
-    if permit_support:
-        conditions.append({"permit_support": permit_support})
-    if work_mode:
-        conditions.append({"work_mode": work_mode})
+    for field, raw in (
+        ("city", city),
+        ("job_type", job_type),
+        ("english_level", english_level),
+        ("permit_support", permit_support),
+        ("work_mode", work_mode),
+    ):
+        condition = _one_of(field, raw)
+        if condition:
+            conditions.append(condition)
     if min_rate:
         # Only hourly wages are comparable to an hourly minimum; monthly pay and
         # vacancies without stated pay are left out rather than guessed.
