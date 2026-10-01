@@ -1,16 +1,18 @@
 # Status livegang en eerste campagne
 
-_Stand 29-09-2026. Er is niets gepubliceerd en er zijn geen campagnes gestart of uitgaven gedaan._
+_Stand 01-10-2026. Er is niets gepubliceerd en er zijn geen campagnes gestart of uitgaven gedaan._
 
 Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livegang**.
 "Getest" betekent dat de test echt is uitgevoerd. Wat niet getest is, staat er expliciet bij.
 
 ## Oordeel
 
-- **Livegang: nog niet.** Er zijn vier blokkades, allemaal informatie of handelingen van jou: bedrijfsgegevens
+- **Livegang: nog niet.** Er zijn drie blokkades, allemaal informatie of handelingen van jou: bedrijfsgegevens
   (KvK, adres), juridische controle van privacy en voorwaarden met
-  verwerkersovereenkomsten, het vervangen van de in de chat gedeelde sleutels, en de productieproxy + DNS
-  na jouw akkoord.
+  verwerkersovereenkomsten, en de productieproxy + DNS na jouw akkoord.
+  De in de chat gedeelde sleutels zijn vervangen (checklistpunt A5): een nieuwe Resend-sleutel op 30-09-2026,
+  de oude ingetrokken en een testbericht via het contactformulier ontvangen; de GitHub-token (nooit gebruikt)
+  verwijderd op 01-10-2026.
 - **Eerste campagne: niet klaar.** Naast de blokkades hierboven: er staan **nog geen echte vacatures**
   (1 werkgever gevonden), en de metingen draaien pas als de site live is en de Plausible-doelen bestaan.
   De kennisbank is beoordeeld en gepubliceerd (30-09-2026). Adverteren naar een site zonder vacatures kost geld zonder resultaat.
@@ -26,8 +28,13 @@ Statussen: **Gereed en getest** · **Wacht op informatie** · **Blokkeert livega
 | [#13](https://github.com/tristandelange11-del/DutchVacancy/pull/13) | Kennisbank met bronnen en publicatiepoort | groen |
 | [#14](https://github.com/tristandelange11-del/DutchVacancy/pull/14) | Werkgeverspagina en formulier, contact/over ons/privacy, metingen, SEO-correcties, tweetalige mails | groen |
 | [#15](https://github.com/tristandelange11-del/DutchVacancy/pull/15) | Taal in de URL: Nederlands op `/`, Engels op `/en/`, met hreflang en een tweetalige sitemap | loopt na openen |
+| [#16](https://github.com/tristandelange11-del/DutchVacancy/pull/16) | #13 t/m #15 samen naar main | groen |
+| [#17](https://github.com/tristandelange11-del/DutchVacancy/pull/17) | Kennisbank nagelezen, opvolging binnen 3 werkdagen, opvolgmailbox bevestigd | groen |
+| [#18](https://github.com/tristandelange11-del/DutchVacancy/pull/18) | Kennisbank gepubliceerd na jouw beoordeling | groen |
+| [#19](https://github.com/tristandelange11-del/DutchVacancy/pull/19) | Homepage in ontwerp A, toegankelijke knopkleur | groen |
+| [#20](https://github.com/tristandelange11-del/DutchVacancy/pull/20) | Nieuw logo (D en V in gesprek), favicon, app-icoon en deelplaatje | groen |
 
-De PR's bouwen op elkaar voort: merge ze op volgorde. **PR #7** (privacy/voorwaarden) is in #14 opgenomen en gecorrigeerd: Fresh Vacancy staat op de homepage en niet bovenaan de zoekresultaten, en de verwerkersovereenkomsten zijn niet als feit vermeld. #7 kan dus dicht zonder merge. Daarna zet Claude staging bij (de preview, achter
+Alle PR's hierboven zijn gemerged en staan op staging (main `e772951`, 30-09-2026). **PR #7** (privacy/voorwaarden) is in #14 opgenomen en gecorrigeerd: Fresh Vacancy staat op de homepage en niet bovenaan de zoekresultaten, en de verwerkersovereenkomsten zijn niet als feit vermeld. #7 kan dus dicht zonder merge. Daarna zet Claude staging bij (de preview, achter
 wachtwoord en niet vindbaar).
 
 **Nieuwe pagina's:** `/guide` (kennisbank "Werken als internationale student in Nederland", vervangt de oude
