@@ -86,7 +86,7 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 | Preview (staging) niet vindbaar | Gereed | wachtwoord plus `X-Robots-Tag: noindex` (Caddyfile) |
 | Indexing API | Wacht op informatie | onderzocht, advies in `livegang-checklist.md`: later inzetten |
 | Taal-URL's en hreflang | Gereed en getest (voorstel) | Nederlands op `/` en Engels op `/en/`: elke taal een eigen URL, canonical en `hreflang` (nl, en, x-default) en beide versies in de sitemap. Geen automatische doorverwijzing op taal: een Engelstalige bezoeker krijgt de Engelse versie aangeboden. Omdraaien kost één instelling (`frontend/src/lib/paths.ts` + `backend/lib/site.py`). Wacht op jouw akkoord bij het mergen |
-| Snelheid | Wacht op informatie | **niet gemeten.** De JavaScript-bundel is groot (build-waarschuwing > 500 kB). Meten met PageSpeed Insights op de productie-URL |
+| Snelheid | Deels verbeterd, productie nog niet gemeten | elke pagina behalve de homepage laadt nu pas als je hem opent (PR "Faster first load"). JavaScript voor de homepage 193 → 147 kB ingepakt; lokaal gemeten op een gesimuleerde telefoon met 4G (150 ms vertraging, 1,6 Mbit/s, 4× tragere processor) daalde de LCP van ±1,96 s naar ±1,83 s. Meten met PageSpeed Insights op de productie-URL na de livegang |
 | Toegankelijkheid | Wacht op informatie | **geen volledige audit.** Wel: taal van de pagina gezet, formulierlabels, koppenstructuur, geen horizontaal scrollen op 375 px, knoppen bereikbaar op mobiel |
 | Titels en voorbeelden bij delen op sociale media per vacature/artikel | Wacht op informatie | deeldiensten voeren geen JavaScript uit en tonen de standaardkaart. Staat bij de latere uitbreidingen |
 
