@@ -11,10 +11,10 @@ de livegang moet kloppen. "Wie" staat voor wie het doet: **jij** (Tristan), of *
 | A2 | `frontend/src/config/business.json`: juridische naam, correspondentieadres, KvK-nummer, contactadres | jij → Claude | `scripts/check-production-readiness.mjs` slaagt; de privacy- en voorwaardenpagina tonen geen conceptmelding meer |
 | A3 | Opvolgmailbox bestaat en wordt gelezen (**gedaan**: `info@dutchvacancy.nl`, getest 30-09-2026); GitHub-variabele `CONTACT_NOTIFICATION_EMAIL` expliciet gezet (aanrader) | jij | zie `opvolging.md` |
 | A4 | Haalbare reactietijd vastgelegd (of bewust geen) | jij → Claude | `config/operations.ts` |
-| A5 | Geheimen die in de chat stonden vervangen: Resend-sleutel en GitHub-token | jij | oude sleutel ingetrokken in Resend en GitHub; nieuwe sleutel in GitHub Secrets |
+| A5 | Geheimen die in de chat stonden vervangen: Resend-sleutel en GitHub-token (**gedaan**: nieuwe Resend-sleutel 30-09-2026, oude ingetrokken, testbericht ontvangen; GitHub-token verwijderd 01-10-2026, nooit gebruikt) | jij | oude sleutel ingetrokken in Resend en GitHub; nieuwe sleutel in GitHub Secrets |
 | A6 | Privacyverklaring en voorwaarden juridisch laten nakijken; verwerkersovereenkomsten met TransIP, Resend, Sentry, Plausible (en Stripe als je betalingen aanzet); nagaan waar elke dienst gegevens verwerkt, en buiten de EU zo nodig vermelden | jij (of een jurist) | schriftelijk akkoord |
 | A7 | Kennisbank beoordeeld (**gedaan** 30-09-2026 door Tristan de Lange; 7 artikelen gepubliceerd) | jij | `docs/launch/kennisbank-verificatie.md` → "Live op productie: ja" |
-| A8 | Echte vacatures geplaatst door echte werkgevers, elk met taaleis en sluitingsdatum | jij | homepage-teller "Actuele studentenvacatures" > 0 op productie |
+| A8 | Echte vacatures geplaatst door echte werkgevers, elk met taaleis en sluitingsdatum | jij | de homepage toont vacatures onder "Nieuwe Engelstalige vacatures" in plaats van "Nog geen vacatures online", en `/jobs` vindt ze op productie |
 | A9 | Taalstructuur akkoord: Nederlands op `/`, Engels op `/en/` (gebouwd in #15) | jij | de broncode van elke pagina bevat `hreflang`-links; de sitemap noemt beide versies |
 | A10 | Stripe alleen met live-sleutels ná verificatie. Tot die tijd blijft betalen uit (`/api/config` → `payments_enabled: false`) | jij | `/api/config` |
 | A11 | Back-ups: een externe kopie plus een proefterugzetting (de nachtelijke back-up staat nu alleen op de VPS) | jij + Claude | `verify-private-backup.yml` geslaagd |
