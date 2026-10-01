@@ -84,6 +84,7 @@ export const DICT: Record<string, Entry> = {
   "toast.saveFailed": ["Could not update saved jobs", "Kon opgeslagen vacatures niet bijwerken"],
   "common.cancel": ["Cancel", "Annuleren"],
   "common.saving": ["Saving…", "Opslaan…"],
+  "common.loading": ["Loading…", "Laden…"],
   "verify.banner": [
     "Verify your email before applying or publishing a vacancy.",
     "Bevestig je e-mailadres voordat je solliciteert of een vacature publiceert.",
