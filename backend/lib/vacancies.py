@@ -1,8 +1,9 @@
 """When a vacancy counts as open — one definition for listings, stats, sitemap and applying.
 
-A vacancy is open while it is published and its closing date (`valid_through`) lies in
-the future. Vacancies created before closing dates existed have none; they are treated
-as closing LEGACY_LISTING_DAYS after creation rather than staying open forever.
+A vacancy is open while it is published, not waiting for or refused in moderation
+(lib/moderation.py), and its closing date (`valid_through`) lies in the future.
+Vacancies created before closing dates existed have none; they are treated as closing
+LEGACY_LISTING_DAYS after creation rather than staying open forever.
 """
 
 from datetime import datetime, timedelta
@@ -21,15 +22,25 @@ def closes_at(doc: dict[str, Any]) -> Optional[datetime]:
     return as_utc(created) + timedelta(days=LEGACY_LISTING_DAYS) if created else None
 
 
+# Statuses that keep a published vacancy out of public view (missing = approved).
+HIDDEN_MODERATION = ("pending", "rejected")
+
+
+def is_public(doc: dict[str, Any]) -> bool:
+    """Published and let through moderation: what anyone but its employer may see."""
+    return bool(doc.get("published")) and doc.get("moderation_status") not in HIDDEN_MODERATION
+
+
 def is_open(doc: dict[str, Any], now: datetime) -> bool:
     end = closes_at(doc)
-    return bool(doc.get("published")) and end is not None and end > now
+    return is_public(doc) and end is not None and end > now
 
 
 def open_query(now: datetime) -> dict[str, Any]:
     """Mongo filter matching exactly the documents `is_open` accepts."""
     return {
         "published": True,
+        "moderation_status": {"$nin": list(HIDDEN_MODERATION)},
         "$or": [
             {"valid_through": {"$gt": now}},
             {"valid_through": None, "created_at": {"$gt": now - timedelta(days=LEGACY_LISTING_DAYS)}},

@@ -52,7 +52,8 @@ def client(monkeypatch):
     from server import app
     test_db = AsyncMongoMockClient(tz_aware=True)["test_" + uuid.uuid4().hex]
     for name in ("server", "lib.db", "lib.auth", "routers.auth", "routers.jobs",
-                 "routers.employer", "routers.uploads", "routers.seo", "routers.payments"):
+                 "routers.employer", "routers.uploads", "routers.seo", "routers.payments",
+                 "routers.moderation"):
         module = importlib.import_module(name)
         if hasattr(module, "db"):
             monkeypatch.setattr(module, "db", test_db)

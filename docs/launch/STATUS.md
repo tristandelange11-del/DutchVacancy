@@ -106,6 +106,7 @@ gids), `/guide/<artikel>` (7 artikelen), `/employers` (werkgevers).
 | Werkgeverspagina met werkend formulier | Gereed en getest | backend (opslag + mail met bedrijfsnaam) en e2e (alleen succes melden na bevestiging van de server) |
 | Privacy- en cookie-informatie die klopt met wat er echt draait | Gereed | cv-upload, werkgeversaanvragen, TransIP, Resend, Sentry, Plausible, Stripe |
 | Sentry stuurde formulierinhoud mee bij fouten | Gereed en getest | **gevonden en verholpen:** geen verzoekinhoud meer naar Sentry (test bewijst het) |
+| Moderatie op gelijke behandeling: hints in het formulier, eerste vacature en gemarkeerde teksten pas online na jouw goedkeuring, meldknop voor bezoekers | Gereed en getest | backend en e2e; nieuwe tekst in privacy en voorwaarden (05-10-2026) hoort bij de juridische controle hieronder |
 | **Juridische controle en verwerkersovereenkomsten** | Blokkeert livegang | door jou of een jurist |
 | Geen verzonnen reviews, logo's, partners of aantallen | Gereed | er staan er geen; de homepage toont sinds ontwerp A geen tellers meer |
 

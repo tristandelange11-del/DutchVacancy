@@ -17,6 +17,7 @@ const Register = lazy(() => import("@/pages/Register"));
 const StudentDashboard = lazy(() => import("@/pages/StudentDashboard"));
 const EmployerDashboard = lazy(() => import("@/pages/EmployerDashboard"));
 const InterviewPick = lazy(() => import("@/pages/InterviewPick"));
+const Review = lazy(() => import("@/pages/Review"));
 const VacancyForm = lazy(() => import("@/pages/VacancyForm"));
 const About = lazy(() => import("@/pages/About"));
 const Contact = lazy(() => import("@/pages/Contact"));
@@ -50,6 +51,8 @@ function AppRoutes() {
       <Route path="contact" element={<Contact />} />
       <Route path="privacy" element={<Privacy />} />
       <Route path="terms" element={<Terms />} />
+      {/* Moderation: the single-use link in a review mail is the permission (no account). */}
+      <Route path="review/:token" element={<Review />} />
       <Route
         path="student/dashboard"
         element={

@@ -28,6 +28,30 @@ import {
 import { cn, formatDateTime } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 
+type VacancyState = "draft" | "pending" | "rejected" | "open" | "closed";
+
+const STATE_CLASSES: Record<VacancyState, string> = {
+  draft: "bg-slate-100 text-slate-600",
+  pending: "bg-sky-50 text-sky-800",
+  rejected: "bg-red-50 text-red-700",
+  open: "bg-green-50 text-green-700",
+  closed: "bg-amber-50 text-amber-800",
+};
+
+const STATE_LABELS: Record<VacancyState, string> = {
+  draft: "ed.draft",
+  pending: "ed.pending",
+  rejected: "ed.rejected",
+  open: "ed.statPublished",
+  closed: "job.closed",
+};
+
+function vacancyState(job: JobWithMeta): VacancyState {
+  if (!job.published) return "draft";
+  if (job.moderation_status === "pending" || job.moderation_status === "rejected") return job.moderation_status;
+  return job.is_open ? "open" : "closed";
+}
+
 export default function EmployerDashboard() {
   const { user } = useSession();
   const { t, lang } = useLang();
@@ -105,7 +129,7 @@ export default function EmployerDashboard() {
           </div>
           <div className="mt-6 grid grid-cols-3 gap-3 sm:max-w-lg">
             {[
-              { label: t("ed.statPublished"), value: jobList.filter((j) => j.published).length, testid: "employer-stat-published" },
+              { label: t("ed.statPublished"), value: jobList.filter((j) => j.published && j.moderation_status === "approved").length, testid: "employer-stat-published" },
               { label: t("ed.statDrafts"), value: jobList.filter((j) => !j.published).length, testid: "employer-stat-drafts" },
               { label: t("ed.statApplicants"), value: (applicants.data ?? []).length, testid: "employer-stat-applicants" },
             ].map((s) => (
@@ -140,90 +164,96 @@ export default function EmployerDashboard() {
               </div>
             ) : (
               <div className="space-y-3" data-testid="employer-vacancies-list">
-                {jobList.map((job) => (
-                  <div
-                    key={job.id}
-                    data-testid={`employer-vacancy-${job.id}`}
-                    className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-5"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Link to={`/jobs/${job.id}`} className="font-heading text-base font-bold hover:text-primary" data-testid={`employer-vacancy-title-${job.id}`}>
-                          {job.title}
-                        </Link>
-                        <Badge
-                          className={
-                            job.is_open
-                              ? "bg-green-50 text-green-700"
-                              : job.published
-                                ? "bg-amber-50 text-amber-800"
-                                : "bg-slate-100 text-slate-600"
-                          }
-                          data-testid={`employer-vacancy-state-${job.id}`}
-                        >
-                          {job.is_open ? t("ed.statPublished") : job.published ? t("job.closed") : t("ed.draft")}
-                        </Badge>
-                      </div>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {[
-                          job.city,
-                          t(`label.${job.job_type}`),
-                          t(`label.${job.english_level}`),
-                          formatPay(job, t),
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </p>
-                      {job.closes_at && (
-                        <p className="mt-0.5 text-xs text-muted-foreground" data-testid={`employer-vacancy-closes-${job.id}`}>
-                          {job.is_open ? t("detail.closes") : t("detail.closedOn")} {formatDate(job.closes_at, lang)}
-                          {!job.is_open && job.published ? ` — ${t("ed.extendHint")}` : ""}
+                {jobList.map((job) => {
+                  const state = vacancyState(job);
+                  const pastClosing = job.closes_at ? new Date(job.closes_at) <= new Date() : false;
+                  return (
+                    <div
+                      key={job.id}
+                      data-testid={`employer-vacancy-${job.id}`}
+                      className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-5"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Link to={`/jobs/${job.id}`} className="font-heading text-base font-bold hover:text-primary" data-testid={`employer-vacancy-title-${job.id}`}>
+                            {job.title}
+                          </Link>
+                          <Badge className={STATE_CLASSES[state]} data-testid={`employer-vacancy-state-${job.id}`}>
+                            {t(STATE_LABELS[state])}
+                          </Badge>
+                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {[
+                            job.city,
+                            t(`label.${job.job_type}`),
+                            t(`label.${job.english_level}`),
+                            formatPay(job, t),
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      {config.data?.payments_enabled && job.published && !(job.fresh_until && new Date(job.fresh_until) > new Date()) && (
+                        {job.closes_at && (
+                          <p className="mt-0.5 text-xs text-muted-foreground" data-testid={`employer-vacancy-closes-${job.id}`}>
+                            {pastClosing ? t("detail.closedOn") : t("detail.closes")} {formatDate(job.closes_at, lang)}
+                            {pastClosing && job.published ? ` — ${t("ed.extendHint")}` : ""}
+                          </p>
+                        )}
+                        {state === "pending" && (
+                          <p className="mt-2 text-sm text-sky-800" data-testid={`employer-vacancy-moderation-${job.id}`}>
+                            {t("ed.pendingHint")}
+                          </p>
+                        )}
+                        {state === "rejected" && (
+                          <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" data-testid={`employer-vacancy-moderation-${job.id}`}>
+                            <span className="font-semibold">{t("ed.rejectedReason")}</span> {job.moderation_note}{" "}
+                            {t("ed.rejectedAction")}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        {config.data?.payments_enabled && job.is_open && !(job.fresh_until && new Date(job.fresh_until) > new Date()) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5 border-orange-200 text-orange-800 hover:bg-orange-50"
+                            onClick={() => startFresh.mutate(job.id)}
+                            disabled={startFresh.isPending}
+                          >
+                            <Sparkles className="h-3.5 w-3.5" /> {t("ed.fresh")}
+                          </Button>
+                        )}
+                        {job.fresh_until && new Date(job.fresh_until) > new Date() && (
+                          <Badge className="bg-orange-50 text-orange-800">{t("ed.freshActive")}</Badge>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-1.5 border-orange-200 text-orange-800 hover:bg-orange-50"
-                          onClick={() => startFresh.mutate(job.id)}
-                          disabled={startFresh.isPending}
+                          onClick={() => togglePublish.mutate(job)}
+                          data-testid={`employer-toggle-publish-${job.id}`}
                         >
-                          <Sparkles className="h-3.5 w-3.5" /> {t("ed.fresh")}
+                          {job.published ? t("ed.unpublish") : t("ed.publish")}
                         </Button>
-                      )}
-                      {job.fresh_until && new Date(job.fresh_until) > new Date() && (
-                        <Badge className="bg-orange-50 text-orange-800">{t("ed.freshActive")}</Badge>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => togglePublish.mutate(job)}
-                        data-testid={`employer-toggle-publish-${job.id}`}
-                      >
-                        {job.published ? t("ed.unpublish") : t("ed.publish")}
-                      </Button>
-                      <Link
-                        to={`/employer/vacancies/${job.id}/edit`}
-                        className={cn(buttonVariants({ variant: "outline", size: "icon-sm" }))}
-                        aria-label={t("ed.editAria")}
-                        data-testid={`employer-edit-${job.id}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        aria-label={t("ed.deleteAria")}
-                        onClick={() => removeJob.mutate(job.id)}
-                        data-testid={`employer-delete-${job.id}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                        <Link
+                          to={`/employer/vacancies/${job.id}/edit`}
+                          className={cn(buttonVariants({ variant: "outline", size: "icon-sm" }))}
+                          aria-label={t("ed.editAria")}
+                          data-testid={`employer-edit-${job.id}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          aria-label={t("ed.deleteAria")}
+                          onClick={() => removeJob.mutate(job.id)}
+                          data-testid={`employer-delete-${job.id}`}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </TabsContent>

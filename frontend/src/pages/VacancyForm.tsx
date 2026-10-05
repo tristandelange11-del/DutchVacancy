@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "@/lib/router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import FairnessHints from "@/components/FairnessHints";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RESPONSE_WORKING_DAYS } from "@/config/operations";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
 import { useLang } from "@/lib/i18n";
@@ -83,6 +85,10 @@ function numberOrNull(v: string) {
   return v.trim() === "" ? null : Number(v);
 }
 
+function lines(v: string) {
+  return v.split("\n").map((s) => s.trim()).filter(Boolean);
+}
+
 export default function VacancyForm() {
   const { jobId } = useParams();
   const navigate = useNavigate();
@@ -101,7 +107,10 @@ export default function VacancyForm() {
   useEffect(() => {
     const job = existing.data?.find((j) => j.id === jobId);
     if (!job) return;
-    const { id: _id, company_id: _c, company_name: _n, created_at: _d, ...rest } = job;
+    const {
+      id: _id, company_id: _c, company_name: _n, created_at: _d,
+      moderation_status: _m, moderation_note: _mn, ...rest
+    } = job;
     setForm(rest);
     setReqText(job.requirements.join("\n"));
     setPerkText(job.perks.join("\n"));
@@ -115,15 +124,21 @@ export default function VacancyForm() {
     mutationFn: () => {
       const payload: JobInput = {
         ...form,
-        requirements: reqText.split("\n").map((s) => s.trim()).filter(Boolean),
-        perks: perkText.split("\n").map((s) => s.trim()).filter(Boolean),
+        requirements: lines(reqText),
+        perks: lines(perkText),
       };
       return editing
         ? apiPut<Job>(`/employer/jobs/${jobId}`, payload)
         : apiPost<Job>("/employer/jobs", payload);
     },
-    onSuccess: () => {
-      toast.success(editing ? t("vf.updated") : t("vf.created"));
+    onSuccess: (job) => {
+      if (job.published && job.moderation_status === "pending") {
+        // Not online yet: say so, instead of a plain "created".
+        const days = RESPONSE_WORKING_DAYS;
+        toast.success(days ? t("vf.pendingDays").replace("{n}", String(days)) : t("vf.pending"), { duration: 8000 });
+      } else {
+        toast.success(editing ? t("vf.updated") : t("vf.created"));
+      }
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       navigate("/employer/dashboard");
@@ -267,7 +282,10 @@ export default function VacancyForm() {
 
           <div>
             <Label htmlFor="desc">{t("vf.description")}</Label>
-            <Textarea id="desc" rows={6} value={form.description} onChange={(e) => set("description", e.target.value)} data-testid="vacancy-description-input" className="mt-1.5" />
+            <p id="desc-fair" className="mt-1 text-xs leading-relaxed text-muted-foreground" data-testid="vacancy-fair-hint">
+              <span className="font-semibold text-foreground">{t("vf.fairTitle")}.</span> {t("vf.fairHint")}
+            </p>
+            <Textarea id="desc" rows={6} value={form.description} onChange={(e) => set("description", e.target.value)} data-testid="vacancy-description-input" className="mt-1.5" aria-describedby="desc-fair" />
           </div>
           <div>
             <Label htmlFor="reqs">{t("vf.requirements")}</Label>
@@ -277,6 +295,16 @@ export default function VacancyForm() {
             <Label htmlFor="perks">{t("vf.perks")}</Label>
             <Textarea id="perks" rows={3} value={perkText} onChange={(e) => setPerkText(e.target.value)} data-testid="vacancy-perks-input" className="mt-1.5" />
           </div>
+
+          <FairnessHints
+            text={{
+              title: form.title,
+              description: form.description,
+              schedule: form.schedule,
+              requirements: lines(reqText),
+              perks: lines(perkText),
+            }}
+          />
 
           <label className="flex items-center gap-2.5 text-sm font-medium">
             <Checkbox

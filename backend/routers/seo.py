@@ -57,7 +57,7 @@ async def robots_txt(request: Request) -> Response:
             *[
                 f"Disallow: {localized_path(p, lang)}"
                 for lang in SITE_LANGS
-                for p in ("/login", "/register", "/student/", "/employer/")
+                for p in ("/login", "/register", "/student/", "/employer/", "/review/")
             ],
             "Disallow: /api/",
             "",

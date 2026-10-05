@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { expireJobDirectly, verifyEmailDirectly } from "../fixtures/db";
+import { approveVacancyDirectly, expireJobDirectly, verifyEmailDirectly } from "../fixtures/db";
 import { dismissToasts } from "../fixtures/helpers";
 
 /**
@@ -43,7 +43,7 @@ test.describe.serial("application route", () => {
     await expect(page.getByTestId("vacancy-closes-input")).not.toHaveValue("");
 
     const [created] = await Promise.all([
-      page.waitForResponse((r) => r.url().includes("/api/employer/jobs") && r.request().method() === "POST"),
+      page.waitForResponse((r) => r.url().endsWith("/api/employer/jobs") && r.request().method() === "POST"),
       page.getByTestId("vacancy-submit-button").click(),
     ]);
     expect(created.ok()).toBeTruthy();
@@ -51,6 +51,9 @@ test.describe.serial("application route", () => {
     jobId = job.id;
     expect(job.hourly_min).toBeNull();
     expect(job.hours_per_week).toBeNull();
+    // A new employer's first vacancy waits for a person (moderation.spec.ts covers that).
+    expect(job.moderation_status).toBe("pending");
+    await approveVacancyDirectly(jobId);
   });
 
   test("logged-out visitor is taken through sign-up and back to the vacancy", async ({ page }) => {

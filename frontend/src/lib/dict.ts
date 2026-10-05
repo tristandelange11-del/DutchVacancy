@@ -863,33 +863,180 @@ export const DICT: Record<string, Entry> = {
     "We antwoorden in het Engels en Nederlands, binnen {n} werkdagen.",
   ],
 
+  // ---------- moderation (backend/lib/moderation.py) ----------
+  "vf.fairTitle": ["Equal treatment", "Gelijke behandeling"],
+  "vf.fairHint": [
+    "Describe what the work requires, not who the candidate is. Age, gender, origin or nationality, religion, appearance, health and family situation are not requirements. The English level and the work permit have their own fields above.",
+    "Beschrijf wat het werk vraagt, niet wie de kandidaat is. Leeftijd, geslacht, afkomst of nationaliteit, geloof, uiterlijk, gezondheid en gezinssituatie zijn geen eisen. Voor het Engelse niveau en de werkvergunning staan hierboven aparte velden.",
+  ],
+  "vf.reviewNote": [
+    "Before a vacancy goes online, we check it when it is an employer's first, or when it has phrases that may signal unequal treatment.",
+    "Voordat een vacature online komt, bekijken we hem als het de eerste van een werkgever is, of als er woorden in staan die op ongelijke behandeling kunnen wijzen.",
+  ],
+  "vf.checkTitle": ["Take another look at these phrases", "Kijk nog eens naar deze woorden"],
+  "vf.checkIntro": [
+    "They can exclude candidates for reasons the law does not allow. If you keep them, we check the vacancy before it goes online.",
+    "Ze kunnen kandidaten uitsluiten om redenen die de wet niet toestaat. Laat je ze staan, dan bekijken we de vacature voordat hij online komt.",
+  ],
+  "vf.pending": [
+    "Saved. We check this vacancy before it goes online and email you about it.",
+    "Opgeslagen. We bekijken deze vacature voordat hij online komt en mailen je erover.",
+  ],
+  // {n} = RESPONSE_WORKING_DAYS in config/operations.ts.
+  "vf.pendingDays": [
+    "Saved. We check this vacancy within {n} working days before it goes online, and email you about it.",
+    "Opgeslagen. We bekijken deze vacature binnen {n} werkdagen voordat hij online komt, en mailen je erover.",
+  ],
+  "mod.cat.age": ["Age", "Leeftijd"],
+  "mod.cat.gender": ["Gender", "Geslacht"],
+  "mod.cat.origin": ["Origin or nationality", "Afkomst of nationaliteit"],
+  "mod.cat.religion": ["Religion", "Geloof"],
+  "mod.cat.appearance": ["Appearance", "Uiterlijk"],
+  "mod.cat.health": ["Health", "Gezondheid"],
+  "mod.cat.personal": ["Family situation", "Gezinssituatie"],
+  "mod.hint.age": [
+    "Ask for what the work needs, such as availability or experience, not for an age. A legal minimum age (for example for serving alcohol) is fine: say why.",
+    "Vraag naar wat het werk nodig heeft, zoals beschikbaarheid of ervaring, niet naar een leeftijd. Een wettelijke minimumleeftijd (bijvoorbeeld voor het schenken van alcohol) mag: zeg dan waarom.",
+  ],
+  "mod.hint.gender": [
+    "Use a neutral job title and address everyone, for example 'sales assistant (m/f/x)'.",
+    "Gebruik een neutrale functietitel en spreek iedereen aan, bijvoorbeeld 'verkoopmedewerker (m/v/x)'.",
+  ],
+  "mod.hint.origin": [
+    "Ask for a language level (for example English C1) instead of a native speaker or a nationality. The right to work belongs in the work-permit field.",
+    "Vraag om een taalniveau (bijvoorbeeld Engels C1) in plaats van moedertaal of een nationaliteit. Het recht om te werken hoort bij het veld werkvergunning.",
+  ],
+  "mod.hint.religion": [
+    "Religion and religious clothing are not requirements. You can describe safety or hygiene rules that apply to everyone.",
+    "Geloof en religieuze kleding zijn geen eisen. Veiligheids- of hygiëneregels die voor iedereen gelden, mag je beschrijven.",
+  ],
+  "mod.hint.appearance": [
+    "Do not ask for a photo or a certain look. You can describe a dress code that applies to everyone.",
+    "Vraag niet om een foto of een bepaald uiterlijk. Een kledingvoorschrift dat voor iedereen geldt, mag je beschrijven.",
+  ],
+  "mod.hint.health": [
+    "Describe the physical tasks (for example lifting boxes of 15 kg) instead of asking for good health. Pregnancy is never a reason to exclude someone.",
+    "Beschrijf de lichamelijke taken (bijvoorbeeld dozen van 15 kg tillen) in plaats van een goede gezondheid te vragen. Zwangerschap is nooit een reden om iemand uit te sluiten.",
+  ],
+  "mod.hint.personal": [
+    "Marital status and children are not requirements. Describe the working hours instead.",
+    "Burgerlijke staat en kinderen zijn geen eisen. Beschrijf liever de werktijden.",
+  ],
+  "mod.field.title": ["title", "titel"],
+  "mod.field.description": ["description", "beschrijving"],
+  "mod.field.schedule": ["schedule", "rooster"],
+  "mod.field.requirements": ["requirements", "vereisten"],
+  "mod.field.perks": ["perks", "extra's"],
+  "ed.pending": ["In review", "In beoordeling"],
+  "ed.rejected": ["Not approved", "Niet goedgekeurd"],
+  "ed.pendingHint": [
+    "We check this vacancy before it goes online. You will get an email.",
+    "We bekijken deze vacature voordat hij online komt. Je krijgt een e-mail.",
+  ],
+  "ed.rejectedReason": ["Our reason:", "Onze reden:"],
+  "ed.rejectedAction": ["Edit the vacancy and we will check it again.", "Pas de vacature aan, dan bekijken we hem opnieuw."],
+  "detail.pendingTitle": ["Waiting for review", "Wacht op beoordeling"],
+  "detail.pendingBody": [
+    "Only you can see this vacancy. We check it before it goes online and email you about it.",
+    "Alleen jij ziet deze vacature. We bekijken hem voordat hij online komt en mailen je erover.",
+  ],
+  "detail.rejectedTitle": ["Not approved", "Niet goedgekeurd"],
+  "detail.rejectedBody": [
+    "Only you can see this vacancy. Edit it and we will check it again.",
+    "Alleen jij ziet deze vacature. Pas hem aan, dan bekijken we hem opnieuw.",
+  ],
+  "report.open": ["Report this vacancy", "Meld deze vacature"],
+  "report.intro": [
+    "Does this vacancy exclude people, look fake or break the rules? Tell us and a person will check it. We do not ask for your name and do not tell the employer who reported it.",
+    "Sluit deze vacature mensen uit, lijkt hij nep of houdt hij zich niet aan de regels? Laat het ons weten, dan bekijkt een mens hem. We vragen niet om je naam en vertellen de werkgever niet wie hem meldde.",
+  ],
+  "report.reason": ["What is wrong?", "Wat klopt er niet?"],
+  "report.reason.discrimination": [
+    "It excludes people, for example by age, gender or origin",
+    "Hij sluit mensen uit, bijvoorbeeld op leeftijd, geslacht of afkomst",
+  ],
+  "report.reason.scam": ["It looks fake or asks candidates for money", "Hij lijkt nep of vraagt kandidaten om geld"],
+  "report.reason.other": ["Something else", "Iets anders"],
+  "report.message": ["Explanation (optional)", "Toelichting (optioneel)"],
+  "report.messageHint": [
+    "Please leave out personal details, such as your name or phone number.",
+    "Laat persoonlijke gegevens weg, zoals je naam of telefoonnummer.",
+  ],
+  "report.send": ["Send report", "Melding versturen"],
+  "report.sending": ["Sending…", "Versturen…"],
+  "report.sent": ["Thanks. A person will look at this vacancy.", "Bedankt. Een mens gaat deze vacature bekijken."],
+  "report.failed": ["Could not send your report. Try again later.", "Kon je melding niet versturen. Probeer het later opnieuw."],
+  "rv.pageTitle": ["Review vacancy", "Vacature beoordelen"],
+  "rv.why": ["Why it needs a look", "Waarom bekijken"],
+  "rv.reason.first_vacancy": ["First vacancy of this employer", "Eerste vacature van deze werkgever"],
+  "rv.reason.flagged": ["Phrases that may signal unequal treatment", "Woorden die op ongelijke behandeling kunnen wijzen"],
+  "rv.reason.report": ["Reported by a visitor", "Gemeld door een bezoeker"],
+  "rv.reason.resubmitted": [
+    "Changed after it was waiting for review or refused",
+    "Aangepast nadat hij op beoordeling wachtte of was afgewezen",
+  ],
+  "rv.findings": ["Flagged phrases", "Gemarkeerde woorden"],
+  "rv.reports": ["Reports", "Meldingen"],
+  "rv.noMessage": ["No explanation given", "Geen toelichting"],
+  "rv.expires": ["This link works for one decision and expires on", "Deze link werkt voor één besluit en verloopt op"],
+  "rv.online": ["Online now", "Staat nu online"],
+  "rv.waiting": ["Not online yet", "Nog niet online"],
+  "rv.note": ["Reason for the employer", "Reden voor de werkgever"],
+  "rv.noteHint": [
+    "Required to refuse, at least 10 characters. It is emailed to the employer as you write it.",
+    "Verplicht bij afwijzen, minimaal 10 tekens. Dit wordt letterlijk naar de werkgever gemaild.",
+  ],
+  "rv.approve": ["Approve and publish", "Goedkeuren en publiceren"],
+  "rv.keep": ["Keep online", "Online laten"],
+  "rv.reject": ["Refuse", "Afwijzen"],
+  "rv.takeOffline": ["Take offline", "Offline halen"],
+  "rv.saving": ["Saving…", "Opslaan…"],
+  "rv.doneApproved": ["Done. The vacancy is online.", "Klaar. De vacature staat online."],
+  "rv.doneRejected": [
+    "Done. The vacancy is offline and the employer has your reason by email.",
+    "Klaar. De vacature staat offline en de werkgever heeft je reden per e-mail.",
+  ],
+  "rv.failed": ["Could not save your decision", "Kon je besluit niet opslaan"],
+  "rv.unavailable": ["This review link cannot be used", "Deze beoordelingslink werkt niet"],
+  "err.review_not_found": [
+    "This review link does not exist.",
+    "Deze beoordelingslink bestaat niet.",
+  ],
+  "err.review_used": [
+    "This review link was already used: the vacancy has a decision.",
+    "Deze beoordelingslink is al gebruikt: er is al een besluit over de vacature.",
+  ],
+  "err.review_expired": ["This review link has expired.", "Deze beoordelingslink is verlopen."],
+
   // ---------- privacy ----------
   "privacy.eyebrow": ["Privacy policy", "Privacybeleid"],
   "privacy.title": ["How DutchVacancy handles your data", "Hoe DutchVacancy met je gegevens omgaat"],
   "privacy.intro": [
-    "Last updated: 29 September 2026. We process personal data under the EU GDPR and Dutch implementation act (UAVG).",
-    "Laatst bijgewerkt: 29 september 2026. Wij verwerken persoonsgegevens volgens de AVG en de Nederlandse Uitvoeringswet (UAVG).",
+    "Last updated: 5 October 2026. We process personal data under the EU GDPR and Dutch implementation act (UAVG).",
+    "Laatst bijgewerkt: 5 oktober 2026. Wij verwerken persoonsgegevens volgens de AVG en de Nederlandse Uitvoeringswet (UAVG).",
   ],
   "privacy.s1t": ["What we collect", "Wat wij verzamelen"],
   "privacy.s1b": [
     [
       "Students: name, email address, password (hashed), university, study programme, city, English level, phone number, the CV file you upload, introduction text, saved jobs and applications.",
       "Employers: name, email address, password (hashed), company name, city, industry, website, the vacancies you publish and the interview times you propose.",
-      "Everyone: a session cookie that keeps you logged in, and any message or employer request you send through our forms (name, email address, company, message).",
+      "Everyone: a session cookie that keeps you logged in, and any message or employer request you send through our forms (name, email address, company, message). When you report a vacancy we store the reason and your optional explanation, without your name or account.",
     ],
     [
       "Studenten: naam, e-mailadres, wachtwoord (gehasht), universiteit, studie, stad, Engels niveau, telefoonnummer, het cv-bestand dat je uploadt, introductietekst, opgeslagen vacatures en sollicitaties.",
       "Werkgevers: naam, e-mailadres, wachtwoord (gehasht), bedrijfsnaam, plaats, branche, website, de vacatures die je plaatst en de gesprekstijden die je voorstelt.",
-      "Iedereen: een sessiecookie waarmee je ingelogd blijft, en elk bericht of elke werkgeversaanvraag die je via onze formulieren verstuurt (naam, e-mailadres, bedrijf, bericht).",
+      "Iedereen: een sessiecookie waarmee je ingelogd blijft, en elk bericht of elke werkgeversaanvraag die je via onze formulieren verstuurt (naam, e-mailadres, bedrijf, bericht). Als je een vacature meldt, bewaren wij de reden en je eventuele toelichting, zonder je naam of account.",
     ],
   ],
   "privacy.s2t": ["Why we process it", "Waarom wij dit verwerken"],
   "privacy.s2b": [
     [
       "To operate your account, show you relevant vacancies, deliver your applications to the employer you chose, and answer your support messages. When you apply to a vacancy, the employer receives your name, email, university, CV and motivation text — that is the purpose of applying.",
+      "To keep vacancies free of discrimination and fraud: we check vacancies before and after they go online, and a person reads every report. We keep a record of what we decided and why, so we can account for it.",
     ],
     [
       "Om je account te laten werken, relevante vacatures te tonen, je sollicitaties te bezorgen bij de werkgever die jij koos en je vragen te beantwoorden. Als je op een vacature solliciteert, ontvangt de werkgever je naam, e-mailadres, universiteit, cv en motivatie — dat is het doel van solliciteren.",
+      "Om vacatures vrij te houden van discriminatie en fraude: wij bekijken vacatures voordat en nadat ze online komen, en een mens leest elke melding. Wij leggen vast wat wij besloten en waarom, zodat wij daar verantwoording over kunnen afleggen.",
     ],
   ],
   "privacy.s3t": ["Cookies", "Cookies"],
@@ -904,10 +1051,10 @@ export const DICT: Record<string, Entry> = {
   "privacy.s4t": ["Retention", "Bewaartermijn"],
   "privacy.s4b": [
     [
-      "Account and application data is kept while your account exists. You can delete your account or request deletion at any time. Employers may need to retain limited records where Dutch law requires it.",
+      "Account and application data is kept while your account exists. You can delete your account or request deletion at any time. Employers may need to retain limited records where Dutch law requires it. Reports about a vacancy are deleted together with that vacancy.",
     ],
     [
-      "Account- en sollicitatiegegevens bewaren wij zolang je account bestaat. Je kunt je account verwijderen of altijd om verwijdering vragen. Werkgevers moeten mogelijk beperkte gegevens bewaren als de Nederlandse wet dat vereist.",
+      "Account- en sollicitatiegegevens bewaren wij zolang je account bestaat. Je kunt je account verwijderen of altijd om verwijdering vragen. Werkgevers moeten mogelijk beperkte gegevens bewaren als de Nederlandse wet dat vereist. Meldingen over een vacature verwijderen wij samen met die vacature.",
     ],
   ],
   "privacy.s5t": ["Your rights", "Jouw rechten"],
@@ -944,8 +1091,8 @@ export const DICT: Record<string, Entry> = {
   "terms.eyebrow": ["Terms of service", "Algemene voorwaarden"],
   "terms.title": ["The rules for using DutchVacancy", "De regels voor het gebruik van DutchVacancy"],
   "terms.intro": [
-    "Last updated: 1 January 2026. By creating an account you agree to these terms.",
-    "Laatst bijgewerkt: 1 januari 2026. Door een account aan te maken ga je akkoord met deze voorwaarden.",
+    "Last updated: 5 October 2026. By creating an account you agree to these terms.",
+    "Laatst bijgewerkt: 5 oktober 2026. Door een account aan te maken ga je akkoord met deze voorwaarden.",
   ],
   "terms.s1t": ["Using the platform", "Gebruik van het platform"],
   "terms.s1b": [
@@ -978,9 +1125,11 @@ export const DICT: Record<string, Entry> = {
   "terms.s4b": [
     [
       "We remove listings that are discriminatory, misleading, unpaid where pay is legally required, pyramid-style, or that require the candidate to pay for a permit, training or equipment.",
+      "Before a vacancy goes online, a person checks it when it is the employer's first vacancy or when its text contains phrases that may signal unequal treatment, such as an age limit or 'native speaker'. Anyone can report a vacancy that is online; a person then checks it. If we refuse or remove a vacancy, we email the employer our reason, and the employer can change the vacancy and submit it again.",
     ],
     [
       "Wij verwijderen vacatures die discriminerend of misleidend zijn, onbetaald terwijl loon wettelijk verplicht is, piramidespelen, of waarbij de kandidaat moet betalen voor een vergunning, training of materiaal.",
+      "Voordat een vacature online komt, bekijkt een mens hem als het de eerste vacature van de werkgever is of als de tekst woorden bevat die op ongelijke behandeling kunnen wijzen, zoals een leeftijdsgrens of 'moedertaal'. Iedereen kan een vacature die online staat melden; een mens bekijkt hem dan. Als wij een vacature afwijzen of verwijderen, mailen wij de werkgever onze reden, en kan de werkgever de vacature aanpassen en opnieuw indienen.",
     ],
   ],
   "terms.s5t": ["No employment guarantee", "Geen garantie op werk"],

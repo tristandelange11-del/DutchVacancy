@@ -13,6 +13,17 @@ type PlausibleFn = {
   init?: (opts?: unknown) => void;
 };
 
+/**
+ * Single-use links carry their secret in the URL: the review link in the path, the
+ * password-reset and email-verification links in `?token=`. Plausible never gets it.
+ */
+export function redactUrl(url: string): string {
+  const u = new URL(url);
+  u.pathname = u.pathname.replace(/\/review\/[^/]+/, "/review/_");
+  u.searchParams.delete("token");
+  return u.toString();
+}
+
 export function initAnalytics(): void {
   if (typeof window === "undefined" || !PRODUCTION_HOSTNAMES.has(window.location.hostname)) return;
   if (document.querySelector("script[data-plausible]")) return; // StrictMode double-invoke guard
@@ -31,7 +42,9 @@ export function initAnalytics(): void {
     });
   w.plausible = plausible;
   plausible.init = plausible.init || ((opts) => { plausible.o = opts || {}; });
-  plausible.init();
+  plausible.init({
+    transformRequest: (payload: { u?: string }) => (payload.u ? { ...payload, u: redactUrl(payload.u) } : payload),
+  });
 }
 
 /**

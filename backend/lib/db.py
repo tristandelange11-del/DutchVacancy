@@ -36,6 +36,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("english_level", ASCENDING)], name="english_level"),
         IndexModel([("job_type", ASCENDING)], name="job_type"),
         IndexModel([("work_mode", ASCENDING)], name="work_mode"),
+        IndexModel([("moderation_status", ASCENDING)], name="moderation_status"),
     ],
     "applications": [
         IndexModel([("id", ASCENDING)], name="id", unique=True),
@@ -51,6 +52,12 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("id", ASCENDING)], name="id", unique=True),
         IndexModel([("owner_id", ASCENDING), ("created_at", DESCENDING)], name="owner_created"),
     ],
+    "moderation_reviews": [
+        IndexModel([("token_hash", ASCENDING)], name="token_hash", unique=True),
+        IndexModel([("job_id", ASCENDING), ("used_at", ASCENDING)], name="job_open"),
+    ],
+    "moderation_log": [IndexModel([("job_id", ASCENDING), ("at", DESCENDING)], name="job_at")],
+    "job_reports": [IndexModel([("job_id", ASCENDING), ("created_at", DESCENDING)], name="job_created")],
     "auth_tokens": [
         IndexModel([("token_hash", ASCENDING)], name="token_hash", unique=True),
         IndexModel([("expires_at", ASCENDING)], name="expires_ttl", expireAfterSeconds=0),
