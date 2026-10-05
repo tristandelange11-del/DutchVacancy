@@ -57,6 +57,25 @@ TEXT: dict[str, dict[str, str]] = {
         "Zet het in je agenda met het bijgevoegde bestand.",
     },
     "dashboard_action": {"en": "Open dashboard", "nl": "Open dashboard"},
+    "moderation_approved_subject": {"en": "Your vacancy is online: {job}", "nl": "Je vacature staat online: {job}"},
+    "moderation_approved_title": {"en": "Your vacancy is online", "nl": "Je vacature staat online"},
+    "moderation_approved_body": {
+        "en": "We reviewed {job} and published it. Students can now find it and apply.",
+        "nl": "We hebben {job} bekeken en gepubliceerd. Studenten kunnen de vacature nu vinden en erop solliciteren.",
+    },
+    "moderation_approved_action": {"en": "Open dashboard", "nl": "Open dashboard"},
+    "moderation_rejected_subject": {
+        "en": "Your vacancy needs changes: {job}",
+        "nl": "Je vacature moet worden aangepast: {job}",
+    },
+    "moderation_rejected_title": {"en": "Your vacancy is not online", "nl": "Je vacature staat niet online"},
+    "moderation_rejected_body": {
+        "en": "We reviewed {job} and did not publish it. Our reason: {note} "
+        "Change the vacancy in your dashboard and we will review it again.",
+        "nl": "We hebben {job} bekeken en niet gepubliceerd. Onze reden: {note} "
+        "Pas de vacature aan in je dashboard, dan bekijken we hem opnieuw.",
+    },
+    "moderation_rejected_action": {"en": "Edit vacancy", "nl": "Vacature aanpassen"},
     "ignore_footer": {
         "en": "If you did not request this email, you can ignore it.",
         "nl": "Heb je deze e-mail niet verwacht? Dan kun je hem negeren.",

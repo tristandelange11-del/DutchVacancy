@@ -22,6 +22,7 @@ import Layout from "@/components/Layout";
 import LogoMark from "@/components/LogoMark";
 import CvUploadField from "@/components/CvUploadField";
 import GuideLinks from "@/components/GuideLinks";
+import ReportDialog from "@/components/ReportDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -137,6 +138,9 @@ export default function JobDetail() {
 
   const { job, company } = data;
   const isStudent = user?.role === "student";
+  const isOwner = user?.role === "employer" && user.company_id === job.company_id;
+  // Only its own employer is ever sent a vacancy that waits for or failed moderation.
+  const moderation = job.moderation_status === "approved" ? null : job.moderation_status;
   const pay = formatPay(job, t);
   const closes = formatDate(job.closes_at, lang);
 
@@ -188,7 +192,16 @@ export default function JobDetail() {
               </div>
             </div>
           </div>
-          {!job.is_open && (
+          {moderation && (
+            <div className="mt-6 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm" role="status" data-testid="job-moderation-banner">
+              <p className="font-semibold text-white">{t(`detail.${moderation}Title`)}</p>
+              <p className="mt-1 text-slate-300">
+                {moderation === "rejected" && job.moderation_note ? `${t("ed.rejectedReason")} ${job.moderation_note} ` : ""}
+                {t(`detail.${moderation}Body`)}
+              </p>
+            </div>
+          )}
+          {!job.is_open && !moderation && (
             <div className="mt-6 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm" role="status" data-testid="job-closed-banner">
               <p className="font-semibold text-white">{t("detail.closedTitle")}</p>
               <p className="mt-1 text-slate-300">
@@ -362,6 +375,7 @@ export default function JobDetail() {
           </div>
 
           <GuideLinks job={job} />
+          {job.published && !moderation && !isOwner && <ReportDialog jobId={job.id} />}
         </aside>
       </div>
 

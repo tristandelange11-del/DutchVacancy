@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from "node:crypto";
 import { MongoClient } from "mongodb";
 
 // Same database the CI-started backend points at (see .github/workflows/test.yml's
@@ -49,4 +50,53 @@ export async function verifyEmailDirectly(email: string): Promise<void> {
   } finally {
     await client.close();
   }
+}
+
+/**
+ * Lets a vacancy through moderation as if a person approved it. Specs about applying
+ * and interviews use this; the review page itself is covered by moderation.spec.ts.
+ */
+export async function approveVacancyDirectly(jobId: string): Promise<void> {
+  const { url, dbName } = target();
+  const client = new MongoClient(url);
+  try {
+    await client.connect();
+    const result = await client
+      .db(dbName)
+      .collection("jobs")
+      .updateOne({ id: jobId }, { $set: { moderation_status: "approved", moderation_note: "" } });
+    if (result.matchedCount === 0) throw new Error(`approveVacancyDirectly: no job ${jobId}`);
+  } finally {
+    await client.close();
+  }
+}
+
+/**
+ * A working review link for a vacancy, stored the way backend/lib/moderation.py stores
+ * it (sha256 of the token). The real link only goes to the moderation inbox by email.
+ */
+export async function reviewLinkDirectly(
+  jobId: string,
+  reason: "first_vacancy" | "flagged" | "report" | "resubmitted" = "first_vacancy",
+  findings: { category: string; phrase: string; field: string }[] = [],
+): Promise<string> {
+  const { url, dbName } = target();
+  const client = new MongoClient(url);
+  const token = randomBytes(32).toString("base64url");
+  const now = new Date();
+  try {
+    await client.connect();
+    await client.db(dbName).collection("moderation_reviews").insertOne({
+      token_hash: createHash("sha256").update(token).digest("hex"),
+      job_id: jobId,
+      reason,
+      findings,
+      created_at: now,
+      expires_at: new Date(now.getTime() + 30 * 86_400_000),
+      used_at: null,
+    });
+  } finally {
+    await client.close();
+  }
+  return `/en/review/${token}`;
 }

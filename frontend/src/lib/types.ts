@@ -9,6 +9,8 @@ export type AppStatus = "applied" | "under_review" | "interview" | "accepted" | 
 export type SalaryPeriod = "hour" | "month";
 export type ContractType = "employment" | "on_call" | "agency" | "internship" | "freelance";
 export type ScheduleTag = "evening" | "weekend" | "holiday";
+/** approved: visible once published. pending: waits for a person. rejected: refused, with a reason. */
+export type ModerationStatus = "approved" | "pending" | "rejected";
 
 export interface StudentProfile {
   university: string;
@@ -84,6 +86,9 @@ export interface Job extends JobInput {
   company_name: string;
   fresh_until: string | null;
   created_at: string;
+  moderation_status: ModerationStatus;
+  /** Why a person refused the vacancy; empty otherwise. Only its own employer sees it. */
+  moderation_note: string;
 }
 
 export interface JobWithMeta extends Job {
@@ -160,6 +165,58 @@ export interface CheckoutResponse {
 
 export interface PublicConfig {
   payments_enabled: boolean;
+}
+
+// ---------- moderation (mirrors the moderation models in backend/models/schemas.py) ----------
+
+export type ModerationCategory = "age" | "gender" | "origin" | "religion" | "appearance" | "health" | "personal";
+
+export interface ModerationFinding {
+  category: ModerationCategory;
+  phrase: string;
+  field: string;
+}
+
+export interface VacancyText {
+  title: string;
+  description: string;
+  schedule: string;
+  requirements: string[];
+  perks: string[];
+}
+
+export interface VacancyCheckResult {
+  findings: ModerationFinding[];
+}
+
+export type ReportReason = "discrimination" | "scam" | "other";
+export const REPORT_REASONS: ReportReason[] = ["discrimination", "scam", "other"];
+
+export interface JobReportCreate {
+  reason: ReportReason;
+  message: string;
+}
+
+export type ReviewReason = "first_vacancy" | "flagged" | "report" | "resubmitted";
+
+export interface ReviewReport {
+  reason: ReportReason;
+  message: string;
+  created_at: string;
+}
+
+export interface ReviewView {
+  reason: ReviewReason;
+  findings: ModerationFinding[];
+  reports: ReviewReport[];
+  expires_at: string;
+  job: Job;
+}
+
+export interface ReviewDecision {
+  decision: "approve" | "reject";
+  /** Required (at least 10 characters) to reject: it is mailed to the employer. */
+  note: string;
 }
 
 export const CITIES = [

@@ -9,6 +9,7 @@ site: de contactpagina en de bevestiging van het werkgeversformulier (`frontend/
 | Algemene contactberichten (`/contact`) | Tristan | `info@dutchvacancy.nl` | binnen 3 werkdagen | _nog aan te wijzen_ |
 | Sollicitaties waarvan de werkgeversmelding mislukte | Tristan | `info@dutchvacancy.nl` | binnen 3 werkdagen | _nog aan te wijzen_ |
 | Verzoeken over persoonsgegevens (AVG) | Tristan | `info@dutchvacancy.nl` | maximaal 1 maand (wettelijk) | _nog aan te wijzen_ |
+| Vacatures beoordelen (eerste vacature, gemarkeerde woorden, meldingen) | Tristan | `info@dutchvacancy.nl` | binnen 3 werkdagen (staat zo in het vacatureformulier) | _nog aan te wijzen_ |
 
 Tip: zet bij vakantie een automatisch antwoord in de mailbox, of wijs een vervanger aan. Anders is
 "binnen 3 werkdagen" een belofte die je niet kunt nakomen.
@@ -23,6 +24,12 @@ Tip: zet bij vakantie een automatisch antwoord in de mailbox, of wijs een vervan
   meldingen zijn verzonden. Er staan geen kandidaatgegevens, motivatie of cv in. Het adres is
   `APPLICATION_OPS_EMAIL`, of anders `CONTACT_NOTIFICATION_EMAIL`. Staat er in dat bericht
   "Employer notification: failed", neem dan zelf contact op met de werkgever.
+- **Vacaturebeoordelingen** komen binnen als "[Review] <vacature> (<bedrijf>)" op `CONTACT_NOTIFICATION_EMAIL`,
+  met de reden (eerste vacature, gemarkeerde woorden, melding van een bezoeker of aangepast na afwijzing).
+  De knop opent `/review/<code>`: daar zie je de vacature met de gemarkeerde woorden en de meldingen, en
+  kies je *Goedkeuren* of *Afwijzen* met een reden. Die reden gaat letterlijk naar de werkgever. De link werkt
+  één keer en verloopt na 30 dagen. Een werkgever die je één keer goedkeurt, plaatst daarna zonder wachten,
+  behalve als de tekst gemarkeerde woorden bevat. Alles wordt vastgelegd in `moderation_log`.
 - Mislukte contactmeldingen blijven bewaard met status `failed`. `backend/retry_contact_notifications.py`
   verstuurt ze opnieuw.
 - Testadressen (`example.com`, `*.test` enz.) krijgen nooit mail. Echte werkgevers en kandidaten ontvangen

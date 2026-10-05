@@ -19,7 +19,7 @@ os.environ.setdefault("DB_NAME", "dutchvacancy_test")
 
 MODULES = (
     "server", "lib.db", "lib.auth", "routers.auth", "routers.jobs", "routers.employer",
-    "routers.uploads", "routers.seo", "routers.payments", "routers.interviews",
+    "routers.uploads", "routers.seo", "routers.payments", "routers.interviews", "routers.moderation",
 )
 
 
@@ -105,6 +105,9 @@ def test_unpublished_draft_may_omit_the_closing_date(env):
 
 
 def test_pay_and_hours_are_never_invented(env):
+    # An employer a person already approved, so the vacancy goes online straight away.
+    asyncio.run(env["db"].companies.update_one(
+        {"id": env["employer_user"]["company_id"]}, {"$set": {"moderation_trusted": True}}))
     r = env["employer"].post("/employer/jobs", json=job_payload())
     assert r.status_code == 200, r.text
     job = r.json()

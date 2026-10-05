@@ -19,6 +19,10 @@ ContractType = Literal["employment", "on_call", "agency", "internship", "freelan
 ScheduleTag = Literal["evening", "weekend", "holiday"]
 AppStatus = Literal["applied", "under_review", "interview", "accepted", "rejected"]
 InterviewMode = Literal["online", "on_location"]
+# approved: visible once published. pending: waits for a person (first vacancy of an
+# employer, flagged text or a report). rejected: refused with a reason the employer sees.
+# Vacancies stored before moderation existed have no status and count as approved.
+ModerationStatus = Literal["approved", "pending", "rejected"]
 
 
 def new_id() -> str:
@@ -151,6 +155,9 @@ class Job(JobBase):
     company_name: str
     fresh_until: Optional[datetime] = None
     created_at: datetime = Field(default_factory=utcnow)
+    moderation_status: ModerationStatus = "approved"
+    # Shown to the employer when a person refused the vacancy; empty otherwise.
+    moderation_note: str = ""
 
 
 class JobWithMeta(Job):
@@ -288,6 +295,68 @@ class OkResponse(BaseModel):
 
 class CheckoutResponse(BaseModel):
     url: str
+
+
+# ---------- moderation (lib/moderation.py) ----------
+
+ModerationCategory = Literal["age", "gender", "origin", "religion", "appearance", "health", "personal"]
+
+
+class ModerationFinding(BaseModel):
+    category: ModerationCategory
+    phrase: str
+    field: str
+
+
+class VacancyText(BaseModel):
+    """The free text of a vacancy, checked while the employer types."""
+    title: str = Field(default="", max_length=300)
+    description: str = Field(default="", max_length=20000)
+    schedule: str = Field(default="", max_length=300)
+    requirements: list[str] = Field(default_factory=list, max_length=50)
+    perks: list[str] = Field(default_factory=list, max_length=50)
+
+
+class VacancyCheckResult(BaseModel):
+    findings: list[ModerationFinding]
+
+
+ReportReason = Literal["discrimination", "scam", "other"]
+
+
+class JobReportCreate(BaseModel):
+    reason: ReportReason
+    message: str = Field(default="", max_length=1000)
+
+
+ReviewReason = Literal["first_vacancy", "flagged", "report", "resubmitted"]
+
+
+class ReviewReport(BaseModel):
+    reason: ReportReason
+    message: str
+    created_at: datetime
+
+
+class ReviewView(BaseModel):
+    """What the moderator sees behind a review link."""
+    reason: ReviewReason
+    findings: list[ModerationFinding]
+    reports: list[ReviewReport]
+    expires_at: datetime
+    job: Job
+
+
+class ReviewDecision(BaseModel):
+    decision: Literal["approve", "reject"]
+    # Sent to the employer, so a refusal always says why.
+    note: str = Field(default="", max_length=1000)
+
+    @model_validator(mode="after")
+    def _reject_needs_reason(self):
+        if self.decision == "reject" and len(self.note.strip()) < 10:
+            raise ValueError("a rejection needs a reason of at least 10 characters")
+        return self
 
 
 # ---------- knowledge base (content lives in content/kb, not in MongoDB) ----------

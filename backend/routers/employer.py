@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -8,7 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from lib.auth import current_employer
 from lib.db import db
-from lib.vacancies import MAX_LISTING_DAYS, closes_at, is_open
+from lib.moderation import check_vacancy, close_reviews, forget_vacancies, has_public_vacancy, open_review
+from lib.vacancies import MAX_LISTING_DAYS, closes_at, is_open, is_public
 from models.schemas import (
     Application,
     CheckoutResponse,
@@ -18,6 +19,8 @@ from models.schemas import (
     JobWithMeta,
     OkResponse,
     StatusUpdate,
+    VacancyCheckResult,
+    VacancyText,
     as_utc,
 )
 
@@ -48,6 +51,49 @@ def _check_closing_date(payload: JobCreate) -> None:
         raise HTTPException(status_code=422, detail={
             "code": "closing_date_too_far",
             "message": f"The closing date can be at most {MAX_LISTING_DAYS} days ahead"})
+
+
+async def _trusted(company_id: str, except_id: str) -> bool:
+    """A person has let this company's vacancies through before."""
+    company = await db.companies.find_one({"id": company_id}, {"moderation_trusted": 1})
+    if company and company.get("moderation_trusted"):
+        return True
+    # Companies with public vacancies from before moderation existed count as trusted.
+    return await has_public_vacancy(db, company_id, except_id)
+
+
+async def _moderate(job: dict[str, Any], previous: Optional[str], was_public: bool) -> tuple[str, str, list]:
+    """(status, review reason, findings) for a vacancy that is being saved.
+
+    A published vacancy waits for a person when its text has a flagged phrase, when it
+    was waiting or refused before, or when it is the first of a company no person has
+    approved yet. Anything else is approved, and a vacancy that was already online stays
+    online when it is edited without flagged phrases.
+    """
+    if not job.get("published"):
+        return previous or "approved", "", []
+    findings = check_vacancy(job)
+    if findings:
+        return "pending", "flagged", findings
+    if previous in ("pending", "rejected"):
+        return "pending", "resubmitted", []
+    if was_public or await _trusted(job["company_id"], job["id"]):
+        return "approved", "", []
+    return "pending", "first_vacancy", []
+
+
+async def _after_save(job: dict[str, Any], status: str, reason: str, findings: list) -> None:
+    # Only a newly published or changed vacancy asks for a person; unpublishing one that
+    # waits keeps its review link as it is.
+    if reason:
+        await close_reviews(db, job["id"], "superseded")
+        await open_review(db, job, reason, findings)
+
+
+@router.post("/jobs/check", response_model=VacancyCheckResult)
+async def check_text(payload: VacancyText, user: dict[str, Any] = Depends(current_employer)):
+    """Hints while typing: phrases a person would look at twice. Nothing is stored."""
+    return VacancyCheckResult(findings=check_vacancy(payload.model_dump()))
 
 
 @router.get("/company", response_model=Company)
@@ -89,7 +135,11 @@ async def create_job(payload: JobCreate, user: dict[str, Any] = Depends(current_
         company_id=user["company_id"],
         company_name=user.get("company_name") or "",
     )
-    await db.jobs.insert_one(job.model_dump())
+    status, reason, findings = await _moderate(job.model_dump(), None, was_public=False)
+    job.moderation_status = status
+    doc = job.model_dump()
+    await db.jobs.insert_one(dict(doc))
+    await _after_save(doc, status, reason, findings)
     return job
 
 
@@ -101,6 +151,8 @@ async def fresh_checkout(job_id: str, user: dict[str, Any] = Depends(current_emp
     if not job:
         raise HTTPException(status_code=404, detail="Published vacancy not found")
     now = datetime.now(timezone.utc)
+    if not is_public(job):
+        raise HTTPException(status_code=409, detail="This vacancy is not online yet; it is waiting for review")
     if not is_open(job, now):
         raise HTTPException(status_code=409, detail="This vacancy is closed; extend its closing date first")
     # Mongo returns naive UTC datetimes; comparing one to an aware `now` raised TypeError.
@@ -152,9 +204,15 @@ async def update_job(
     if not doc:
         raise HTTPException(status_code=404, detail="Job not found")
     _check_closing_date(payload)
-    await db.jobs.update_one({"id": job_id}, {"$set": payload.model_dump()})
+    merged = {**clean(doc), **payload.model_dump()}
+    status, reason, findings = await _moderate(
+        merged, doc.get("moderation_status") or "approved", was_public=is_public(doc))
+    note = doc.get("moderation_note", "") if status == "rejected" else ""
+    await db.jobs.update_one({"id": job_id}, {"$set": {
+        **payload.model_dump(), "moderation_status": status, "moderation_note": note}})
     updated = await db.jobs.find_one({"id": job_id})
     assert updated is not None
+    await _after_save(clean(updated), status, reason, findings)
     return Job(**clean(updated))
 
 
@@ -164,6 +222,7 @@ async def delete_job(job_id: str, user: dict[str, Any] = Depends(current_employe
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Job not found")
     await db.applications.delete_many({"job_id": job_id})
+    await forget_vacancies(db, [job_id])
     return OkResponse()
 
 

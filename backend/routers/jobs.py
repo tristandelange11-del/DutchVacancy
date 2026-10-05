@@ -10,7 +10,8 @@ from lib.auth import current_student, optional_user
 from lib.db import db
 from lib.contact import notify_contact
 from lib.ratelimit import limiter
-from lib.vacancies import closes_at, is_open, open_query
+from lib.moderation import log, open_review
+from lib.vacancies import closes_at, is_open, is_public, open_query
 from models.schemas import (
     Application,
     ApplicationCreate,
@@ -20,6 +21,7 @@ from models.schemas import (
     Job,
     JobDetail,
     JobList,
+    JobReportCreate,
     JobWithMeta,
     OkResponse,
     Stats,
@@ -177,7 +179,8 @@ async def get_job(job_id: str, user: Optional[dict[str, Any]] = Depends(optional
         and user.get("role") == "employer"
         and user.get("company_id") == (doc or {}).get("company_id")
     )
-    if not doc or (not doc.get("published", False) and not is_owner):
+    # Waiting for or refused in moderation: only its own employer may look at it.
+    if not doc or (not is_public(doc) and not is_owner):
         raise HTTPException(status_code=404, detail="Job not found")
     items = await _decorate([doc], user)
     job = items[0]
@@ -196,7 +199,7 @@ async def apply(
     if not user.get("email_verified", False):
         raise _error(403, "email_not_verified", "Verify your email before applying")
     doc = await db.jobs.find_one({"id": job_id, "published": True})
-    if not doc:
+    if not doc or not is_public(doc):
         raise _error(404, "job_not_found", "Job not found")
     if not is_open(doc, datetime.now(timezone.utc)):
         raise _error(409, "job_closed", "This vacancy is closed and no longer accepts applications")
@@ -228,6 +231,29 @@ async def apply(
     return app
 
 
+@router.post("/jobs/{job_id}/report", response_model=OkResponse)
+@limiter.limit("5/hour")
+async def report_job(request: Request, job_id: str, payload: JobReportCreate):
+    """Anyone may report a public vacancy; a person reviews it. No name or account is asked."""
+    doc = await db.jobs.find_one({"id": job_id})
+    if not doc or not is_public(doc):
+        raise _error(404, "job_not_found", "Job not found")
+    report = {
+        "job_id": job_id,
+        "reason": payload.reason,
+        "message": payload.message.strip(),
+        "created_at": datetime.now(timezone.utc),
+    }
+    await db.job_reports.insert_one(dict(report))
+    await log(db, job_id, "reported", "visitor", reason=payload.reason)
+    # Further reports join the review link that is already waiting; the page lists them all.
+    waiting = await db.moderation_reviews.find_one(
+        {"job_id": job_id, "used_at": None, "expires_at": {"$gt": report["created_at"]}})
+    if not waiting:
+        await open_review(db, {k: v for k, v in doc.items() if k != "_id"}, "report", [], report=report)
+    return OkResponse()
+
+
 @router.get("/student/applications", response_model=list[Application])
 async def my_applications(user: dict[str, Any] = Depends(current_student)):
     docs = await db.applications.find({"student_id": user["id"]}).sort("created_at", -1).to_list(200)
@@ -238,7 +264,8 @@ async def my_applications(user: dict[str, Any] = Depends(current_student)):
 async def my_saved_jobs(user: dict[str, Any] = Depends(current_student)):
     saved = await db.saved_jobs.find({"student_id": user["id"]}).sort("created_at", -1).to_list(200)
     ids = [s["job_id"] for s in saved]
-    docs = await db.jobs.find({"id": {"$in": ids}}).to_list(200)
+    # A vacancy taken offline in moderation leaves the list; closed ones stay, marked closed.
+    docs = [d for d in await db.jobs.find({"id": {"$in": ids}}).to_list(200) if is_public(d)]
     order = {jid: i for i, jid in enumerate(ids)}
     docs.sort(key=lambda d: order.get(d["id"], 999))
     return await _decorate(docs, user)
@@ -246,7 +273,8 @@ async def my_saved_jobs(user: dict[str, Any] = Depends(current_student)):
 
 @router.post("/student/saved-jobs/{job_id}", response_model=OkResponse)
 async def save_job(job_id: str, user: dict[str, Any] = Depends(current_student)):
-    if not await db.jobs.find_one({"id": job_id}):
+    doc = await db.jobs.find_one({"id": job_id})
+    if not doc or not is_public(doc):
         raise HTTPException(status_code=404, detail="Job not found")
     await db.saved_jobs.update_one(
         {"student_id": user["id"], "job_id": job_id},

@@ -1,16 +1,17 @@
 import { test, expect, type Page } from "@playwright/test";
-import { verifyEmailDirectly } from "../fixtures/db";
+import { reviewLinkDirectly, verifyEmailDirectly } from "../fixtures/db";
 import { dismissToasts, waitForAppReady } from "../fixtures/helpers";
 
 /**
- * The full golden path this app exists for: an employer posts a vacancy, a student
- * applies, the employer proposes interview times, and the student picks one. This is
+ * The full golden path this app exists for: an employer posts a vacancy, a person
+ * approves it, a student applies, the employer proposes interview times, and the
+ * student picks one. This is
  * exactly what was verified by hand on staging before this spec existed — the goal
  * here is to catch a future regression automatically instead of re-doing that by hand
  * every time.
  *
- * Both accounts are registered through the real UI; only email verification is
- * shortcut (see fixtures/db.ts — no mailbox to click a link in during CI).
+ * Both accounts are registered through the real UI; only email verification and the
+ * review link are shortcut (see fixtures/db.ts — no mailbox to click a link in during CI).
  */
 
 const RUN_ID = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -70,7 +71,7 @@ test.describe.serial("hiring flow: post a vacancy, apply, schedule and confirm a
     await page.getByTestId("vacancy-description-input").fill("A vacancy created by the e2e suite.");
 
     const [createResponse] = await Promise.all([
-      page.waitForResponse((r) => r.url().includes("/api/employer/jobs") && r.request().method() === "POST"),
+      page.waitForResponse((r) => r.url().endsWith("/api/employer/jobs") && r.request().method() === "POST"),
       page.getByTestId("vacancy-submit-button").click(),
     ]);
     expect(createResponse.ok()).toBeTruthy();
@@ -78,7 +79,23 @@ test.describe.serial("hiring flow: post a vacancy, apply, schedule and confirm a
     expect(jobId).toBeTruthy();
 
     await expect(page).toHaveURL(/\/employer\/dashboard$/);
+    // A new employer's first vacancy waits for a person before it goes online.
+    await expect(page.getByTestId(`employer-vacancy-state-${jobId}`)).toHaveText("In review");
     await logout(page);
+  });
+
+  test("a person approves the first vacancy through the review link", async ({ page }) => {
+    await page.goto(`/en/jobs/${jobId}`);
+    await expect(page.getByTestId("job-not-found")).toBeVisible();
+
+    await page.goto(await reviewLinkDirectly(jobId));
+    await expect(page.getByTestId("review-reason")).toHaveText("First vacancy of this employer");
+    await expect(page.getByTestId("review-vacancy")).toContainText(JOB_TITLE);
+    await page.getByTestId("review-approve-button").click();
+    await expect(page.getByTestId("review-done")).toContainText("The vacancy is online");
+
+    await page.goto(`/en/jobs/${jobId}`);
+    await expect(page.getByTestId("job-detail-title")).toHaveText(JOB_TITLE);
   });
 
   test("student registers and applies to that vacancy", async ({ page }) => {

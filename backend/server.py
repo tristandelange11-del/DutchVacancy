@@ -116,6 +116,7 @@ from routers.seo import router as seo_router  # noqa: E402
 from routers.payments import router as payments_router  # noqa: E402
 from routers.interviews import router as interviews_router  # noqa: E402
 from routers.kb import router as kb_router  # noqa: E402
+from routers.moderation import router as moderation_router  # noqa: E402
 
 api_router.include_router(seo_router)
 api_router.include_router(kb_router)
@@ -125,6 +126,7 @@ api_router.include_router(jobs_router)
 api_router.include_router(employer_router)
 api_router.include_router(interviews_router)
 api_router.include_router(uploads_router)
+api_router.include_router(moderation_router)
 
 # Include the router in the main app
 app.include_router(api_router)

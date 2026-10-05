@@ -20,6 +20,7 @@ from lib.auth import (
 from lib.db import db
 from lib.email import send_email
 from lib.mail_text import lang_of, text
+from lib.moderation import forget_vacancies
 from lib.site import localized_path
 from lib.ratelimit import limiter
 from models.schemas import (
@@ -187,6 +188,7 @@ async def delete_account(user: dict[str, Any] = Depends(current_user)):
     if user.get("role") == "employer":
         cid = user.get("company_id")
         await db.applications.delete_many({"company_id": cid})
+        await forget_vacancies(db, await db.jobs.distinct("id", {"company_id": cid}))
         await db.jobs.delete_many({"company_id": cid})
         await db.companies.delete_many({"id": cid})
     else:
